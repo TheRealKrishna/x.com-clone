@@ -1,0 +1,1 @@
+twitter aka X.com clone made for educational purposes only!

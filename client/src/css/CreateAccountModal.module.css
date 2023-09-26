@@ -1,0 +1,83 @@
+.fade{
+    background-color: rgba(91, 112, 131, 0.4);
+}
+
+.modalDialog{
+    display: flex;
+    justify-content: center;
+}
+
+.modalBox{
+    background-color: black;
+    color: white;
+    min-width: 600px;    
+    min-height: 90vh;
+    border-radius: 20px;
+}
+
+@media screen and (max-width:800px) {
+    .modalBox{
+        min-width: 40vw;
+    }
+}
+
+@media screen and (max-width:576px) {
+    .modalBox{
+        min-height: 97vh;
+    }
+}
+
+.modalHeader{
+    display: flex;
+    justify-content: left !important;
+    padding: 10px 10px;
+}
+
+.closeButton {
+    width: 37px;    
+    height: 37px;
+    margin: 0px !important;
+    background-color: transparent;
+    border-radius: 50%;
+    border: none !important;
+}
+
+.closeButton:hover {
+   background-color: rgb(30, 30, 30);
+}
+
+.closeButtonIcon {
+    color: white;
+    margin: 0px;
+    padding: 0px;
+}
+
+.backButton {
+    width: 37px;    
+    height: 37px;
+    margin: 0px !important;
+    background-color: transparent;
+    border-radius: 50%;
+    border: none !important;
+}
+
+.backButton:hover {
+   background-color: rgb(30, 30, 30);
+}
+
+.backButtonIcon {
+    color: white;
+    margin: 0px;
+    padding: 0px;
+}
+
+
+.modalTitle {
+    margin-left: 20px;
+    font-family: 'Outfit', sans-serif;
+    margin-top: 4px;
+}
+
+.modalBody{
+    padding: 20px 80px;
+}

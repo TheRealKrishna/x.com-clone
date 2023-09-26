@@ -1,0 +1,171 @@
+.flexContainer {
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
+    height: 100vh;
+}
+
+.logoContainer {}
+
+.logo {
+    /* height: 350px;
+    width: 350px; */
+    max-width: 100%;
+    object-fit: cover;
+}
+
+.textContainer {
+    color: white;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around;
+    height: 80vh;
+    color: #E7E9EA;
+}
+
+.title {
+    color: white;
+    font-family: 'Martian Mono', monospace;
+    font-size: 60px;
+}
+
+.alignLeftContainer {
+    width: 60%;
+}
+
+.subTitle {
+    color: white;
+    font-family: 'Pridi', serif;
+    font-size: 30px;
+    margin-bottom: 40px;
+}
+
+.signUpContainer {
+    display: flex;
+    flex-direction: column;
+}
+
+.signUpWithGoogleButton {
+    min-width: 250px;
+    padding: 6px 20px;
+    margin: 10px 0px;
+    font-family: 'Nunito', sans-serif;  
+}
+
+.googleLogo {
+    margin: 0px 10px;
+}
+
+.signUpWithAppleButton {
+    min-width: 250px;
+    padding: 6px 20px;
+    margin: 10px 0px;
+    font-family: 'Nunito', sans-serif;
+}
+
+.appleLogo {
+    margin: 0px 10px;
+}
+
+.orDivider {
+    min-width: 250px;
+    display: flex;
+    font-size: 25px;
+    align-items: center;
+    font-family: 'Crete Round', serif;
+    font-size: 15px;
+    margin-bottom: 8px;
+}
+
+.orDivider::before,
+.orDivider::after {
+    flex: 1;
+    content: '';
+    padding: 1px;
+    background-color: rgb(48, 48, 48);
+    margin: 5px;
+}
+
+.createAccountButton {
+    min-width: 250px;
+    font-family: 'Fredoka', sans-serif;
+    background-color: rgb(29, 155, 240);
+}
+
+.createAccountButton:hover {
+    background-color: rgb(0, 129, 214);
+}
+
+.agreementText {
+    font-size: 10px;
+    margin: 6px;
+    color: rgb(129, 129, 129);
+}
+
+.agreementText>a {
+    text-decoration: none;
+}
+
+.loginContainer {
+    min-width: 250px;
+    display: flex;
+    flex-direction: column;
+    width: 60%;
+}
+
+.loginText {
+    font-size: 18px;
+    font-family: 'Crete Round', serif;
+}
+
+.loginButton {
+    border: 1px solid rgb(0, 129, 214);
+    color: rgb(0, 129, 214);
+    font-family: 'Fredoka', sans-serif;
+}
+
+.loginButton:hover {
+    border: 1px solid rgb(0, 129, 214);
+    color: rgb(0, 129, 214);
+    background-color: rgb(0, 16, 27);
+}
+
+
+@media screen and (max-width:745px) {
+    .flexContainer {
+        flex-direction: column;
+    }
+
+    .logoContainer {
+        width: 30%; 
+    }
+
+    .textContainer {
+        align-items: center;
+    }
+
+    .title {
+        font-size: 40px;
+    }
+
+    .subTitle {
+        font-size: 20px;
+    }
+}
+
+
+
+@media screen and (max-width:400px) {
+
+    .signUpContainer {
+        align-items:center;
+    }
+
+    .title {
+        font-size: 30px;
+    }
+
+    .subTitle {
+        font-size: 15px;
+    }
+}

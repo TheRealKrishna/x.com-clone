@@ -1,0 +1,228 @@
+
+.nameFloatingLabel {
+    padding: 7px 0px;
+    font-size: 18px;    
+    color: #6e6e6e;
+    position: absolute;
+    pointer-events: none;
+    top: 5px;
+    left: 10px;
+    transition: all 0.1s ease;
+}
+
+.nameInput:focus ~ .nameFloatingLabel,
+.nameInput:not(:valid) ~ .nameFloatingLabel, .nameInput:not(:placeholder-shown) ~ .nameFloatingLabel {
+    top: 0px;
+    font-size: 12px;
+    opacity: 1;
+}
+
+.nameInputBox{
+    position: relative;
+	margin-top: 40px;
+    border: 1px solid rgb(45, 45, 45);
+    padding-left: 10px;
+    padding-top: 25px;
+    padding-bottom: 5px;
+    border-radius: 7px;
+}
+
+.nameInput{
+    color: white;
+    background-color: black;
+    outline: none;
+    border: none;
+    width: 100%;
+}
+
+.nameInput:focus ~ .nameFloatingLabel{
+    color: rgb(29, 155, 240) !important;
+}
+
+.nameInputBox:has(.nameInput:focus){
+    border-width: 2px !important;
+    border-color: rgb(29, 155, 240) !important;
+}
+
+.error{
+    color: red;
+    margin-left: 10px;
+    font-size: 11px;
+    margin-bottom: 0px;
+}
+
+.phoneFloatingLabel {
+    padding: 7px 0px;
+    font-size: 18px;    
+    color: #6e6e6e;
+    position: absolute;
+    pointer-events: none;
+    top: 5px;
+    left: 10px;
+    transition: all 0.1s ease;
+}
+
+.phoneInput:focus ~ .phoneFloatingLabel,
+.phoneInput:not(:valid) ~ .phoneFloatingLabel, .phoneInput:not(:placeholder-shown) ~ .phoneFloatingLabel {
+    top: 0px;
+    font-size: 12px;
+    opacity: 1;
+}
+
+.phoneInputBox{
+    position: relative;
+	margin-top: 20px;
+    border: 1px solid rgb(45, 45, 45);
+    padding-left: 10px;
+    padding-top: 25px;
+    padding-bottom: 5px;
+    border-radius: 7px;
+}
+
+.phoneInput{
+    color: white;
+    background-color: black;
+    outline: none;
+    border: none;
+    width: 100%;
+}
+
+input[type=number]::-webkit-inner-spin-button, 
+input[type=number]::-webkit-outer-spin-button { 
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    margin: 0; 
+}
+
+.phoneInput:focus ~ .phoneFloatingLabel{
+    color: rgb(29, 155, 240) !important;
+}
+
+.phoneInputBox:has(.phoneInput:focus){
+    border-width: 2px !important;
+    border-color: rgb(29, 155, 240) !important;
+}
+
+.emailFloatingLabel {
+    padding: 7px 0px;
+    font-size: 18px;    
+    color: #6e6e6e;
+    position: absolute;
+    pointer-events: none;
+    top: 5px;
+    left: 10px;
+    transition: all 0.1s ease;
+}
+
+.emailInput:focus ~ .emailFloatingLabel,
+.emailInput:not(:valid) ~ .emailFloatingLabel, .emailInput:not(:placeholder-shown) ~ .emailFloatingLabel {
+    top: 0px;
+    font-size: 12px;
+    opacity: 1;
+}
+
+.emailInputBox{
+    position: relative;
+	margin-top: 20px;
+    border: 1px solid rgb(45, 45, 45);
+    padding-left: 10px;
+    padding-top: 25px;
+    padding-bottom: 5px;
+    border-radius: 7px;
+}
+
+.emailInput{
+    color: white;
+    background-color: black;
+    outline: none;
+    border: none;
+    width: 100%;
+}
+
+.emailInput:focus ~ .emailFloatingLabel{
+    color: rgb(29, 155, 240) !important;
+}
+
+.emailInputBox:has(.emailInput:focus){
+    border-width: 2px !important;
+    border-color: rgb(29, 155, 240) !important;
+}
+
+.emailSwitchContainer{
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 5px;
+}
+
+.emailSwitchButton{
+    color: rgb(29, 155, 240);
+    cursor: pointer;
+
+}
+
+.emailSwitchButton:hover{
+    text-decoration: underline;
+}
+
+
+.dateOfBirthContainer{
+    
+}
+
+.dateOfBirthText{
+    margin-bottom: 0px;
+    font-size: 16px;
+    font-family: 'Fredoka', sans-serif;
+}
+
+.dateOfBirthSubText{
+    color: rgb(113, 118, 123);
+    font-size: 14px;
+    font-family: 'Poppins', sans-serif;
+}
+
+.dobSelector{
+    display: flex;
+    justify-content: space-around;
+}
+
+.dobSelector:first-child {
+    padding-right: 20px;
+}
+
+.dobSelector > div{
+    border: 1px solid rgb(45, 45, 45);
+    border-radius: 5px;
+    padding: 5px;
+    
+}
+
+.dobSelector > div > label{
+    color: #6e6e6e;
+}
+
+.dobSelector > div > select{
+    cursor: pointer;
+    color: white;
+    outline: none;
+    background-color: transparent;
+    border: none;
+}
+
+.dobSelector > div > select > option{
+    color: white;
+    background-color: black;
+}
+
+
+
+.modalFooter{
+    display: flex;
+    justify-content: center;
+    margin-top:50px;
+}
+
+.nextButton{
+    padding: 10px 45%;
+}
