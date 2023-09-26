@@ -15,6 +15,12 @@
     border-radius: 20px;
 }
 
+@media screen and (max-width:530px){
+    .modalBody {  
+        padding: 16px !important;
+    }
+}
+
 @media screen and (max-width:800px) {
     .modalBox{
         min-width: 40vw;

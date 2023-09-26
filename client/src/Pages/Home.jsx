@@ -1,14 +1,26 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import logo from '../Images/logo.svg';
 import Styles from "../css/Home.module.css"
 import googleLogo from "../Images/googleLogo.svg";
 import appleLogo from "../Images/appleLogo.svg";
 import CreateAccountModal from '../Layout/CreateAccountModal';
 import { useNavigate } from 'react-router-dom';
+import Loader from '../Components/Loader';
 
 export default function Home() {
     const navigate = useNavigate();
+    const [loading, setLoading] = useState(true)
+
+    useEffect(()=>{
+        window.addEventListener('load', ()=>{
+            setTimeout(() => {
+                setLoading(false)
+            }, 500);
+        }
+        )
+    },[])
   return (
+    loading ? <Loader/> :
     <>
     <CreateAccountModal  Styles = {Styles}/>
     <div className='container'>

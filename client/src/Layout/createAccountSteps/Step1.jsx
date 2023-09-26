@@ -28,6 +28,7 @@ export default function Step1() {
   const {
     register,
     handleSubmit,
+    getValues,
     setValue,
     formState: { errors },
   } = useForm({
@@ -84,7 +85,8 @@ export default function Step1() {
         emailFloatingLabel.current.style.color = "#6e6e6e"
       }
     }
-    if (errors.name || errors.phone || errors.email) {
+    console.log(getValues("name").length > 0)
+    if (errors.name || errors.phone || errors.email || getValues("name").length === 0) {
       nextButton.current.disabled = true;
     }
     else {
