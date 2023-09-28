@@ -5,46 +5,61 @@ import backButtonIcon from "../Images/backButtonIcon.svg";
 import Step1 from './createAccountSteps/Step1';
 import { useLocation, useNavigate } from 'react-router-dom';
 import Spinner from '../Components/Spinner';
+import Step2 from './createAccountSteps/Step2';
+import Step3 from './createAccountSteps/Step3';
+import Step4 from './createAccountSteps/Step4';
+import Step5 from './createAccountSteps/Step5';
 
 
 export default function CreateAccountModal(props) {
     const [loading, setLoading] = useState(true)
+    const [currentMethod, setCurrentMethod] = useState("email");
     const [currentStep, setCurrentStep] = useState(1);
     const signupModal = useRef();
     const { pathname } = useLocation();
     const navigate = useNavigate();
+    const [credentials, setCredentials] = useState({name:"",phone:"",email:"",dob:undefined});
     const renderCurrentStep = () => {
         switch (currentStep) {
-            case 1:
-                return <Step1 />
+            case 1:     
+                return <Step1 currentMethod={currentMethod} setCurrentMethod={setCurrentMethod} credentials={credentials} setCredentials={setCredentials} setCurrentStep={setCurrentStep} loading={loading} setLoading={setLoading} />
             case 2:
-                return <Step1 />
+                return <Step2 setCurrentStep={setCurrentStep} />
             case 3:
-                return <Step1 />
+                return <Step3 currentMethod={currentMethod} credentials={credentials} setCurrentStep={setCurrentStep} loading={loading} setLoading={setLoading} />
             case 4:
-                return <Step1 />
+                return <Step4 currentMethod={currentMethod} setCurrentMethod={setCurrentMethod} credentials={credentials} setCredentials={setCredentials} setCurrentStep={setCurrentStep} loading={loading} setLoading={setLoading} />
             case 5:
-                return <Step1 />
-
+                return <Step5 currentMethod={currentMethod} setCurrentMethod={setCurrentMethod} credentials={credentials} setCredentials={setCredentials} setCurrentStep={setCurrentStep} loading={loading} setLoading={setLoading} />
             default:
                 break;
         }
+    }
+
+    const createAccount = async()=>{
+        console.log(credentials)
     }
 
     useEffect(() => {
         if (currentStep < 1) {
             setCurrentStep(1) // this won't let current step go below 1;
         }
-
         if (pathname === "/i/flow/signup") {
             document.getElementsByClassName(props.Styles.createAccountButton)[0].click();
         }
-        setLoading(true)
+
+        if(currentStep > 5){
+            createAccount();
+        }
+        
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [currentStep, pathname])
+
+    useEffect(()=>{
         setTimeout(() => {
             setLoading(false)
         }, 500);
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [currentStep, pathname])
+    },[])
 
 
     useEffect(() => {
@@ -55,10 +70,6 @@ export default function CreateAccountModal(props) {
             document.title = "X. It's what's happening / X"
         })
     }, [])
-
-    useEffect(()=>{
-        
-    },[currentStep])
 
     return (
         <div>

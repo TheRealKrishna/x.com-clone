@@ -193,11 +193,10 @@ input[type=number]::-webkit-outer-spin-button {
     border-radius: 5px;
     padding: 5px;
     margin: 5px;
-    
 }
 
-.dobSelector:first-child div {
-    padding-right: 200px;
+.dobSelector > div:nth-child(1) {
+    flex:3
 }
 
 .dobSelector > div > label{
@@ -212,8 +211,22 @@ input[type=number]::-webkit-outer-spin-button {
     border: none;
 }
 
+.dobSelector > div:has(select:focus) {
+    border-width: 2px !important;
+    border-color: rgb(29, 155, 240) !important; 
+}
+
+.dobSelector > div:has(select:focus) > label{
+    color: rgb(29, 155, 240) !important;
+}
+
 .dobSelector > div > select > option{
     color: white;
+    background-color: black;
+}
+
+.dobSelector > div > select > option:disabled{
+    color: black;
     background-color: black;
 }
 

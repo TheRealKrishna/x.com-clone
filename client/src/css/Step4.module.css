@@ -1,0 +1,129 @@
+.subTitle {
+    font-size: 15px;
+    margin: 8px 0px;
+    margin-bottom: 25px;
+    color: rgb(129, 129, 129);
+}
+
+
+.codeFloatingLabel {
+    padding: 7px 0px;
+    font-size: 18px;    
+    color: #6e6e6e;
+    position: absolute;
+    pointer-events: none;
+    top: 5px;
+    left: 10px;
+    transition: all 0.1s ease;
+}
+
+.codeInput:focus ~ .codeFloatingLabel,
+.codeInput:not(:valid) ~ .codeFloatingLabel, .codeInput:not(:placeholder-shown) ~ .codeFloatingLabel {
+    top: 0px;
+    font-size: 12px;
+    opacity: 1;
+}
+
+.codeInputBox{
+    position: relative;
+	margin-top: 20px;
+    border: 1px solid rgb(45, 45, 45);
+    padding-left: 10px;
+    padding-top: 25px;
+    padding-bottom: 5px;
+    border-radius: 7px;
+}
+
+.codeInput{
+    color: white;
+    background-color: black;
+    outline: none;
+    border: none;
+    width: 100%;
+}
+
+input[type=number]::-webkit-inner-spin-button, 
+input[type=number]::-webkit-outer-spin-button { 
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    margin: 0; 
+}
+
+.codeInput:focus ~ .codeFloatingLabel{
+    color: rgb(29, 155, 240) !important;
+}
+
+.codeInputBox:has(.codeInput:focus){
+    border-width: 2px !important;
+    border-color: rgb(29, 155, 240) !important;
+}
+
+
+.error{
+    color: red;
+    margin-left: 10px;
+    font-size: 11px;
+    margin-bottom: 0px;
+}
+
+.didntReceiveContainer{
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 5px;
+}
+
+.didntReceiveButton{
+    color: rgb(29, 155, 240);
+    cursor: pointer;
+
+}
+
+.didntReceiveButton:hover{
+    text-decoration: underline;
+}
+
+.didntReceiveBox{
+    position: absolute;
+    top: -56px;
+    right: 0;
+    margin: 0px;
+    background-color: black;
+    box-shadow: rgba(255, 255, 255, 0.2) 0px 0px 15px, rgba(255, 255, 255, 0.15) 0px 0px 3px 1px;
+    border-radius: 15px;
+}
+
+.didntReceiveBoxOption,.didntReceiveBoxHeading {
+    text-decoration: none;
+    list-style: none;
+    background-color: transparent;
+    color: white;
+    padding: 10px 15px;
+    cursor:default;
+}
+
+.didntReceiveBoxOption:hover{
+    background-color: rgb(22, 24, 28);
+    color: white;
+    cursor: pointer;
+}
+
+.didntReceiveBoxOption:nth-child(3):hover {
+    background-color: rgb(22, 24, 28);
+    color: white;
+    cursor: pointer;
+    border-bottom-left-radius: 15px;
+    border-bottom-right-radius: 15px;
+}
+
+
+
+.modalFooter{
+    display: flex;
+    justify-content: center;
+    margin-top:50px;
+}
+
+.nextButton{
+    padding: 10px 45%;
+}

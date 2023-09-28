@@ -1,14 +1,13 @@
 import React, { useEffect, useRef, useState } from 'react'
-import Styles from "../../css/CreateAccountSteps.module.css"
+import Styles from "../../css/Step1.module.css"
 import { useForm } from 'react-hook-form';
 import { yupResolver } from "@hookform/resolvers/yup"
 import * as yup from "yup"
 import { SelectDatepicker } from 'react-select-datepicker';
 
-export default function Step1() {
-  const [currentMethod, setCurrentMethod] = useState("phone");
+export default function Step1(props) {
   const [currentDate, setCurrentDate] = useState(new Date());
-  const [dob, setDob] = useState(new Date())
+  const [dob, setDob] = useState()
   const nameInputBox = useRef();
   const nameInput = useRef();
   const nameFloatingLabel = useRef();
@@ -21,40 +20,38 @@ export default function Step1() {
   const nextButton = useRef();
   const [schema, setSchema] = useState(yup
     .object({
-      name: yup.string().required("What’s your name?")
+      name: yup.string().required("What’s your name?"),
     }).required())
-
-
   const {
     register,
     handleSubmit,
     getValues,
     setValue,
+    watch,
     formState: { errors },
   } = useForm({
     resolver: yupResolver(schema), mode: "onChange"
   });
+  const watchAllFields = watch();
 
   const handleNextButton = async (data, e) => {
+    props.setLoading(true)
     e.preventDefault();
-    console.log(data)
-  }
-
-  const handleNameChange = async (e) => {
-
-  }
-
-  const handlePhoneChange = async (e) => {
-
-  }
-
-  const handleEmailChange = async (e) => {
-
+    props.setCredentials({ ...data, dob: new Date(dob) })
+    props.setCurrentStep(prev => prev + 1);
+    props.setLoading(false)
   }
 
   const onDobChange = (Date) => {
     setDob(Date)
   }
+
+  useEffect(() => {
+    setValue("name", props.credentials.name)
+    setValue("phone", props.credentials.phone)
+    setValue("email", props.credentials.email)
+    setDob(props.credentials.dob)
+  }, [])
 
   useEffect(() => {
     if (errors.name?.message?.length > 0) {
@@ -65,7 +62,7 @@ export default function Step1() {
       nameInputBox.current.style.border = "1px solid rgb(45, 45, 45)";
       nameFloatingLabel.current.style.color = "#6e6e6e";
     }
-    if (currentMethod === "phone") {
+    if (props.currentMethod === "phone") {
       if (errors.phone?.message?.length > 0) {
         phoneInputBox.current.style.setProperty('border-color', 'red', 'important');
         phoneFloatingLabel.current.style.setProperty('color', 'red', 'important');
@@ -75,7 +72,7 @@ export default function Step1() {
         phoneFloatingLabel.current.style.color = "#6e6e6e"
       }
     }
-    else if (currentMethod === "email") {
+    else if (props.currentMethod === "email") {
       if (errors.email?.message?.length > 0) {
         emailInputBox.current.style.setProperty('border-color', 'red', 'important');
         emailFloatingLabel.current.style.setProperty('color', 'red', 'important');
@@ -85,17 +82,21 @@ export default function Step1() {
         emailFloatingLabel.current.style.color = "#6e6e6e"
       }
     }
-    console.log(getValues("name").length > 0)
-    if (errors.name || errors.phone || errors.email || getValues("name").length === 0) {
+    if (getValues("name").length === 0 || (getValues("phone").length===0 && getValues("email").length === 0) || !dob) {
       nextButton.current.disabled = true;
     }
     else {
-      nextButton.current.disabled = false;
+      if (errors.name || errors.phone || errors.email) {
+        nextButton.current.disabled = true;
+      }
+      else {
+        nextButton.current.disabled = false;
+      }
     }
-  }, [errors.name, errors.phone, errors.email, currentMethod])
+  }, [errors.name, errors.phone, errors.email, dob, props.currentMethod, watchAllFields, getValues])
 
   useEffect(() => {
-    if (currentMethod === "phone") {
+    if (props.currentMethod === "phone") {
       setSchema(yup
         .object({
           name: yup.string().required("What’s your name?"),
@@ -103,51 +104,57 @@ export default function Step1() {
         }).required())
     }
 
-    else if (currentMethod === "email") {
+    else if (props.currentMethod === "email") {
       setSchema(yup
         .object({
           name: yup.string().required("What’s your name?"),
           email: yup.string().required("Email is required!").email("Invalid email!").nonNullable("Phone number is required!").typeError("email is required!"),
         }).required())
     }
-  }, [currentMethod])
+  }, [props.currentMethod])
 
   const switchAuthType = () => {
-    if (currentMethod === "phone") {
-      setValue("phone", "")
-      delete errors.phone
-      setCurrentMethod(prev => "email")
+    setValue("phone", "")
+    delete errors.phone
+    setValue("email", "")
+    delete errors.email
+    if (props.currentMethod === "phone") {
+      props.setCurrentMethod(prev => "email")
     }
-    else if (currentMethod === "email") {
-      setValue("email", "")
-      delete errors.email
-      setCurrentMethod(prev => "phone")
+    else if (props.currentMethod === "email") {
+      props.setCurrentMethod(prev => "phone")
     }
   }
 
+  useEffect(()=>{
+    setTimeout(() => {
+      props.setLoading(false)
+  }, 500);
+  },[])
+
   return (
-      <form onSubmit={handleSubmit(handleNextButton)} style={{height:"100%"}} className='d-flex flex-column justify-content-between'>
+    <form onSubmit={handleSubmit(handleNextButton)} style={{ height: "100%" }} className='d-flex flex-column justify-content-between'>
       <div>
-      <h3>Create Your Account</h3>
+        <h2>Create Your Account</h2>
         <div ref={nameInputBox} className={Styles.nameInputBox}>
-          <input className={Styles.nameInput} ref={nameInput} placeholder=" " name='name' type="text" {...register('name', { onChange: handleNameChange })} />
+          <input className={Styles.nameInput} ref={nameInput} placeholder=" " name='name' type="text" {...register('name')} />
           <label ref={nameFloatingLabel} className={`${Styles.floatingLabel} ${Styles.nameFloatingLabel}`}>Name</label>
         </div>
         <p className={Styles.error}>{errors.name && errors.name?.message}</p>
         {
-          currentMethod === "phone" ?
+          props.currentMethod === "phone" ?
             <>
               <div ref={phoneInputBox} className={Styles.phoneInputBox}>
-                <input ref={phoneInput} className={Styles.phoneInput} placeholder=" " name='phone' type="number" {...register('phone', { onChange: handlePhoneChange })} />
+                <input ref={phoneInput} className={Styles.phoneInput} placeholder=" " name='phone' type="number" {...register('phone')} />
                 <label ref={phoneFloatingLabel} className={`${Styles.floatingLabel} ${Styles.phoneFloatingLabel}`}>Phone</label>
               </div>
               <p className={Styles.error}>{errors.phone && errors.phone?.message}</p>
             </>
             :
-            currentMethod === "email" ?
+            props.currentMethod === "email" ?
               <>
                 <div ref={emailInputBox} className={Styles.emailInputBox}>
-                  <input ref={emailInput} className={Styles.emailInput} placeholder=" " name='email' type="email" {...register('email', { onChange: handleEmailChange })} />
+                  <input ref={emailInput} className={Styles.emailInput} placeholder=" " name='email' type="email" {...register('email')} />
                   <label ref={emailFloatingLabel} className={`${Styles.floatingLabel} ${Styles.emailFloatingLabel}`}>Email</label>
                 </div>
                 <p className={Styles.error}>{errors.email && errors.email?.message}</p>
@@ -156,7 +163,7 @@ export default function Step1() {
               null
         }
         <div className={Styles.emailSwitchContainer}>
-          <p onClick={switchAuthType} className={Styles.emailSwitchButton}>Use {currentMethod === "phone" ? "email" : "phone"} instead</p>
+          <p onClick={switchAuthType} className={Styles.emailSwitchButton}>Use {props.currentMethod === "phone" ? "email" : "phone"} instead</p>
         </div>
 
         <div className={Styles.dateOfBirthContainer}>
@@ -168,15 +175,16 @@ export default function Step1() {
               className={Styles.dobSelector}
               selectedDate={dob}
               onDateChange={onDobChange}
-              minDate={(new Date(currentDate.getFullYear() - 120,currentDate.getMonth(),currentDate.getDate()))}
-              maxDate={(new Date(currentDate.getFullYear() - 13,currentDate.getMonth(),currentDate.getDate()))}
+              minDate={(new Date(currentDate.getFullYear() - 120, currentDate.getMonth(), currentDate.getDate()))}
+              maxDate={(new Date(currentDate.getFullYear() - 13, currentDate.getMonth(), currentDate.getDate()))}
+              name="date"
             />
           }
         </div>
-        </div>
-        <div className={`${Styles.modalFooter}`}>
-          <button ref={nextButton} type="submit" disabled className={`btn btn-light rounded-pill ${Styles.nextButton}`}>Next</button>
-        </div>
-      </form> 
+      </div>
+      <div className={`${Styles.modalFooter}`}>
+        <button ref={nextButton} type="submit" className={`btn btn-light rounded-pill ${Styles.nextButton}`}>Next</button>
+      </div>
+    </form>
   )
 }

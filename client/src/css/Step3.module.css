@@ -1,0 +1,235 @@
+
+.nameFloatingLabel {
+    padding: 7px 0px;
+    font-size: 18px;    
+    color: #6e6e6e;
+    position: absolute;
+    pointer-events: none;
+    top: 5px;
+    left: 10px;
+    transition: all 0.1s ease;
+    top: 0px;
+    font-size: 12px;
+    opacity: 1;
+}
+
+.nameInputBox{
+    position: relative;
+	margin-top: 40px;
+    border: 1px solid rgb(45, 45, 45);
+    padding-left: 10px;
+    padding-top: 25px;
+    padding-bottom: 5px;
+    border-radius: 7px;
+}
+
+.nameInput{
+    color: white;
+    background-color: black;
+    outline: none;
+    border: none;
+    width: 100%;
+}
+
+.nameInput:focus ~ .nameFloatingLabel{
+    color: rgb(29, 155, 240) !important;
+}
+
+.nameInputBox:has(.nameInput:focus){
+    border-width: 2px !important;
+    border-color: rgb(29, 155, 240) !important;
+}
+
+.phoneFloatingLabel {
+    padding: 7px 0px;
+    font-size: 18px;    
+    color: #6e6e6e;
+    position: absolute;
+    pointer-events: none;
+    top: 5px;
+    left: 10px;
+    transition: all 0.1s ease;
+    top: 0px;
+    font-size: 12px;
+    opacity: 1;
+}
+
+.phoneInputBox{
+    position: relative;
+	margin-top: 20px;
+    border: 1px solid rgb(45, 45, 45);
+    padding-left: 10px;
+    padding-top: 25px;
+    padding-bottom: 5px;
+    border-radius: 7px;
+}
+
+.phoneInput{
+    color: white;
+    background-color: black;
+    outline: none;
+    border: none;
+    width: 100%;
+}
+
+input[type=number]::-webkit-inner-spin-button, 
+input[type=number]::-webkit-outer-spin-button { 
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    margin: 0; 
+}
+
+.phoneInput:focus ~ .phoneFloatingLabel{
+    color: rgb(29, 155, 240) !important;
+}
+
+.phoneInputBox:has(.phoneInput:focus){
+    border-width: 2px !important;
+    border-color: rgb(29, 155, 240) !important;
+}
+
+.emailFloatingLabel {
+    padding: 7px 0px;
+    font-size: 18px;    
+    color: #6e6e6e;
+    position: absolute;
+    pointer-events: none;
+    top: 5px;
+    left: 10px;
+    transition: all 0.1s ease;
+    top: 0px;
+    font-size: 12px;
+    opacity: 1;
+}
+
+.emailInputBox{
+    position: relative;
+	margin-top: 20px;
+    border: 1px solid rgb(45, 45, 45);
+    padding-left: 10px;
+    padding-top: 25px;
+    padding-bottom: 5px;
+    border-radius: 7px;
+}
+
+.emailInput{
+    color: white;
+    background-color: black;
+    outline: none;
+    border: none;
+    width: 100%;
+}
+
+.emailInput:focus ~ .emailFloatingLabel{
+    color: rgb(29, 155, 240) !important;
+}
+
+.emailInputBox:has(.emailInput:focus){
+    border-width: 2px !important;
+    border-color: rgb(29, 155, 240) !important;
+}
+
+.emailSwitchContainer{
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 5px;
+}
+
+.emailSwitchButton{
+    color: rgb(29, 155, 240);
+    cursor: pointer;
+
+}
+
+.emailSwitchButton:hover{
+    text-decoration: underline;
+}
+
+.dobFloatingLabel {
+    padding: 7px 0px;
+    font-size: 18px;    
+    color: #6e6e6e;
+    position: absolute;
+    pointer-events: none;
+    top: 5px;
+    left: 10px;
+    transition: all 0.1s ease;
+    top: 0px;
+    font-size: 12px;
+    opacity: 1;
+}
+
+.dobInputBox{
+    position: relative;
+	margin-top: 20px;
+    border: 1px solid rgb(45, 45, 45);
+    padding-left: 10px;
+    padding-top: 25px;
+    padding-bottom: 5px;
+    border-radius: 7px;
+}
+
+.dobInput{
+    color: white;
+    background-color: black;
+    outline: none;
+    border: none;
+    width: 100%;
+}
+
+.dobInput:focus ~ .dobFloatingLabel{
+    color: rgb(29, 155, 240) !important;
+}
+
+.dobInputBox:has(.dobInput:focus){
+    border-width: 2px !important;
+    border-color: rgb(29, 155, 240) !important;
+}
+
+.dobSwitchContainer{
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 5px;
+}
+
+.dobSwitchButton{
+    color: rgb(29, 155, 240);
+    cursor: pointer;
+
+}
+
+.dobSwitchButton:hover{
+    text-decoration: underline;
+}
+
+.checkMark{
+    width: 17px;
+    height: 17px;
+    margin-right: 10px;
+}
+
+
+.agreementText {
+    font-size: 12px;
+    margin: 6px;
+    color: rgb(129, 129, 129);
+}
+
+.agreementText>a {
+    text-decoration: none;
+    color: rgb(29, 155, 240);
+}
+
+
+.modalFooter{
+    display: flex;
+    justify-content: center;
+    margin-top:50px;
+}
+
+.nextButton{
+    color: white;
+    background-color: rgb(29, 155, 240);
+    padding: 10px 40%;
+}
