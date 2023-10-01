@@ -19,5 +19,5 @@ app.use("/api/auth", require("./api/auth.js"))
 
 // server run
 server.listen(80, () => {
-  console.log(`Server Runinng on: http://localhost:5000`)
+  console.log(`Server Runinng on: http://localhost`)
 })
