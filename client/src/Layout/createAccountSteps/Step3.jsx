@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react'
-import Styles from "../../css/Step3.module.css"
+import Styles from "../../css/CreateAccountSteps/Step3.module.css"
 import checkMark from "../../Images/CheckMark.svg"
 
 export default function Step1(props) {
@@ -12,8 +12,10 @@ export default function Step1(props) {
   const handleNextButton = async (e) => {
     props.setLoading(true)
     e.preventDefault();
-    //send otp with api
-    props.setCurrentStep(prev => prev + 1);
+    // send otp
+    // props.setCurrentStep(prev => prev + 1);
+    props.setCurrentStep(prev => 5); //send otp skipped
+
     props.setLoading(false)
   }
 

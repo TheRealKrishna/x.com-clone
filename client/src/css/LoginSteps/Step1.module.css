@@ -1,0 +1,179 @@
+.formContainer{
+    padding: 10px 70px;
+    white-space: nowrap;
+}
+
+.headingTitle{
+    margin-bottom: 20px;
+}
+
+.nameFloatingLabel {
+    padding: 7px 0px;
+    font-size: 17px;    
+    color: #6e6e6e;
+    position: absolute;
+    pointer-events: none;
+    top: 5px;
+    left: 10px;
+    transition: all 0.1s ease;
+}
+
+.nameInput:focus ~ .nameFloatingLabel,
+.nameInput:not(:valid) ~ .nameFloatingLabel, .nameInput:not(:placeholder-shown) ~ .nameFloatingLabel {
+    top: 0px;
+    font-size: 12px;
+    opacity: 1;
+}
+
+.nameInputBox{
+    position: relative;
+    border: 1px solid rgb(45, 45, 45);
+    padding-left: 10px;
+    padding-top: 25px;
+    padding-bottom: 5px;
+    border-radius: 7px;
+    min-width: 300px;
+    overflow: hidden;
+}
+
+.nameInput{
+    color: white;
+    background-color: black;
+    outline: none;
+    border: none;
+    width: 100%;
+}
+
+.nameInput:focus ~ .nameFloatingLabel{
+    color: rgb(29, 155, 240) !important;
+}
+
+.nameInputBox:has(.nameInput:focus){
+    border-width: 2px !important;
+    border-color: rgb(29, 155, 240) !important;
+}
+
+.error{
+    color: red;
+    margin-left: 10px;
+    font-size: 11px;
+    margin-bottom: 0px;
+}
+
+.signUpWithGoogleButton {
+    min-width: 300px;
+    padding: 6px 20px;
+    margin: 10px 0px;
+    font-family: 'Nunito', sans-serif;  
+}
+
+.googleLogo {
+    margin: 0px 10px;
+}
+
+
+.signUpWithAppleButton {
+    min-width: 300px;
+    padding: 6px 20px;
+    margin: 10px 0px;
+    font-family: 'Nunito', sans-serif;
+}
+
+.appleLogo {
+    margin: 0px 10px;
+}
+
+.orDivider {
+    min-width: 300px;
+    display: flex;
+    font-size: 25px;
+    align-items: center;
+    font-family: 'Crete Round', serif;
+    font-size: 15px;
+    margin-bottom: 8px;
+}
+
+.orDivider::before,
+.orDivider::after {
+    flex: 1;
+    content: '';
+    padding: .5pt;
+    background-color: rgb(48, 48, 48);
+    margin: 5px;
+}
+
+
+
+
+
+
+
+
+.modalFooter{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin:20px;
+}
+
+.nextButton{
+    min-width: 300px;
+    padding: 5px 45%;
+    margin: 10px 0px;
+}
+
+.forgotButton {
+    border: 1px solid rgb(83, 100, 113);
+    color: white;
+    font-family: 'Fredoka', sans-serif;
+    min-width: 300px;
+    margin: 10px 0px;
+}
+
+.forgotButton:hover {
+    border: 1px solid rgb(83, 100, 113);
+    color: white;
+    background-color: rgb(0, 16, 27);
+}
+
+.dontHaveAccountText{
+    margin-top: 40px !important;
+    font-size: 15px;
+    margin: 6px 0px;
+    color: rgb(129, 129, 129);
+}
+
+.dontHaveAccountText > a {
+    text-decoration: none;
+    color: rgb(29, 155, 240);
+}
+
+
+
+
+
+@media screen and (max-width:340px) {
+    .signUpWithGoogleButton{
+        min-width: 85vw;
+    }
+    
+    .signUpWithAppleButton{
+        min-width: 85vw;
+    }
+    .nameInputBox{
+        min-width: 85vw;
+    }
+    .orDivider{
+        min-width: 85vw;
+    }
+    .nextButton{
+        min-width: 85vw;
+    }
+    .forgotButton{
+        min-width: 85vw;
+    }
+    .dontHaveAccountText, .headingTitle {
+        display: flex;
+        justify-content: center;
+    }
+}

@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react'
-import Styles from "../../css/Step1.module.css"
+import Styles from "../../css/CreateAccountSteps/Step1.module.css"
 import { useForm } from 'react-hook-form';
 import { yupResolver } from "@hookform/resolvers/yup"
 import * as yup from "yup"
@@ -18,6 +18,7 @@ export default function Step1(props) {
   const emailInput = useRef();
   const emailFloatingLabel = useRef();
   const nextButton = useRef();
+  const [apiCalling, setApiCalling] = useState(false)
   const [schema, setSchema] = useState(yup
     .object({
       name: yup.string().required("What’s your name?"),
@@ -25,6 +26,7 @@ export default function Step1(props) {
   const {
     register,
     handleSubmit,
+    setError,
     getValues,
     setValue,
     watch,
@@ -37,13 +39,54 @@ export default function Step1(props) {
   const handleNextButton = async (data, e) => {
     props.setLoading(true)
     e.preventDefault();
-    props.setCredentials({ ...data, dob: new Date(dob) })
-    props.setCurrentStep(prev => prev + 1);
+    if (!(errors.name || errors.phone || errors.email)  ) {
+      props.setCredentials({ ...data, dob: new Date(dob) })
+      props.setCurrentStep(prev => prev + 1);
+    }
     props.setLoading(false)
   }
 
+  const onEmailChange = async (e) => {
+    setApiCalling(true)
+    const response = await fetch(`${process.env.REACT_APP_API_URL}/api/auth/emailvalidate`, {
+      method: "post",
+      body: JSON.stringify({ email: e.target.value }),
+      headers: {
+        "Content-Type": "application/json"
+      }
+    })
+    const json = await response.json();
+    if (!json.success) {
+      setError('email', { type: "custom", message: json.error }, { shouldFocus: false });
+    }
+    setApiCalling(false)
+  }
+
+  const onPhoneChange = async (e) => {
+    setApiCalling(true)
+    const response = await fetch(`${process.env.REACT_APP_API_URL}/api/auth/phonevalidate`, {
+      method: "post",
+      body: JSON.stringify({ phone: e.target.value, country:(await getUserInfo()).country }),
+      headers: {
+        "Content-Type": "application/json"
+      }
+    })
+    const json = await response.json();
+    if (!json.success) {
+      setError('phone', { type: "custom", message: json.error }, { shouldFocus: false });
+    }
+    setApiCalling(false)
+  }
+
+
   const onDobChange = (Date) => {
     setDob(Date)
+  }
+
+  const getUserInfo = async () => {
+    const response = await fetch("https://ipapi.co/json/");
+    const json = await response.json()
+    return json
   }
 
   useEffect(() => {
@@ -63,6 +106,7 @@ export default function Step1(props) {
       nameFloatingLabel.current.style.color = "#6e6e6e";
     }
     if (props.currentMethod === "phone") {
+      delete errors.email
       if (errors.phone?.message?.length > 0) {
         phoneInputBox.current.style.setProperty('border-color', 'red', 'important');
         phoneFloatingLabel.current.style.setProperty('color', 'red', 'important');
@@ -73,6 +117,7 @@ export default function Step1(props) {
       }
     }
     else if (props.currentMethod === "email") {
+      delete errors.phone
       if (errors.email?.message?.length > 0) {
         emailInputBox.current.style.setProperty('border-color', 'red', 'important');
         emailFloatingLabel.current.style.setProperty('color', 'red', 'important');
@@ -82,7 +127,7 @@ export default function Step1(props) {
         emailFloatingLabel.current.style.color = "#6e6e6e"
       }
     }
-    if (getValues("name").length === 0 || (getValues("phone").length===0 && getValues("email").length === 0) || !dob) {
+    if (getValues("name").length === 0 || (getValues("phone").length === 0 && getValues("email").length === 0) || !dob) {
       nextButton.current.disabled = true;
     }
     else {
@@ -93,14 +138,17 @@ export default function Step1(props) {
         nextButton.current.disabled = false;
       }
     }
-  }, [errors.name, errors.phone, errors.email, dob, props.currentMethod, watchAllFields, getValues])
+    if(apiCalling){
+      nextButton.current.disabled = true;
+    }
+  }, [errors.name, errors.phone, errors.email, dob, props.currentMethod, watchAllFields, getValues, apiCalling])
 
   useEffect(() => {
     if (props.currentMethod === "phone") {
       setSchema(yup
         .object({
           name: yup.string().required("What’s your name?"),
-          phone: yup.number("Phone number is required!").positive("Phone number can only have numbers!").integer("Phone number can only have numbers!").min(1000000000, "Please enter a valid phone number!").max(9999999999, "Please enter a valid phone number!").nonNullable("Phone number is required!").typeError("Phone number is required!"),
+          phone: yup.number("Phone number is required!").required("Phone number is required!").nonNullable("Phone number is required!").typeError("Phone number is required!"),
         }).required())
     }
 
@@ -108,29 +156,29 @@ export default function Step1(props) {
       setSchema(yup
         .object({
           name: yup.string().required("What’s your name?"),
-          email: yup.string().required("Email is required!").email("Invalid email!").nonNullable("Phone number is required!").typeError("email is required!"),
+          email: yup.string().required("Email is required!").email("Invalid email address!").nonNullable("Phone number is required!").typeError("Email is required!"),
         }).required())
     }
   }, [props.currentMethod])
 
   const switchAuthType = () => {
-    setValue("phone", "")
-    delete errors.phone
-    setValue("email", "")
-    delete errors.email
     if (props.currentMethod === "phone") {
       props.setCurrentMethod(prev => "email")
     }
     else if (props.currentMethod === "email") {
       props.setCurrentMethod(prev => "phone")
     }
+    delete errors.phone
+    delete errors.email
+    setValue("phone", "")
+    setValue("email", "")
   }
 
-  useEffect(()=>{
+  useEffect(() => {
     setTimeout(() => {
       props.setLoading(false)
-  }, 500);
-  },[])
+    }, 500);
+  }, [])
 
   return (
     <form onSubmit={handleSubmit(handleNextButton)} style={{ height: "100%" }} className='d-flex flex-column justify-content-between'>
@@ -142,10 +190,10 @@ export default function Step1(props) {
         </div>
         <p className={Styles.error}>{errors.name && errors.name?.message}</p>
         {
-          props.currentMethod === "phone" ?
+          props.currentMethod === "phone" ? 
             <>
               <div ref={phoneInputBox} className={Styles.phoneInputBox}>
-                <input ref={phoneInput} className={Styles.phoneInput} placeholder=" " name='phone' type="number" {...register('phone')} />
+                <input ref={phoneInput} className={Styles.phoneInput} placeholder=" " name='phone' type="number" {...register('phone', { onBlur: onPhoneChange })} />
                 <label ref={phoneFloatingLabel} className={`${Styles.floatingLabel} ${Styles.phoneFloatingLabel}`}>Phone</label>
               </div>
               <p className={Styles.error}>{errors.phone && errors.phone?.message}</p>
@@ -154,7 +202,7 @@ export default function Step1(props) {
             props.currentMethod === "email" ?
               <>
                 <div ref={emailInputBox} className={Styles.emailInputBox}>
-                  <input ref={emailInput} className={Styles.emailInput} placeholder=" " name='email' type="email" {...register('email')} />
+                  <input ref={emailInput} className={Styles.emailInput} placeholder=" " name='email' type="email" {...register('email', { onBlur: onEmailChange })} />
                   <label ref={emailFloatingLabel} className={`${Styles.floatingLabel} ${Styles.emailFloatingLabel}`}>Email</label>
                 </div>
                 <p className={Styles.error}>{errors.email && errors.email?.message}</p>

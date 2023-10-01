@@ -1,5 +1,5 @@
 import React from 'react'
-import Styles from "../../css/Step2.module.css"
+import Styles from "../../css/CreateAccountSteps/Step2.module.css"
 
 export default function Step2(props) {
 

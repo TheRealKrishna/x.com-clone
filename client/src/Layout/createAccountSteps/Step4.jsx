@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react'
-import Styles from "../../css/Step4.module.css"
+import Styles from "../../css/CreateAccountSteps/Step4.module.css"
 import { useForm } from 'react-hook-form';
 import { yupResolver } from "@hookform/resolvers/yup"
 import * as yup from "yup"

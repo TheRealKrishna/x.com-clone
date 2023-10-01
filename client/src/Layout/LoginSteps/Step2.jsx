@@ -1,8 +1,9 @@
 import React, { useEffect, useRef, useState } from 'react'
-import Styles from "../../css/CreateAccountSteps/Step5.module.css"
+import Styles from "../../css/LoginSteps/Step2.module.css"
 import { useForm } from 'react-hook-form';
 import { yupResolver } from "@hookform/resolvers/yup"
 import * as yup from "yup"
+import { Link } from 'react-router-dom';
 
 
 export default function Step5(props) {
@@ -15,7 +16,6 @@ export default function Step5(props) {
     .object({
       password: yup.string()
       .required("Please enter a password")
-      .min(8, "Password must have at least 8 characters")
     }).required())
 
   const {
@@ -33,7 +33,7 @@ export default function Step5(props) {
     props.setLoading(true)
     e.preventDefault();
     props.setCredentials(prev=>{ return {...prev, password:data.password}})
-    props.setCurrentStep(6)
+    props.setCurrentStep(prev=>prev+1);
   }
 
   const tooglePasswordShow = ()=>{
@@ -65,11 +65,16 @@ export default function Step5(props) {
   return (
     <form onSubmit={handleSubmit(handleNextButton)} style={{ height: "100%" }} className='d-flex flex-column justify-content-between'>
       <div>
-        <h2>You'll need a password</h2>
-        <h4 className={Styles.subTitle}>Make sure its 8 characters or more {props.currentMethod === "phone" ? props.credentials.phone : props.credentials.email}</h4>
+        <h2 style={{marginBottom:"30px"}}>Enter your password</h2>
+
+        <div className={Styles.nameInputBox}>
+        <input autoComplete='off' disabled value={props.credentials.name} className={Styles.nameInput} placeholder=" " name="name" type='text' />
+        <label className={`${Styles.floatingLabel} ${Styles.nameFloatingLabel}`}>{props.credentials.method}</label>
+        </div>
+
         <div ref={passwordInputBox} className={Styles.passwordInputBox}>
         <div className="d-flex">
-          <input autoComplete='off' ref={passwordInput} className={Styles.passwordInput} placeholder=" " name="password" type={passwordShow ? "text" : "password"} {...register('password')} />
+          <input ref={passwordInput} className={Styles.passwordInput} placeholder=" " name="password" type={passwordShow ? "text" : "password"} {...register('password')} />
           {
             passwordShow ? 
             <i className={`fa-regular fa-eye-slash ${Styles.eyeIcon}`} onClick={tooglePasswordShow}></i>
@@ -77,13 +82,15 @@ export default function Step5(props) {
             <i className={`fa-regular fa-eye ${Styles.eyeIcon}`} onClick={tooglePasswordShow}></i>
           }
         </div>
-          <label ref={passwordFloatingLabel} className={`${Styles.floatingLabel} ${Styles.passwordFloatingLabel}`}>Verification password</label>
+          <label ref={passwordFloatingLabel} className={`${Styles.floatingLabel} ${Styles.passwordFloatingLabel}`}>Password</label>
         </div>
         <p className={Styles.error}>{errors.password && errors.password?.message}</p>
+        <Link to={"/i/flow/password_reset"} className={Styles.forgotPasswordLink}>Forgot password?</Link>
       </div>
 
       <div className={`${Styles.modalFooter}`}>
-        <button ref={nextButton} type="submit" className={`btn btn-light rounded-pill ${Styles.nextButton}`}>Next</button>
+        <button ref={nextButton} type="submit" className={`btn btn-light rounded-pill ${Styles.nextButton}`}>Log&nbsp;in</button>
+        <p className={Styles.dontHaveAccountText}>Don’t have an account?<Link to={"/i/flow/signup"}>&nbsp;Sign up</Link></p>
       </div>
     </form>
   )
