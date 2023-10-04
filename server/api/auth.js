@@ -10,6 +10,7 @@ const Joi = require("@hapi/joi");
 const customJoi = Joi.extend(require("joi-age"));
 const ageSchema = customJoi.date().minAge(13);
 const { generateFromEmail } = require("unique-username-generator");
+const getUser = require("../middleware/getUser.js")
 
 // check if username, email/phone and dob is correct
 
@@ -197,6 +198,9 @@ app.post("/loginvalidate", async (req, res) => {
 
 app.post("/login", body('password').isLength({ min: 8 }), async (req, res) => {
     try {
+        if (!errors.isEmpty() && errors.errors[0].path === 'password') {
+            return res.status(400).json({ success: false, error: 'Wrong password!' })
+        }
         let user = undefined;
         const usernameCheck = await User.findOne({ username: req.body.name })
         user = usernameCheck;
@@ -254,6 +258,21 @@ app.post("/loginwithgoogle", async (req, res) => {
         }
         const token = jwt.sign({ _id: user._id }, process.env.JWT_SECRET);
         return res.json({ success: true, authToken: token })
+    }
+    catch (error) {
+        errorHandler(error)
+        return res.status(500).json({ success: false, error: "An internal server error occured!" })
+    }
+});
+
+app.post("/getuserinfo", getUser , async (req, res) => {
+    try {
+        if(req.body.user){
+            return res.json({ success: true, user:req.body.user })
+        }
+        else{
+            return res.json({ success: false, error:"User not found!" })
+        }
     }
     catch (error) {
         errorHandler(error)

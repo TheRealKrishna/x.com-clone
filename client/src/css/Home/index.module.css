@@ -1,0 +1,25 @@
+.container{
+    width: 100%;
+    max-height: 100vh;
+    display: flex;
+    justify-content: space-between;
+    padding: 0px 10vw;
+    overflow-y: hidden;
+    overflow-x: hidden;
+}
+
+.leftPanel{
+    flex: 1.33;
+    height: 100vh;
+}
+
+
+.mainPanel{
+    flex: 3.15;
+    border-left: 1px solid rgb(47, 51, 54);
+    border-right: 1px solid rgb(47, 51, 54);;
+}
+
+.rightPanel{
+    flex: 2;
+}

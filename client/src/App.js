@@ -6,8 +6,9 @@ import {
 } from "react-router-dom";
 import Home from "./Pages/Home";
 import { Toaster } from "react-hot-toast"
-import Dashboard from "./Pages/home/Dashboard";
 import { GoogleOAuthProvider } from '@react-oauth/google';
+import Index from "./Pages/home/Index";
+import Logout from "./Pages/Logout";
 
 function App() {
   return (
@@ -21,7 +22,8 @@ function App() {
           <Route exact path="/" element={<><Home /></>} />
           <Route exact path="/i/flow/signup" element={<><Home /></>} />
           <Route exact path="/i/flow/login" element={<><Home /></>} />
-          <Route exact path="/home" element={<><Dashboard /></>} />
+          <Route exact path="/home" element={<><Index/></>} />
+          <Route exact path="/logout" element={<><Logout/></>} />
         </Routes>
       </GoogleOAuthProvider>
     </BrowserRouter>

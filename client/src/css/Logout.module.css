@@ -1,0 +1,91 @@
+.fade{
+    background-color: rgba(91, 112, 131, 0.4);
+    max-height: 100vh;
+}
+
+.modalDialog{
+    display: flex;
+    justify-content: left;
+    align-items: center;
+    height: 100vh;
+    margin-block: 0px;
+}
+
+.modalBox{
+    background-color: black;
+    color: white;
+    width: 350px;    
+    min-height: 50vh;
+    border-radius: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: center;
+    padding: 30px 20px;
+}
+
+.modalBody{
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: center;
+}
+
+@media screen and (max-width:530px){
+    .modalBody {  
+        padding: 16px !important;
+    }
+}
+
+@media screen and (max-width:800px) {
+    .modalBox{
+        min-width: 40vw;
+    }
+}
+
+@media screen and (max-width:576px) {
+    .modalBox{
+        min-height: 97vh;
+    }
+}
+
+.modalHeader{
+    width: 100%;
+    display: flex;
+    justify-content: center !important;
+    padding: 10px 10px;
+}
+
+.logo{
+    width: 50px;
+}
+
+.agreementText {
+    font-size: 15px;
+    color: rgb(129, 129, 129);
+}
+
+.buttons{
+    margin-top: 30px;
+}
+
+.logoutButton{
+    min-width: 280px;
+    padding: 12px 20%;
+    margin: 15px 0px;
+}
+
+.cancelButton {
+    border: 1px solid rgb(83, 100, 113);
+    color: white;
+    font-family: 'Fredoka', sans-serif;
+    min-width: 280px;
+    padding: 12px 20%;
+}
+
+.cancelButton:hover {
+    border: 1px solid rgb(83, 100, 113);
+    color: white;
+    background-color: rgb(19, 19, 19);
+}
