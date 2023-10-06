@@ -65,17 +65,105 @@
 }
 
 .makePostContainer{
-
+    display: flex;
+    border-bottom: 1px solid rgb(47, 51, 54);
 }
 
 .profileImageContainer{
-    height: 40px;
-    width: 40px;
-    margin: 15px 15px;
+    max-width: 40px;
+    max-height: 40px;
+    margin: 15px 0px;
+    margin-left: 15px;
+    margin-right: 3px;
 }
 
 .profileImage{
     border-radius: 50%;
     width: 100%;
     height: 100%;
+}
+
+.postBox{
+    margin: 15px 10px;
+    margin-right: 20px;
+    width: 100%;
+}
+
+.postTextBox{
+    
+}
+
+.postTextInput{
+    outline: none;
+    border: none;
+    background-color: transparent;
+    font-size: 20px;
+    color: white;
+}
+
+.postTextInput::placeholder{
+    color: #71767B;
+}
+
+.audienceSelectorButton{
+    color: rgb(29, 155, 240);
+    background-color: transparent;
+    border: 1px solid rgb(29, 155, 240);
+    outline: none !important;
+    box-shadow: none !important;
+    min-width: 24px;
+    min-height: 24px;
+    border-radius: 30px;
+    font-size: 13px;
+    padding: 1px 15px;
+    margin-bottom: 15px;
+    font-weight: bold;
+}
+
+.whoCanReplySelector{
+    color: rgb(29, 155, 240);
+    background-color: transparent;
+    font-size: 15px;
+    font-weight:500;
+    padding: 12px 4px;
+    width: 100%;
+    border-bottom: 1px solid rgb(47, 51, 54);
+}
+
+.whoCanReplySelectorGlobeIcon{
+    width: 15px;
+    height: 15px;
+    margin: 2px 4px;
+}
+
+.postIconsAndSubmitContainer{
+    display: flex;
+    justify-content: space-between;
+    margin-top: 30px;
+}
+
+.postIconsContainer{
+    
+}
+
+.postIcon{
+    width: 20px;
+    height: 20px;
+    margin-right: 15px;
+}
+
+.postIconDisabled{
+    opacity: 0.5;
+}
+
+.postButton{
+    background-color: rgb(29, 155, 240);
+    font-size: 15px;
+    width: 70px;
+    color: white;
+    font-weight: bold;
+}
+
+.postButton:disabled{
+    background-color: rgb(29, 155, 240);
 }
