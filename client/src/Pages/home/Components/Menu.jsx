@@ -30,7 +30,7 @@ export default function Menu(props) {
     function toogleProfileMenu() {
         if(profileMenu.current.style.display === 'none'){
             const buttonRect = profileBox.current.getBoundingClientRect();
-            profileMenu.current.style.left = buttonRect.left - 30 + 'px';
+            profileMenu.current.style.left = buttonRect.left + 'px';
             profileMenu.current.style.top = buttonRect.top - 120 - 10 + 'px';
             profileMenu.current.style.display = 'block';
         }
