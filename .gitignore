@@ -18,6 +18,8 @@
 /server/.env
 /client/.env.local
 /server/.env.local
+/client/.env.development
+/server/.env.development
 .DS_Store
 .env.local
 .env.development.local
