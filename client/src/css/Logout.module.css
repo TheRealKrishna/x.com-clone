@@ -5,7 +5,7 @@
 
 .modalDialog{
     display: flex;
-    justify-content: left;
+    justify-content: center;
     align-items: center;
     height: 100vh;
     margin-block: 0px;

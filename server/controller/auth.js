@@ -274,4 +274,25 @@ const getUserInfo = async (req, res) => {
     }
 }
 
+const getOtherUserInfo = async (req, res) => {
+    try {
+        if(req.body.user){
+            const user = User.findOne({_id:req.body._id},["-password", "-__v"])
+            if(user){
+                return res.json({ success: true, user:user })
+            }
+            else{
+                return res.json({ success: false, error:"User not found!" })
+            }
+        }
+        else{
+            return res.json({ success: false, error:"Invalid Request!" })
+        }
+    }
+    catch (error) {
+        errorHandler(error)
+        return res.status(500).json({ success: false, error: "An internal server error occured!" })
+    }
+}
+
 module.exports = {emailValidate, phoneValidate, signUpWithEmail, signUpWithPhone, loginValidate, login, loginWithGoogle, getUserInfo}

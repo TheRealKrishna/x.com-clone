@@ -1,0 +1,76 @@
+.postBox{
+    border-bottom: 1px solid rgb(47, 51, 54);
+    display: flex;
+    padding: 15px 0px;
+}
+
+.profileContainer{
+    max-width: 40px;
+    margin-left: 15px;
+    margin-right: 10px;
+}
+
+.profileImage{
+    border-radius: 50%;
+    width: 100%;
+}
+
+.body{
+    width: 100%;
+}
+
+.nameContainer{
+    display: flex;
+}
+
+.name{
+    margin: 0px;
+    margin-right: 5px;
+}
+
+.username{
+    margin: 0px;
+    color: rgb(113, 118, 123);
+    font-size: 15px;
+    font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    margin-right: 5px;
+}
+
+.dot{
+    margin: 0px;
+    color: rgb(113, 118, 123);
+    font-size: 14px;
+    margin-right: 5px;
+}
+
+.timestamp{
+    margin: 0px;
+    color: rgb(113, 118, 123);
+    font-size: 14px;
+    margin-right: 5px;
+}
+
+.postContainer{
+    display: flex;
+    justify-content: space-between;
+    flex-direction: column;
+}
+
+.postMessage{
+    color: rgb(231, 233, 234)
+}
+
+.postImages{
+    width: 100%;
+    display: flex;
+    justify-content: center;
+}
+
+.image {
+    border-radius: 5%;
+    min-width: 50%;
+    max-width: 100%;
+    padding: 0px;
+    display: flex;
+    justify-content: center;
+}

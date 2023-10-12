@@ -15,6 +15,7 @@ app.get('/', (req, res) => {
   res.send('Backend For x.com')
 })
 app.use("/api/auth", require("./api/auth.js"))
+app.use("/api/post", require("./api/post.js"))
 
 
 // server run

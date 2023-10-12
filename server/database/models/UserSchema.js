@@ -16,7 +16,7 @@ const UserSchema = new mongoose.Schema({
       return this.email && this.email.length > 0
     },
     required:()=>{
-      return this.phone && this.phone.length < 0
+      return this.phone && this.phone.length <= 0
     },
     default:""
   },
@@ -26,7 +26,7 @@ const UserSchema = new mongoose.Schema({
       return this.phone && this.phone.length > 0
     },
     required:()=>{
-      return this.email && this.email.length < 0
+      return this.email && this.email.length <= 0
     },
     default:""
   },

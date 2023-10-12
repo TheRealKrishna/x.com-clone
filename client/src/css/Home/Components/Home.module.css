@@ -1,17 +1,18 @@
-.container{
+.container {
     color: white;
 }
 
-.header{
-    position: sticky;
+.header {
+    position:relative;
+    background-color: black;
 }
 
-.title{
+.title {
     color: white;
     margin: 10px 15px;
 }
 
-.menuSelectorContainer{
+.menuSelectorContainer {
     display: flex;
     justify-content: space-evenly;
     color: rgb(113, 118, 123);
@@ -20,56 +21,79 @@
     text-align: center;
 }
 
-.menuSelectorItem{
+.menuSelectorItem {
     padding: 20px 0px;
     cursor: pointer;
     width: 50%;
 }
 
-.menuSelectorItem:hover{
+.menuSelectorItem:hover {
     background-color: rgba(231, 233, 234, 0.1);
 }
 
-.forYouSelected{
-    position:relative;
+.forYouSelected {
+    position: relative;
     color: white;
     font-weight: bold;
 }
 
-.forYouSelected:before{
+.forYouSelected:before {
     align-self: center;
-    content:'';
-    position:absolute;
-    bottom:0px;
-    width:58px;
-    height:4px;
-    background:rgb(29, 155, 240);
+    content: '';
+    position: absolute;
+    bottom: 0px;
+    width: 58px;
+    height: 4px;
+    background: rgb(29, 155, 240);
     border-radius: 20px;
 }
 
-.followingItemSelected{
-    position:relative;
+.followingItemSelected {
+    position: relative;
     color: white;
     font-weight: bold;
 }
 
-.followingItemSelected:before{
+.followingItemSelected:before {
     align-self: center;
-    content:'';
-    position:absolute;
-    bottom:0px;
-    width:75px;
-    height:4px;
-    background:rgb(29, 155, 240);
+    content: '';
+    position: absolute;
+    bottom: 0px;
+    width: 75px;
+    height: 4px;
+    background: rgb(29, 155, 240);
     border-radius: 20px;
 }
 
-.makePostContainer{
+.body{
+    height: 85vh;
+    overflow-y: auto;
+    overflow-x: hidden;
+}
+
+
+.body::-webkit-scrollbar {
+    width: .2em;
+  }
+   
+.body::-webkit-scrollbar-thumb {
+    background-color: rgb(98, 98, 98);
+    border-radius: 5px;
+  }
+
+.makePostContainer {
     display: flex;
     border-bottom: 1px solid rgb(47, 51, 54);
 }
 
-.profileImageContainer{
+.makePostContainerLoading {
+    background: rgb(0, 0, 0);
+    opacity: 0.6;
+    z-index: 100;
+    pointer-events: none;
+}
+
+.profileImageContainer {
     max-width: 40px;
     max-height: 40px;
     margin: 15px 0px;
@@ -77,35 +101,72 @@
     margin-right: 3px;
 }
 
-.profileImage{
+.profileImage {
     border-radius: 50%;
     width: 100%;
     height: 100%;
 }
 
-.postBox{
+.postBox {
     margin: 15px 10px;
     margin-right: 20px;
     width: 100%;
 }
 
-.postTextBox{
-    
-}
+.postTextBox {}
 
-.postTextInput{
+.postTextInput {
     outline: none;
     border: none;
     background-color: transparent;
     font-size: 20px;
     color: white;
+    width: 100%;
+    resize: none;
+    word-wrap: break-word;
+    word-break: break-word;
+    overflow-y: hidden;
+    height: fit-content;
 }
 
-.postTextInput::placeholder{
+.postTextInput::placeholder {
     color: #71767B;
 }
 
-.audienceSelectorButton{
+.imageContainer {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+}
+
+.image {
+    border-radius: 5%;
+    min-width: 50%;
+    max-width: 100%;
+    padding: 0px;
+    display: flex;
+    justify-content: center;
+}
+
+.CrossButton{
+    position: absolute;
+    width: 28px;
+    height: 28px;
+    backdrop-filter: blur(4px);
+    background-color: rgba(15, 20, 25, 0.75);
+    border-radius: 50%;
+    padding: 3px;
+    padding-left: 4px;
+    cursor: pointer;
+    right: 0;
+    margin: 5px 8px;
+}
+
+.CrossButton:hover{
+    background-color: rgba(39, 44, 48, 0.75);
+}
+
+.audienceSelectorButton {
     color: rgb(29, 155, 240);
     background-color: transparent;
     border: 1px solid rgb(29, 155, 240);
@@ -120,43 +181,65 @@
     font-weight: bold;
 }
 
-.whoCanReplySelector{
+.whoCanReplySelector {
     color: rgb(29, 155, 240);
     background-color: transparent;
     font-size: 15px;
-    font-weight:500;
+    font-weight: 500;
     padding: 12px 4px;
     width: 100%;
     border-bottom: 1px solid rgb(47, 51, 54);
 }
 
-.whoCanReplySelectorGlobeIcon{
+.whoCanReplySelectorGlobeIcon {
     width: 15px;
     height: 15px;
     margin: 2px 4px;
 }
 
-.postIconsAndSubmitContainer{
+.postIconsAndSubmitContainer {
     display: flex;
     justify-content: space-between;
-    margin-top: 30px;
+    margin-top: 5px;
 }
 
-.postIconsContainer{
-    
-}
+.postIconsContainer {}
 
-.postIcon{
+.postIcon {
     width: 20px;
     height: 20px;
     margin-right: 15px;
+    cursor: pointer;
 }
 
-.postIconDisabled{
+.postIcon:hover {
+    -webkit-filter: drop-shadow(0px 0px 5px rgb(29, 155, 240));
+    filter: drop-shadow(0px 0px 5px rgb(29, 155, 240));
+}
+
+.postIconDisabled {
     opacity: 0.5;
+    cursor:default;
 }
 
-.postButton{
+.emojiPicker{
+    position: absolute;
+    z-index: 9999;
+}
+
+.circleProgressContainer{
+    width: 35px;
+    height: 28px;
+    margin-right: 10px;
+    border-right: 1px solid rgb(47, 51, 54);
+}
+
+.circleProgressContainer > svg{
+    width: 22px;
+    height: 22px;
+}
+
+.postButton {
     background-color: rgb(29, 155, 240);
     font-size: 15px;
     width: 70px;
@@ -164,6 +247,14 @@
     font-weight: bold;
 }
 
-.postButton:disabled{
+.postButton:disabled {
+    background-color: rgb(29, 155, 240);
+}
+
+.progressBar{
+    height: 2px;
+    background-color: transparent !important;
+}
+.progressBar > div{
     background-color: rgb(29, 155, 240);
 }
