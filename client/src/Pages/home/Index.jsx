@@ -4,6 +4,8 @@ import { Link, useNavigate, useParams } from 'react-router-dom';
 import Styles from "../../css/Home/index.module.css"
 import Menu from './Components/Menu';
 import Home from './Components/Home';
+import Profile from './Components/Profile';
+import Messages from './Components/Messages';
 
 
 export default function Index() {
@@ -25,19 +27,19 @@ export default function Index() {
         }
     }, [params])
 
-    const fetchUser = async()=>{
-        const response = await fetch(`${process.env.REACT_APP_API_URL}/api/auth/getuserinfo`,{
-            method:"post",
-            headers:{
-                "authtoken":localStorage.getItem("auth-token"),
+    const fetchUser = async () => {
+        const response = await fetch(`${process.env.REACT_APP_API_URL}/api/auth/getuserinfo`, {
+            method: "post",
+            headers: {
+                "authtoken": localStorage.getItem("auth-token"),
             }
         })
         const json = await response.json();
-        if(json.success){
-            setUser(prev=>json.user);
+        if (json.success) {
+            setUser(prev => json.user);
         }
-        else{
-            localStorage.removeItem("authToken");
+        else {
+            localStorage.removeItem("auth-token");
             navigate("/i/flow/login")
         }
     }
@@ -45,14 +47,26 @@ export default function Index() {
     return (
         <div className={Styles.container}>
             <div className={Styles.leftPanel}>
-                <Menu user={user} fetchUser={fetchUser}/>
+                <Menu user={user} fetchUser={fetchUser} />
             </div>
-            <div className={Styles.mainPanel}>
-                <Home user={user} fetchUser={fetchUser}/>
+            <div className={window.location.pathname.startsWith("/messages") ? Styles.mainPanelFull : Styles.mainPanelLarge}>
+                {
+                    window.location.pathname === "/home" ? <Home user={user} fetchUser={fetchUser} />
+
+                        :
+
+                        window.location.pathname.startsWith("/messages") ? <Messages contactId={window.location.pathname.replace("/messages/", "")} user={user} fetchUser={fetchUser} setUser={setUser} />
+
+                            :
+
+                            <Profile user={user} fetchUser={fetchUser} setUser={setUser} />
+                }
             </div>
-            <div className={Styles.rightPanel}>
-                right
-            </div>
-        </div>
+            {
+                window.location.pathname.startsWith("/messages") ? null :
+                    <div className={Styles.rightPanelSmall}>
+                    </div>
+            }
+        </div >
     )
 }

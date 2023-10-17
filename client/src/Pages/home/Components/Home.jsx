@@ -16,6 +16,7 @@ import EmojiPicker, { Theme, SkinTones } from 'emoji-picker-react';
 import ClickAwayListener from 'react-click-away-listener';
 import { CircularProgressbar, buildStyles } from 'react-circular-progressbar';
 import 'react-circular-progressbar/dist/styles.css';
+import { Link } from 'react-router-dom'
 
 
 export default function Home(props) {
@@ -113,15 +114,21 @@ export default function Home(props) {
     }
 
     useEffect(() => {
-        postForm.current.addEventListener('click', () => {
-            setTimeout(() => {
-                whoCanReplySelector.current.style.display = "block"
-            }, 300);
-            setTimeout(() => {
-                audienceSelector.current.style.display = "block"
-            }, 500)
-        })
-    }, [])
+        if (postForm.current) {
+            postForm.current.addEventListener('click', () => {
+                setTimeout(() => {
+                    if (postForm.current) {
+                        whoCanReplySelector.current.style.display = "block"
+                    }
+                }, 300);
+                setTimeout(() => {
+                    if (postForm.current) {
+                        audienceSelector.current.style.display = "block"
+                    }
+                }, 500)
+            })
+        }
+    }, [postForm])
 
     useEffect(() => {
         if ((post.message.length === 0 && images.length === 0) || post.message.length > 280) {
@@ -220,12 +227,12 @@ export default function Home(props) {
                 <form onSubmit={handlePostSubmit}>
                     <div ref={postForm} className={`${Styles.makePostContainer} ${posting ? Styles.makePostContainerLoading : ""}`}>
                         <div className={Styles.profileImageContainer}>
-                            <img src={props.user.profile} referrerPolicy="no-referrer" className={Styles.profileImage} alt="" />
+                            <Link to={`/${props.user.username}`}><img src={props.user.profile} referrerPolicy="no-referrer" className={Styles.profileImage} alt="" /></Link>
                         </div>
                         <div className={Styles.postBox}>
-                            <button ref={audienceSelector} style={{ display: "none" }} className={Styles.audienceSelectorButton}>{post.audience} <i className="fa-solid fa-angle-down"></i></button>
+                            <button type='button' ref={audienceSelector} style={{ display: "none" }} className={Styles.audienceSelectorButton}>{post.audience} <i className="fa-solid fa-angle-down"></i></button>
                             <div className={Styles.postTextBox}>
-                                <textarea rows="1" ref={postTextInput} onChange={handlePostTextChange} type="text" value={post.message} className={Styles.postTextInput} placeholder='What is happening?!' />
+                                <textarea id="postTextInput" rows="1" ref={postTextInput} onChange={handlePostTextChange} type="text" value={post.message} className={Styles.postTextInput} placeholder='What is happening?!' />
                             </div>
                             <div className={`${Styles.imageContainer} row row-cols-${images.length > 2 ? 2 : 0}`}>
                                 {

@@ -1,7 +1,7 @@
 const express = require('express')
 const app = express()
 const {body} = require('express-validator');
-const {emailValidate, phoneValidate, signUpWithEmail, signUpWithPhone, loginValidate, login, loginWithGoogle, getUserInfo} = require("../controller/auth.js")
+const {emailValidate, phoneValidate, signUpWithEmail, signUpWithPhone, loginValidate, login, loginWithGoogle, getUserInfo, getUserInfoWithId, getUserInfoWithUsername} = require("../controller/auth.js")
 const getUser = require("../middleware/getUser.js")
 
 
@@ -21,5 +21,10 @@ app.post("/login", body('password').isLength({ min: 8 }), login)
 app.post("/loginwithgoogle", loginWithGoogle);
 
 app.post("/getuserinfo", getUser , getUserInfo)
+
+app.post("/getuserinfowithid", getUser , getUserInfoWithId)
+
+
+app.post("/getuserinfowithusername", getUser , getUserInfoWithUsername)
 
 module.exports = app

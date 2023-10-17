@@ -1,5 +1,8 @@
 import React, { useEffect, useState } from 'react'
 import Styles from "../../../css/Home/Components/Posts.module.css"
+import { Link } from 'react-router-dom';
+import spinner from "../../../Images/Spinner.svg"
+import spinnerStyles from "../../../css/Spinner.module.css"
 
 export default function Posts(props) {
     const [posts, setPosts] = useState([]);
@@ -41,7 +44,6 @@ export default function Posts(props) {
         const json = await response.json();
         if (json.success) {
             setPosts(json.posts);
-            console.log(json)
         }
     }
 
@@ -52,16 +54,21 @@ export default function Posts(props) {
     return (
         <>
             {
+                posts.length === 0 ?
+                <div className={spinnerStyles.spinnerContainer}>
+                <img className={spinnerStyles.spinner} src={spinner} alt="O" />
+                </div>
+                :
                 posts.map((post) => {
                     return (
                         <div className={Styles.postBox}>
                             <div className={Styles.profileContainer}>
-                                <img src={post.sender.profile} referrerPolicy="no-referrer" className={Styles.profileImage} alt="" />
+                                <Link to={`/${post.sender.username}`}><img src={post.sender.profile} referrerPolicy="no-referrer" className={Styles.profileImage} alt="" /></Link>
                             </div>
                             <div className={Styles.body}>
                                 <div className={Styles.nameContainer}>
-                                    <h6 className={Styles.name}>{post.sender.name}</h6>
-                                    <p className={Styles.username}>@{post.sender.username}</p>
+                                <Link to={`/${post.sender.username}`}><h6 className={Styles.name}>{post.sender.name}</h6></Link>
+                                <Link to={`/${post.sender.username}`}><p className={Styles.username}>@{post.sender.username}</p></Link>
                                     <p className={Styles.dot}>•</p>
                                     <p className={Styles.timestamp}>{calculatePostAge(post.timestamp)}</p>
                                 </div>
@@ -79,6 +86,9 @@ export default function Posts(props) {
                                                 )
                                             })
                                         }
+                                    </div>
+                                    <div className={Styles.postButtonsContainer}>
+                                        
                                     </div>
                                 </div>
                             </div>

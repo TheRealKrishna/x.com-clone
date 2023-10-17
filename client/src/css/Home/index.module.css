@@ -1,6 +1,6 @@
 .container{
     width: 100%;
-    max-height: 100vh;
+    height: 100vh;
     display: flex;
     justify-content: space-between;
     padding: 0px 10vw;
@@ -13,13 +13,18 @@
     height: 100vh;
 }
 
-
-.mainPanel{
+.mainPanelLarge{
     flex: 3.15;
     border-left: 1px solid rgb(47, 51, 54);
     border-right: 1px solid rgb(47, 51, 54);;
 }
 
-.rightPanel{
+.mainPanelFull{
+    flex: 5.15;
+    border-left: 1px solid rgb(47, 51, 54);
+    border-right: 1px solid rgb(47, 51, 54);;
+}
+
+.rightPanelSmall{
     flex: 2;
 }

@@ -4,7 +4,7 @@ import Styles from ".././css/Spinner.module.css"
 
 export default function Spinner() {
   return (
-    <div className={Styles.spinnerContainer}>
+    <div className={Styles.spinnerCenterContainer}>
       <img src={spinner} alt="O" className={Styles.spinner}/>
     </div>
   )

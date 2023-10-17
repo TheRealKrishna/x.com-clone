@@ -13,6 +13,7 @@
 .profileImage{
     border-radius: 50%;
     width: 100%;
+    cursor: pointer;
 }
 
 .body{
@@ -26,6 +27,7 @@
 .name{
     margin: 0px;
     margin-right: 5px;
+    cursor: pointer;
 }
 
 .username{
@@ -34,6 +36,7 @@
     font-size: 15px;
     font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     margin-right: 5px;
+    cursor: pointer;
 }
 
 .dot{
@@ -73,4 +76,8 @@
     padding: 0px;
     display: flex;
     justify-content: center;
+}
+
+.postButtonsContainer{
+    display: flex;
 }

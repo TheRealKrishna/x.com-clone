@@ -3,12 +3,15 @@ import { Link, useNavigate } from 'react-router-dom'
 import Styles from "../../../css/Home/Components/Menu.module.css"
 import logo from "../../../Images/logo.svg"
 import Home from "../../../Images/Home/Home.svg"
+import HomeSolid from "../../../Images/Home/HomeSolid.svg"
 import Explore from "../../../Images/Home/Explore.svg"
 import Notifications from "../../../Images/Home/Notifications.svg"
 import Messages from "../../../Images/Home/Messages.svg"
+import MessagesSolid from "../../../Images/Home/MessagesSolid.svg"
 import More from "../../../Images/Home/More.svg"
 import Premium from "../../../Images/Home/Premium.svg"
 import Profile from "../../../Images/Home/Profile.svg"
+import ProfileSolid from "../../../Images/Home/ProfileSolid.svg"
 import Communities from "../../../Images/Home/Communities.svg"
 import Lists from "../../../Images/Home/Lists.svg"
 import dropDownArrow from "../../../Images/Home/DropDownArrow.svg"
@@ -20,21 +23,21 @@ export default function Menu(props) {
     const profileMenuArrow = useRef()
 
     useEffect(() => {
-        
+
     }, [])
 
-    const handleLogout = ()=>{
+    const handleLogout = () => {
         navigate("/logout")
     }
 
     function toogleProfileMenu() {
-        if(profileMenu.current.style.display === 'none'){
+        if (profileMenu.current.style.display === 'none') {
             const buttonRect = profileBox.current.getBoundingClientRect();
             profileMenu.current.style.left = buttonRect.left + 'px';
             profileMenu.current.style.top = buttonRect.top - 120 - 10 + 'px';
             profileMenu.current.style.display = 'block';
         }
-        else{
+        else {
             profileMenu.current.style.display = 'none';
         }
     }
@@ -47,7 +50,7 @@ export default function Menu(props) {
                     <Link to={"/home"}>
                         <li className={Styles.menuList}>
                             <div className={Styles.menuListItem}>
-                                <img src={Home} className={Styles.icon} alt="x.com Logo" /><p className={Styles.menuListItemText}>Home</p>
+                                <img src={window.location.pathname === "/home" ? HomeSolid : Home} className={Styles.icon} alt="Home" /><p style={{ fontWeight: window.location.pathname === "/home" ? "bold" : "" }} className={Styles.menuListItemText}>Home</p>
                             </div>
                         </li>
                     </Link>
@@ -68,7 +71,7 @@ export default function Menu(props) {
                     <Link to={"/messages"}>
                         <li className={Styles.menuList}>
                             <div className={Styles.menuListItem}>
-                                <img src={Messages} className={Styles.icon} alt="x.com Logo" /><p className={Styles.menuListItemText}>Messages</p>
+                                <img src={window.location.pathname.startsWith("/messages") ? MessagesSolid : Messages} className={Styles.icon} alt="Messages" /><p style={{ fontWeight: window.location.pathname.startsWith("/messages") ? "bold" : "" }} className={Styles.menuListItemText}>Messages</p>
                             </div>
                         </li>
                     </Link>
@@ -93,10 +96,10 @@ export default function Menu(props) {
                             </div>
                         </li>
                     </Link>
-                    <Link to={"/home"}>
+                    <Link to={`/${props.user.username}`}>
                         <li className={Styles.menuList}>
                             <div className={Styles.menuListItem}>
-                                <img src={Profile} className={Styles.icon} alt="x.com Logo" /><p className={Styles.menuListItemText}>Profile</p>
+                                <img src={window.location.pathname === `/${props.user.username}` ? ProfileSolid : Profile} className={Styles.icon} alt="x.com Logo" /><p style={{ fontWeight: window.location.pathname === `/${props.user.username}` ? "bold" : "" }} className={Styles.menuListItemText}>Profile</p>
                             </div>
                         </li>
                     </Link>
@@ -107,9 +110,15 @@ export default function Menu(props) {
                             </div>
                         </li>
                     </Link>
-                    <button className={`${Styles.postButton} btn btn-primary rounded-pill`}>Post</button>
+                    <Link to={"/home"}>
+                        <button onClick={()=>{
+                            if(window.location.pathname === "/home"){
+                                document.getElementById("postTextInput").focus()
+                            }
+                        }} className={`${Styles.postButton} btn btn-primary rounded-pill`}>Post</button>
+                    </Link>
                 </ul>
-                <div ref={profileMenu} style={{display:"none"}} className={Styles.profileBoxContainer}>
+                <div ref={profileMenu} style={{ display: "none" }} className={Styles.profileBoxContainer}>
                     <div className={Styles.profileBox}>
                         <li className={Styles.profileBoxOption}>Add an existing account</li>
                         <li onClick={handleLogout} className={Styles.profileBoxOption}>Log out @{props.user.username}</li>

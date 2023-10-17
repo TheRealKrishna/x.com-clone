@@ -8,9 +8,10 @@ const Joi = require("@hapi/joi");
 const customJoi = Joi.extend(require("joi-age"));
 const ageSchema = customJoi.date().minAge(13);
 const { generateFromEmail } = require("unique-username-generator");
+const { default: axios } = require('axios')
 
 
-const emailValidate =  async (req, res) => {
+const emailValidate = async (req, res) => {
     try {
         const errors = validationResult(req)
         if (!errors.isEmpty() && errors.errors[0].path === 'email') {
@@ -28,7 +29,7 @@ const emailValidate =  async (req, res) => {
     }
 }
 
-const phoneValidate =  async (req, res) => {
+const phoneValidate = async (req, res) => {
     try {
         const errors = validationResult(req)
         if (!errors.isEmpty() && errors.errors[0].path === 'phone') {
@@ -86,7 +87,7 @@ const signUpWithEmail = async (req, res) => {
         }
 
         //user creation
-        const user = await User.create({ ...req.body, password: securePassword, username: await uniqueUsernameGenerator() });
+        const user = await User.create({ ...req.body, password: securePassword, username: await uniqueUsernameGenerator(), joined: new Date() });
         await user.save();
 
         //token creation
@@ -142,7 +143,7 @@ const signUpWithPhone = async (req, res) => {
         }
 
         //user creation
-        const user = await User.create({ ...req.body, password: securePassword, phone: phone(String(req.body.phone), { country: req.body.country }).phoneNumber, username: await uniqueUsernameGenerator() });
+        const user = await User.create({ ...req.body, password: securePassword, phone: phone(String(req.body.phone), { country: req.body.country }).phoneNumber, username: await uniqueUsernameGenerator(), joined: new Date() });
         await user.save();
 
         //token creation
@@ -178,8 +179,8 @@ const loginValidate = async (req, res) => {
                 }
             }
         }
-        if(!user.password){
-            return res.status(400).json({ success: false, error: 'Please use Google or Apple login for this account.'})
+        if (!user.password) {
+            return res.status(400).json({ success: false, error: 'Please use Google or Apple login for this account.' })
         }
         // const token = jwt.sign({ _id: user._id }, process.env.JWT_SECRET);
         return res.json({ success: true, method: method })
@@ -210,8 +211,8 @@ const login = async (req, res) => {
                 }
             }
         }
-        if(!user.password){
-            return res.status(400).json({ success: false, authError:true, error: 'Oops! looks like You signed up using Google or Apple. Please log in with them.'})
+        if (!user.password) {
+            return res.status(400).json({ success: false, authError: true, error: 'Oops! looks like You signed up using Google or Apple. Please log in with them.' })
         }
         if (!(bcrypt.compareSync(req.body.password, user.password))) {
             return res.status(400).json({ success: false, error: 'Wrong password!' })
@@ -227,12 +228,12 @@ const login = async (req, res) => {
 
 const loginWithGoogle = async (req, res) => {
     try {
-        const response = await fetch(`https://people.googleapis.com/v1/people/me?personFields=names,emailAddresses,photos,birthdays`, {
+        const response = await axios.get('https://people.googleapis.com/v1/people/me?personFields=names,emailAddresses,photos,birthdays', {
             headers: {
-                "Authorization": `Bearer ${req.body.access_token}`
-            }
-        })
-        const json = await response.json();
+                'Authorization': `Bearer ${req.body.access_token}`
+            },
+        });
+        const json = response.data;
         const user = await User.findOne({ email: json.emailAddresses[0].value });
         if (!user) {
             const uniqueUsernameGenerator = async () => {
@@ -245,7 +246,7 @@ const loginWithGoogle = async (req, res) => {
                     }
                 }
             }
-            const user = await User.create({name:json.names[0].givenName, email:json.emailAddresses[0].value, dob:new Date(`${json.birthdays[0].date.year}-${json.birthdays[0].date.month}-${json.birthdays[0].date.day}`), profile:json.photos[0].url, username: await uniqueUsernameGenerator() });
+            const user = await User.create({ name: json.names[0].givenName, email: json.emailAddresses[0].value, dob: new Date(`${json.birthdays[0].date.year}-${json.birthdays[0].date.month}-${json.birthdays[0].date.day}`), profile: json.photos[0].url, username: await uniqueUsernameGenerator(), joined: new Date() });
             await user.save();
             const token = jwt.sign({ _id: user._id }, process.env.JWT_SECRET);
             return res.json({ success: true, authToken: token })
@@ -261,11 +262,11 @@ const loginWithGoogle = async (req, res) => {
 
 const getUserInfo = async (req, res) => {
     try {
-        if(req.body.user){
-            return res.json({ success: true, user:req.body.user })
+        if (req.body.user) {
+            return res.json({ success: true, user: req.body.user })
         }
-        else{
-            return res.json({ success: false, error:"User not found!" })
+        else {
+            return res.json({ success: false, error: "User not found!" })
         }
     }
     catch (error) {
@@ -274,19 +275,19 @@ const getUserInfo = async (req, res) => {
     }
 }
 
-const getOtherUserInfo = async (req, res) => {
+const getUserInfoWithId = async (req, res) => {
     try {
-        if(req.body.user){
-            const user = User.findOne({_id:req.body._id},["-password", "-__v"])
-            if(user){
-                return res.json({ success: true, user:user })
+        if (req.body.user) {
+            const user = await User.findOne({ _id: req.body._id }, ["-password", "-__v"])
+            if (user) {
+                return res.json({ success: true, user: user })
             }
-            else{
-                return res.json({ success: false, error:"User not found!" })
+            else {
+                return res.json({ success: false, error: "User not found!" })
             }
         }
-        else{
-            return res.json({ success: false, error:"Invalid Request!" })
+        else {
+            return res.json({ success: false, error: "Invalid Request!" })
         }
     }
     catch (error) {
@@ -295,4 +296,25 @@ const getOtherUserInfo = async (req, res) => {
     }
 }
 
-module.exports = {emailValidate, phoneValidate, signUpWithEmail, signUpWithPhone, loginValidate, login, loginWithGoogle, getUserInfo}
+const getUserInfoWithUsername = async (req, res) => {
+    try {
+        if (req.body.user) {
+            const user = await User.findOne({ username: req.body.username }, ["-password", "-__v"])
+            if (user) {
+                return res.json({ success: true, user: user })
+            }
+            else {
+                return res.json({ success: false, error: "User not found!" })
+            }
+        }
+        else {
+            return res.json({ success: false, error: "Invalid Request!" })
+        }
+    }
+    catch (error) {
+        errorHandler(error)
+        return res.status(500).json({ success: false, error: "An internal server error occured!" })
+    }
+}
+
+module.exports = { emailValidate, phoneValidate, signUpWithEmail, signUpWithPhone, loginValidate, login, loginWithGoogle, getUserInfo, getUserInfoWithId, getUserInfoWithUsername }

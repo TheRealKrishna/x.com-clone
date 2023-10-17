@@ -1,0 +1,398 @@
+.container {
+    height: 100vh;
+    overflow-y: auto;
+    overflow-x: hidden;
+    color: white;
+}
+
+.topNameConatiner {
+    display: flex;
+    justify-content: flex-start;
+    padding: 10px;
+}
+
+.backButton {
+    width: 35px;
+    height: 35px;
+    margin: 0px !important;
+    background-color: transparent;
+    padding: 7px;
+    border-radius: 50%;
+    border: none !important;
+    cursor: pointer;
+}
+
+.backButton:hover {
+    background-color: rgb(30, 30, 30);
+}
+
+.topName {
+    margin: 0px;
+    padding: 0px;
+    margin-left: 25px;
+    font-weight: bold;
+    font-family: 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
+}
+
+.topSubName {
+    margin: 0px;
+    padding: 0px;
+    font-size: 12px;
+    font-weight: 100;
+    margin-left: 25px;
+    font-family: Arial, sans-serif;
+    color: rgba(113, 118, 123, 0.793);
+}
+
+.profileContainer {
+    width: 100%;
+}
+
+.bannerContainer {
+    width: 100%;
+    height: 200px;
+    background-color: rgb(51, 54, 57);
+    overflow: hidden;
+}
+
+.profileBanner {
+    width: 100%;
+    overflow: hidden;
+}
+
+.profilePhotoContainer {
+    display: flex;
+    margin: 0px 20px;
+}
+
+.profilePhoto {
+    width: 140px;
+    position: absolute;
+    top: 190px;
+    border-radius: 50%;
+    border: 4px solid black;
+}
+
+.editProfileButton {
+    float: right;
+    border: 1px solid rgb(83, 100, 113);
+    color: white;
+    font-family: 'Fredoka', sans-serif;
+    min-width: 110px;
+    margin: 12px 15px;
+}
+
+.editProfileButton:hover {
+    border: 1px solid rgb(83, 100, 113);
+    color: white;
+    background-color: rgba(239, 243, 244, 0.1);
+}
+
+.followContainer {
+    float: right;
+    margin: 12px 15px;
+}
+
+.circleButton {
+    cursor: pointer;
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    border: 0.1pt solid rgb(83, 100, 113);
+    margin-right: 10px;
+    padding: 6px;
+}
+
+.circleButton:hover {
+    background-color: rgba(239, 243, 244, 0.1);
+}
+
+.followButton {
+    font-family: sans-serif;
+    min-width: 100px;
+    font-weight: 700;
+}
+
+.followingButton {
+    font-family: sans-serif;
+    min-width: 100px;
+    font-weight: 700;
+    border: 1px solid rgb(83, 100, 113);
+    color: white;
+}
+
+.followingButton:hover {
+    border: 1px solid rgb(103, 7, 15);
+    color: rgb(244, 33, 46);
+    background-color: rgba(244, 33, 46, 0.1);
+}
+
+.profileInfoContainer {
+    margin: 0px 15px;
+    margin-top: 85px;
+}
+
+.profileInfoName {
+    font-weight: 700;
+    font-family: sans-serif;
+    margin: 0px;
+}
+
+.profileInfoUsername {
+    color: rgb(113, 118, 123);
+    font-size: 14px;
+    font-family: 'Arial Narrow Bold', sans-serif;
+}
+
+.profileInfoBio {
+    font-weight: 300;
+    margin: 10px 0px;
+}
+
+.joinedContainer {
+    display: flex;
+    justify-content: flex-start;
+}
+
+.calenderIcon {
+    width: 20px;
+    height: 20px;
+    margin-right: 5px;
+}
+
+.joinedText {
+    color: rgb(113, 118, 123);
+    font-size: 14px;
+    font-family: 'Arial Narrow Bold', sans-serif;
+    margin-bottom: 10px;
+}
+
+.followersContainer {
+    display: flex;
+    justify-content: flex-start;
+}
+
+.followingText {
+    color: rgb(113, 118, 123);
+    margin-right: 15px;
+    font-size: 14px;
+}
+
+.followingText:hover {
+    text-decoration: underline;
+    text-decoration-color: white;
+}
+
+.followingText>b {
+    color: white;
+}
+
+.followersText {
+    color: rgb(113, 118, 123);
+    margin-right: 15px;
+    font-size: 14px;
+}
+
+.followersText:hover {
+    text-decoration: underline;
+    text-decoration-color: white;
+}
+
+.followersText>b {
+    color: white;
+}
+
+
+/* Followers / Following / Verified Followers CSS */
+
+.nonFullContainer {
+    color: white;
+    width: 100%;
+}
+
+.header {
+    position: relative;
+    background-color: black;
+}
+
+.menuSelectorContainer {
+    display: flex;
+    justify-content: space-evenly;
+    color: rgb(113, 118, 123);
+    border-bottom: 1px solid rgb(47, 51, 54);
+    width: 39vw;
+    text-align: center;
+}
+
+.menuSelectorItem {
+    padding: 15px 0px;
+    cursor: pointer;
+    width: 50%;
+}
+
+.menuSelectorItem:hover {
+    background-color: rgba(231, 233, 234, 0.1);
+}
+
+.verifiedFollowersItemSelected {
+    position: relative;
+    color: white;
+    font-weight: bold;
+}
+
+.verifiedFollowersItemSelected:before {
+    align-self: center;
+    content: '';
+    position: absolute;
+    bottom: 0px;
+    width: 135px;
+    height: 4px;
+    background: rgb(29, 155, 240);
+    border-radius: 20px;
+}
+
+.followersItemSelected {
+    position: relative;
+    color: white;
+    font-weight: bold;
+}
+
+.followersItemSelected:before {
+    align-self: center;
+    content: '';
+    position: absolute;
+    bottom: 0px;
+    width: 72px;
+    height: 4px;
+    background: rgb(29, 155, 240);
+    border-radius: 20px;
+}
+
+.followingItemSelected {
+    position: relative;
+    color: white;
+    font-weight: bold;
+}
+
+.followingItemSelected:before {
+    align-self: center;
+    content: '';
+    position: absolute;
+    bottom: 0px;
+    width: 75px;
+    height: 4px;
+    background: rgb(29, 155, 240);
+    border-radius: 20px;
+}
+
+.mainBody {
+    height: 85vh;
+    width: 100%;
+    overflow-y: auto;
+    overflow-x: hidden;
+}
+
+
+.mainBody::-webkit-scrollbar {
+    width: .2em;
+}
+
+.mainBody::-webkit-scrollbar-thumb {
+    background-color: rgb(98, 98, 98);
+    border-radius: 5px;
+}
+
+.verifiedFollowersPageContainer{
+    padding: 20px 130px;
+}
+
+.verifiedFollowersText{
+    font-weight: bold;
+}
+
+.verifiedFollowersFadedText{
+    color: rgb(113, 118, 123);
+    padding: 0px;
+    margin: 0px;
+    font-weight: 400;
+}
+
+.followersPageContainer{
+    height: 85vh;
+    width: 100%;
+    overflow-y: auto;
+    overflow-x: hidden;
+    padding: 10px;
+}
+
+.followingPageContianer{
+    height: 85vh;
+    width: 100%;
+    overflow-y: auto;
+    overflow-x: hidden;
+    padding: 10px;
+}
+
+.followersItem{
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+}
+
+.followItemContainer{
+    display: flex;
+    justify-content: space-between;
+}
+
+.profileImageContainer {
+    max-width: 40px;
+    max-height: 40px;
+    margin-right: 10px;
+    margin-top: 2px;
+}
+
+.profileImage {
+    border-radius: 50%;
+    width: 100%;
+    height: 100%;
+}
+
+.followerInfo{
+    
+}
+
+.followerName{
+    color: white;
+    margin: 0px;
+    padding: 0px;
+    font-size: 18px;
+    font-weight: bold;
+}
+
+.followerUsername{
+    color: rgb(113, 118, 123);
+    margin: 0px;
+    padding: 0px;
+    margin-top: -5px;
+    font-size: 14px;
+}
+
+.followerButtonFlex{
+    display: flex;
+    justify-content: space-between;
+}
+
+.followerBio{
+    font-size: 13px;
+    margin: 0px;
+    padding: 0px;
+    word-wrap: break-word;
+    word-break: break-all;
+    margin-right: 30px;
+    font-weight: 400;
+    font-family:Geneva, Verdana, sans-serif;
+}
+
+
+

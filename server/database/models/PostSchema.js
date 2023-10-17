@@ -22,16 +22,16 @@ const PostSchema = new mongoose.Schema({
     required:true,
   },
   replies: {
-    type: Number,
-    default: 0,
+    type: Array,
+    default: [],
   },
   reposts: {
-    type: Number,
-    default: 0,
+    type: Array,
+    default: [],
   },
   likes: {
-    type: Number,
-    default: 0,
+    type: Array,
+    default: [],
   },
   views: {
     type: Number,
