@@ -38,15 +38,16 @@ export default function Home(props) {
 
     const handlePostTextChange = async (e) => {
         setPost(prev => { return { ...prev, message: e.target.value } });
-        const textarea = e.target;
+        fixPostInputTextArea();
+    }
 
-        textarea.style.height = 'auto';
-        const computedStyle = window.getComputedStyle(textarea);
+    const fixPostInputTextArea = async()=>{
+        postTextInput.current.style.height = 'auto';
+        const computedStyle = window.getComputedStyle(postTextInput.current);
         const lineHeight = parseFloat(computedStyle.lineHeight);
         const padding = parseFloat(computedStyle.paddingTop) + parseFloat(computedStyle.paddingBottom);
-        const scrollHeight = textarea.scrollHeight - padding;
-
-        textarea.style.height = (scrollHeight < lineHeight ? lineHeight : scrollHeight) + 'px';
+        const scrollHeight = postTextInput.current.scrollHeight - padding;
+        postTextInput.current.style.height = (scrollHeight < lineHeight ? lineHeight : scrollHeight) + 'px';
     }
 
     const toggleEmojiPicker = async () => {
@@ -131,7 +132,8 @@ export default function Home(props) {
     }, [postForm])
 
     useEffect(() => {
-        if ((post.message.length === 0 && images.length === 0) || post.message.length > 280) {
+        fixPostInputTextArea();
+        if ((post.message.trim().length === 0 && images.length === 0) || post.message.length > 280) {
             postButton.current.disabled = true;
         }
         else {
@@ -240,7 +242,7 @@ export default function Home(props) {
                                         return (
                                             <div key={index} className={`col p-1 ${images.length === 3 && index === 0 ? "col-md-12" : ""} d-flex justify-content-center`} style={{ position: "relative" }}>
                                                 <img src={CrossButton} alt="CrossButton" className={Styles.CrossButton} onClick={() => onImageRemove(index)} />
-                                                <img className={Styles.image} key={image} src={image} alt='postImage' />
+                                                <img className={Styles.image} src={image} alt='postImage' />
                                             </div>
                                         )
                                     })

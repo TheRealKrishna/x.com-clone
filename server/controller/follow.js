@@ -21,6 +21,7 @@ const getFollowers = async (req, res) => {
         return res.status(500).json({ success: false, error: "An internal server error occured!" })
     }
 }
+
 const getFollownig = async (req, res) => {
     try {
         if (req.body.user) {

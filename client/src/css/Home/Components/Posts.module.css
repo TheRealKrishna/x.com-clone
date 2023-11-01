@@ -1,11 +1,14 @@
 .postBox{
     border-bottom: 1px solid rgb(47, 51, 54);
     display: flex;
-    padding: 15px 0px;
+    padding: 0px;
+    padding-top: 15px;
+    padding-bottom: 5px;
 }
 
 .profileContainer{
     max-width: 40px;
+    max-height: 40px;
     margin-left: 15px;
     margin-right: 10px;
 }
@@ -13,6 +16,8 @@
 .profileImage{
     border-radius: 50%;
     width: 100%;
+    height: 100%;
+    object-fit: cover;
     cursor: pointer;
 }
 
@@ -79,5 +84,89 @@
 }
 
 .postButtonsContainer{
+    margin: 0px;
+    width: 98%;
     display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.postButton{
+    width: 35px;
+    border-radius: 50%;
+    margin-right: 2px;
+    padding: 8px;
+    padding-top: 9px;
+}
+
+.postButtonText{
+    color: rgb(113, 118, 123);
+    margin: 0px;
+    font-size: 14px;
+}
+
+.repliesContainer{
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+}
+
+.repliesContainer:hover > .repliesButton{
+    background-color: rgba(29, 155, 240, 0.1);
+}
+.repliesContainer:hover > .repliesText{
+    color: rgb(29, 155, 240);
+}
+
+.repostContainer{
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+}
+
+.repostContainer:hover > .repostButton{
+    background-color: rgba(0, 186, 124, 0.1);
+}
+.repostContainer:hover > .repostText{
+    color: rgb(0, 186, 124);
+}
+
+.likeContainer{
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+}
+
+.likeContainer:hover > .likeButton{
+    background-color: rgba(249, 24, 128, 0.1);
+}
+.likeContainer:hover > .likeText{
+    color: rgb(249, 24, 128);
+}
+
+.viewsContainer{
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+}
+
+.viewsContainer:hover > .viewsButton{
+    background-color: rgba(29, 155, 240, 0.1);
+}
+.viewsContainer:hover > .viewsText{
+    color: rgb(29, 155, 240);
+}
+
+.bookmarkAndShareContainer{
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+}
+
+.bookmarkButton:hover{
+    background-color: rgba(231, 233, 234, 0.1);
+}
+
+.shareButton:hover{
+    background-color: rgba(231, 233, 234, 0.1);
 }

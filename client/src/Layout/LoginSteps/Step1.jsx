@@ -13,6 +13,7 @@ export default function Step1(props) {
   const nameFloatingLabel = useRef();
   const nextButton = useRef();
   const forgotButton = useRef();
+  const [loginValidateCallTimeout, setLoginValidateCallTimeout] = useState();
   const [apiCalling, setApiCalling] = useState(false)
   const [schema, setSchema] = useState(yup
     .object({
@@ -32,17 +33,26 @@ export default function Step1(props) {
   const watchAllFields = watch();
 
   const handleNextButton = async (data, e) => {
-    props.setLoading(true)
-    e.preventDefault();
-    if (await loginValidate(data.name) && !errors.name) {
-      props.setCredentials(prev=>{return {...prev, name:data.name}})
-      props.setCurrentStep(prev => prev + 1);
+    if (!apiCalling) {
+      props.setLoading(true)
+      e.preventDefault();
+      if (await loginValidate(data.name) && !errors.name) {
+        props.setCredentials(prev => { return { ...prev, name: data.name } })
+        props.setCurrentStep(prev => prev + 1);
+      }
+      props.setLoading(false)
     }
-    props.setLoading(false)
   }
 
-  const onNameChange = (e)=>{
-    loginValidate(e.target.value);
+  const onNameChange = (e) => {
+    setApiCalling(true)
+    if (loginValidateCallTimeout) {
+      clearTimeout(loginValidateCallTimeout);
+    }
+    setLoginValidateCallTimeout(setTimeout(() => {
+      loginValidate(e.target.value);
+    }, 1000)
+    )
   }
 
   const loginValidate = async (name) => {
@@ -58,7 +68,7 @@ export default function Step1(props) {
     if (!json.success) {
       setError('name', { type: "custom", message: json.error }, { shouldFocus: true });
     }
-    await props.setCredentials(prev=>{return {...prev, method:json.method}})
+    await props.setCredentials(prev => { return { ...prev, method: json.method } })
     setApiCalling(false)
     return json.success;
   }
@@ -112,7 +122,7 @@ export default function Step1(props) {
         <button className={`btn btn-light rounded-pill ${Styles.signUpWithAppleButton}`}><img src={appleLogo} className={Styles.appleLogo} alt="apple Logo" />Sign in with Apple</button>
         <div className={Styles.orDivider}>or</div>
         <div ref={nameInputBox} className={Styles.nameInputBox}>
-          <input className={Styles.nameInput} ref={nameInput} placeholder=" " name='name' type="text" {...register('name', { onBlur: onNameChange })} />
+          <input className={Styles.nameInput} ref={nameInput} placeholder=" " name='name' type="text" {...register('name', { onChange: onNameChange })} />
           <label ref={nameFloatingLabel} className={`${Styles.floatingLabel} ${Styles.nameFloatingLabel}`}>Phone, email address, or username</label>
         </div>
         <div className='d-flex justify-content-start' style={{ width: "100%" }}>

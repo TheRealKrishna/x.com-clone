@@ -1,0 +1,520 @@
+.fade {
+    background-color: rgba(91, 112, 131, 0.4);
+    max-height: 100vh;
+}
+
+.modalDialog {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    margin-block: 0px;
+}
+
+.modalBox {
+    background-color: black;
+    color: white;
+    min-width: 40vw;
+    max-height: 90vh;
+    border-radius: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: center;
+}
+
+
+.modalHeader {
+    width: 100%;
+    display: flex;
+    justify-content: space-between !important;
+    padding: 10px 10px;
+    position: sticky;
+}
+
+.modalHeaderLoading {
+    background: rgb(0, 0, 0);
+    opacity: 0.6;
+    z-index: 100;
+    pointer-events: none;
+    border-top-right-radius: 20px;
+    border-top-left-radius: 20px;
+}
+
+.modalBody {
+    width: 100%;
+    overflow-x: hidden;
+    overflow-y: scroll;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0px;
+}
+
+.modalBodyLoading {
+    background: rgb(0, 0, 0);
+    opacity: 0.6;
+    z-index: 100;
+    pointer-events: none;
+    border-bottom-right-radius: 20px;
+    border-bottom-left-radius: 20px;
+}
+
+.modalBody::-webkit-scrollbar {
+    width: .4em;
+}
+
+.modalBody::-webkit-scrollbar-thumb {
+    background-color: rgb(98, 98, 98);
+    border-radius: 5px;
+}
+
+.closeButton {
+    width: 37px;
+    height: 37px;
+    margin: 0px !important;
+    background-color: transparent;
+    border-radius: 50%;
+    border: none !important;
+}
+
+.closeButton:hover {
+    background-color: rgb(30, 30, 30);
+}
+
+.closeButtonIcon {
+    color: white;
+    margin: 0px;
+    padding: 0px;
+}
+
+.modalTitle {
+    margin-left: 20px;
+    font-family: 'Outfit', sans-serif;
+    margin-top: 4px;
+}
+
+.saveButton {
+    font-weight: bold;
+    min-width: 70px;
+    text-align: center;
+    font-size: 14px;
+}
+
+.logo {
+    width: 50px;
+}
+
+.agreementText {
+    font-size: 15px;
+    color: rgb(129, 129, 129);
+}
+
+.buttons {
+    margin-top: 30px;
+}
+
+.logoutButton {
+    min-width: 280px;
+    padding: 12px 20%;
+    margin: 15px 0px;
+}
+
+
+.profileContainer {
+    width: 100%;
+}
+
+.bannerContainer {
+    width: 100%;
+    height: 200px;
+    background-color: rgb(51, 54, 57);
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+    position: relative;
+}
+
+
+.BannerButton {
+    width: 40px;
+    height: 40px;
+    backdrop-filter: blur(4px);
+    background-color: rgba(15, 20, 25, 0.75);
+    border-radius: 50%;
+    padding: 8px;
+    cursor: pointer;
+    margin: 5px;
+    z-index: 99;
+    position: absolute;
+    margin-right: 50px;
+    margin-top: 75px;
+    opacity: 0.75;
+}
+
+.BannerButton:hover {
+    background-color: rgba(39, 44, 48, 0.75)
+}
+
+
+.profileBanner {
+    max-width: 100%;
+    max-height: 100%;
+    overflow: hidden;
+    position: absolute;
+}
+
+.profilePhotoContainer {
+    display: flex;
+    margin: 0px 20px;
+}
+
+
+.profileButton {
+    width: 40px;
+    height: 40px;
+    padding: 8px;
+    backdrop-filter: blur(4px);
+    background-color: rgba(15, 20, 25, 0.75);
+    border-radius: 50%;
+    cursor: pointer;
+    opacity: 0.75;
+    z-index: 99;
+    position: absolute;
+    left: 60px;
+}
+
+.profileButton:hover {
+    background-color: rgba(39, 44, 48, 0.75)
+}
+
+.profilePhoto {
+    width: 120px;
+    height: 120px;
+    overflow: hidden;
+    position: absolute;
+    top: 160px;
+    border-radius: 50%;
+    border: 4px solid black;
+    object-fit: cover;
+}
+
+.profileInfoContainer {
+    padding: 15px;
+}
+
+.nameFloatingLabel {
+    padding: 7px 0px;
+    font-size: 18px;
+    color: #6e6e6e;
+    position: absolute;
+    pointer-events: none;
+    top: 8px;
+    left: 10px;
+    transition: all 0.1s ease;
+}
+
+.nameInput:focus~.nameFloatingLabel,
+.nameInput:not(:valid)~.nameFloatingLabel,
+.nameInput:not(:placeholder-shown)~.nameFloatingLabel {
+    top: 0px;
+    font-size: 12px;
+    opacity: 1;
+}
+
+.nameInputBox {
+    position: relative;
+    margin-top: 90px;
+    border: 1px solid rgb(45, 45, 45);
+    padding-left: 10px;
+    padding-top: 25px;
+    padding-bottom: 5px;
+    border-radius: 7px;
+    cursor: text;
+}
+
+.nameInput {
+    color: white;
+    background-color: black;
+    outline: none;
+    border: none;
+    width: 100%;
+    font-size: 19px;
+    padding-right: 15px;
+}
+
+.nameInput:focus~.nameFloatingLabel {
+    color: rgb(29, 155, 240) !important;
+}
+
+.nameInputBox:has(.nameInput:focus) {
+    border-width: 2px !important;
+    border-color: rgb(29, 155, 240) !important;
+}
+
+.error {
+    color: red;
+    margin-left: 10px;
+    font-size: 14px;
+    margin-bottom: 0px;
+}
+
+.bioFloatingLabel {
+    padding: 7px 0px;
+    font-size: 18px;
+    color: #6e6e6e;
+    position: absolute;
+    pointer-events: none;
+    top: 8px;
+    left: 10px;
+    transition: all 0.1s ease;
+}
+
+.bioInput:focus~.bioFloatingLabel,
+.bioInput:not(:valid)~.bioFloatingLabel,
+.bioInput:not(:placeholder-shown)~.bioFloatingLabel {
+    top: 0px;
+    font-size: 12px;
+    opacity: 1;
+}
+
+.bioInputBox {
+    position: relative;
+    margin-top: 20px;
+    border: 1px solid rgb(45, 45, 45);
+    padding-left: 10px;
+    padding-top: 25px;
+    padding-bottom: 5px;
+    border-radius: 7px;
+    cursor: text;
+}
+
+.bioInput {
+    color: white;
+    background-color: black;
+    outline: none;
+    border: none;
+    width: 100%;
+    resize: none;
+    font-size: 19px;
+    padding-right: 15px;
+}
+
+.bioInput:focus~.bioFloatingLabel {
+    color: rgb(29, 155, 240) !important;
+}
+
+.bioInputBox:has(.bioInput:focus) {
+    border-width: 2px !important;
+    border-color: rgb(29, 155, 240) !important;
+}
+
+.locationFloatingLabel {
+    padding: 7px 0px;
+    font-size: 18px;
+    color: #6e6e6e;
+    position: absolute;
+    pointer-events: none;
+    top: 8px;
+    left: 10px;
+    transition: all 0.1s ease;
+}
+
+.locationInput:focus~.locationFloatingLabel,
+.locationInput:not(:valid)~.locationFloatingLabel,
+.locationInput:not(:placeholder-shown)~.locationFloatingLabel {
+    top: 0px;
+    font-size: 12px;
+    opacity: 1;
+}
+
+.locationInputBox {
+    position: relative;
+    margin-top: 20px;
+    border: 1px solid rgb(45, 45, 45);
+    padding-left: 10px;
+    padding-top: 25px;
+    padding-bottom: 5px;
+    border-radius: 7px;
+    cursor: text;
+}
+
+.locationInput {
+    color: white;
+    background-color: black;
+    outline: none;
+    border: none;
+    width: 100%;
+    font-size: 19px;
+    padding-right: 15px;
+}
+
+.locationInput:focus~.locationFloatingLabel {
+    color: rgb(29, 155, 240) !important;
+}
+
+.locationInputBox:has(.locationInput:focus) {
+    border-width: 2px !important;
+    border-color: rgb(29, 155, 240) !important;
+}
+
+.websiteFloatingLabel {
+    padding: 7px 0px;
+    font-size: 18px;
+    color: #6e6e6e;
+    position: absolute;
+    pointer-events: none;
+    top: 8px;
+    left: 10px;
+    transition: all 0.1s ease;
+}
+
+.websiteInput:focus~.websiteFloatingLabel,
+.websiteInput:not(:valid)~.websiteFloatingLabel,
+.websiteInput:not(:placeholder-shown)~.websiteFloatingLabel {
+    top: 0px;
+    font-size: 12px;
+    opacity: 1;
+}
+
+.websiteInputBox {
+    position: relative;
+    margin-top: 20px;
+    border: 1px solid rgb(45, 45, 45);
+    padding-left: 10px;
+    padding-top: 25px;
+    padding-bottom: 5px;
+    border-radius: 7px;
+    cursor: text;
+}
+
+.websiteInput {
+    color: white;
+    background-color: black;
+    outline: none;
+    border: none;
+    width: 100%;
+    font-size: 19px;
+    padding-right: 15px;
+}
+
+.websiteInput:focus~.websiteFloatingLabel {
+    color: rgb(29, 155, 240) !important;
+}
+
+.websiteInputBox:has(.websiteInput:focus) {
+    border-width: 2px !important;
+    border-color: rgb(29, 155, 240) !important;
+}
+
+
+.dateOfBirthContainer {
+    margin-top: 20px;
+}
+
+.dateOfBirthText {
+    margin-bottom: 0px;
+    font-size: 16px;
+    font-family: 'Fredoka', sans-serif;
+}
+
+.dateOfBirthSubText {
+    color: rgb(113, 118, 123);
+    font-size: 14px;
+    font-family: 'Poppins', sans-serif;
+}
+
+.dateOfBirthSubText>a {
+    color: rgb(29, 155, 240);
+}
+
+.dobSelector {
+    display: flex;
+    justify-content: space-around;
+}
+
+
+.dobSelector>div {
+    border: 1px solid rgb(45, 45, 45);
+    border-radius: 5px;
+    padding: 5px;
+    margin: 5px;
+}
+
+.dobSelector>div:nth-child(1) {
+    flex: 3
+}
+
+.dobSelector>div>label {
+    color: #6e6e6e;
+}
+
+.dobSelector>div>select {
+    cursor: pointer;
+    color: white;
+    outline: none;
+    background-color: transparent;
+    border: none;
+    border-radius: 10000px;
+}
+
+.dobSelector>div>select:hover {}
+
+.dobSelector>div:has(select:focus) {
+    border-width: 2px !important;
+    border-color: rgb(29, 155, 240) !important;
+}
+
+.dobSelector>div:has(select:focus)>label {
+    color: rgb(29, 155, 240) !important;
+}
+
+.dobSelector>div>select>option {
+    color: white;
+    background-color: black;
+}
+
+.dobSelector>div>select>option:disabled {
+    color: black;
+    background-color: black;
+}
+
+
+.progressBar{
+    height: 2px;
+    background-color: transparent !important;
+}
+.progressBar > div{
+    background-color: rgb(29, 155, 240);
+}
+
+
+@media screen and (max-width:530px) {
+    .modalBody {
+        padding: 16px !important;
+    }
+}
+
+@media screen and (max-width:800px) {
+    .modalBox {
+        min-width: 40vw;
+    }
+}
+
+@media screen and (max-width:576px) {
+    .modalBox {
+        min-height: 97vh;
+    }
+}
+
+@media screen and (max-width:400px) {
+    .dobSelector {
+        flex-direction: column;
+    }
+
+    .dobSelector>div {
+        margin: 5px 0px;
+    }
+}

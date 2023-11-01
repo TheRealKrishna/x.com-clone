@@ -17,6 +17,7 @@ app.get('/api', (req, res) => {
 app.use("/api/auth", require("./api/auth.js"))
 app.use("/api/post", require("./api/post.js"))
 app.use("/api/follow", require("./api/follow.js"))
+app.use("/api/chat", require("./api/chat.js"))
 
 
 // server run

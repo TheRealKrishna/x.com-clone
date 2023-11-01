@@ -25,6 +25,7 @@ function App() {
           <Route exact path="/i/flow/login" element={<><Home /></>} />
           <Route exact path="/home" element={<><Index/></>} />
           <Route exact path="/:username" element={<><Index/></>} />
+          <Route exact path="/settings/profile" element={<><Index/></>} />
           <Route exact path="/:username/verified_followers" element={<><Index/></>} />
           <Route exact path="/:username/followers" element={<><Index/></>} />
           <Route exact path="/:username/following" element={<><Index/></>} />

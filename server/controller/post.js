@@ -27,7 +27,7 @@ const addPost = async (req, res) => {
             if (req.body.images.length === 0 && req.body.message.length === 0) {
                 return res.status(400).json({ success: false, error: "A message or image is required!" })
             }
-            const post = await new Post({ ...req.body, sender: req.body.user._id, timestamp:new Date()})
+            const post = await new Post({ ...req.body, sender: req.body.user._id, timestamp:new Date(), message:req.body.message.trim()})
             await post.save()
             return res.json({ success: true, post: post })
         }
@@ -41,4 +41,22 @@ const addPost = async (req, res) => {
     }
 }
 
-module.exports = { getPosts, addPost }
+const addView = async (req, res) => {
+    try {
+        if (req.body.user) {
+            const post = await new Post.findOne({_id:req.body._id})
+            post.views += 1;
+            await post.save()
+            return res.json({ success: true })
+        }
+        else {
+            return res.status(400).json({ success: false, error: "Invalid Request!" })
+        }
+    }
+    catch (error) {
+        errorHandler(error)
+        return res.status(500).json({ success: false, error: "An internal server error occured!" })
+    }
+}
+
+module.exports = { getPosts, addPost, addView }

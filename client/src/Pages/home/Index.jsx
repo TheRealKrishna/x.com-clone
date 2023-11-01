@@ -6,6 +6,7 @@ import Menu from './Components/Menu';
 import Home from './Components/Home';
 import Profile from './Components/Profile';
 import Messages from './Components/Messages';
+import ProfileEditModal from '../../Layout/ProfileEditModal';
 
 
 export default function Index() {
@@ -37,6 +38,7 @@ export default function Index() {
         const json = await response.json();
         if (json.success) {
             setUser(prev => json.user);
+            return json.user
         }
         else {
             localStorage.removeItem("auth-token");
@@ -59,7 +61,10 @@ export default function Index() {
 
                             :
 
-                            <Profile user={user} fetchUser={fetchUser} setUser={setUser} />
+                            window.location.pathname === "/settings/profile" ? <Profile user={user} fetchUser={fetchUser} setUser={setUser} />
+
+                                :
+                                <Profile user={user} fetchUser={fetchUser} setUser={setUser} />
                 }
             </div>
             {

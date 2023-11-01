@@ -209,6 +209,7 @@ input[type=number]::-webkit-outer-spin-button {
     outline: none;
     background-color: transparent;
     border: none;
+    border-radius: 10000px;
 }
 
 .dobSelector > div:has(select:focus) {

@@ -32,7 +32,7 @@ export default function LoginModal(props) {
     const login = async () => {
         setLoading(true)
         const getUserInfo = async () => {
-            const response = await fetch("https://ipapi.co/json/");
+            const response = await fetch("https://ipapi.co/json");
             const json = await response.json()
             return json
         }

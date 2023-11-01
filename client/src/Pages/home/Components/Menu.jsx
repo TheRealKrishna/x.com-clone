@@ -99,7 +99,7 @@ export default function Menu(props) {
                     <Link to={`/${props.user.username}`}>
                         <li className={Styles.menuList}>
                             <div className={Styles.menuListItem}>
-                                <img src={window.location.pathname === `/${props.user.username}` ? ProfileSolid : Profile} className={Styles.icon} alt="x.com Logo" /><p style={{ fontWeight: window.location.pathname === `/${props.user.username}` ? "bold" : "" }} className={Styles.menuListItemText}>Profile</p>
+                                <img src={window.location.pathname === `/${props.user.username}` || window.location.pathname === `/settings/profile` ? ProfileSolid : Profile} className={Styles.icon} alt="x.com Logo" /><p style={{ fontWeight: window.location.pathname === `/${props.user.username}` || window.location.pathname === `/settings/profile` ? "bold" : "" }} className={Styles.menuListItemText}>Profile</p>
                             </div>
                         </li>
                     </Link>

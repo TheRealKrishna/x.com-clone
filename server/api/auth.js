@@ -1,7 +1,7 @@
 const express = require('express')
 const app = express()
 const {body} = require('express-validator');
-const {emailValidate, phoneValidate, signUpWithEmail, signUpWithPhone, loginValidate, login, loginWithGoogle, getUserInfo, getUserInfoWithId, getUserInfoWithUsername} = require("../controller/auth.js")
+const {emailValidate, phoneValidate, signUpWithEmail, signUpWithPhone, loginValidate, login, loginWithGoogle, getUserInfo, getUserInfoWithId, getUserInfoWithUsername, editProfile} = require("../controller/auth.js")
 const getUser = require("../middleware/getUser.js")
 
 
@@ -13,6 +13,8 @@ app.post("/phonevalidate", body('phone').isLength({ min: 1 }), phoneValidate)
 app.post("/signupwithemail", body('email').isEmail(), body('password').isLength({ min: 8 }), body('name').isLength({ min: 1 }), signUpWithEmail)
 
 app.post("/signupwithphone", body("phone").isLength({ min: 1 }), body('password').isLength({ min: 8 }), body('name').isLength({ min: 1 }), signUpWithPhone)
+
+app.post("/editprofile", getUser, editProfile)
 
 app.post("/loginvalidate", loginValidate)
 

@@ -317,4 +317,39 @@ const getUserInfoWithUsername = async (req, res) => {
     }
 }
 
-module.exports = { emailValidate, phoneValidate, signUpWithEmail, signUpWithPhone, loginValidate, login, loginWithGoogle, getUserInfo, getUserInfoWithId, getUserInfoWithUsername }
+const editProfile = async (req, res) => {
+    try {
+        if (req.body.user) {
+            const errors = validationResult(req)
+            if (req.body.name < 1) {
+                return res.status(400).json({ success: false, error: 'Name is required!' })
+            }
+
+            if (ageSchema.validate(`${new Date(req.body.dob).getFullYear()}-${new Date(req.body.dob).getMonth()}-${new Date(req.body.dob).getDate()}`).error) {
+                return res.status(400).json({ success: false, error: 'You must be atleast 13 years old!' })
+            }
+            req.body.name.length > 1 ? req.body.user.name = req.body.name : null
+            req.body.profile ? req.body.user.profile = req.body.profile : null
+            req.body.banner !== "" ? req.body.banner ? req.body.user.banner = req.body.banner : null : req.body.user.banner = "";
+            req.body.user.bio = req.body.bio
+            req.body.user.location = req.body.location
+            req.body.user.website = req.body.website
+            
+            if (!(ageSchema.validate(`${new Date(req.body.dob).getFullYear()}-${new Date(req.body.dob).getMonth()}-${new Date(req.body.dob).getDate()}`).error)) {
+                req.body.user.dob = req.body.dob
+            }
+            await req.body.user.save();
+            return res.json({ success: true })
+        }
+        else {
+            return res.json({ success: false, error: "Invalid Request!" })
+        }
+    }
+    catch (error) {
+        errorHandler(error)
+        return res.status(500).json({ success: false, error: "An internal server error occured." })
+    }
+
+}
+
+module.exports = { emailValidate, phoneValidate, signUpWithEmail, signUpWithPhone, loginValidate, login, loginWithGoogle, getUserInfo, getUserInfoWithId, getUserInfoWithUsername, editProfile }

@@ -7,6 +7,7 @@ import ThreeDotsButton from "../../../Images/Home/ThreeDotsButton.svg"
 import Messages from "../../../Images/Home/Messages.svg"
 import Notify from "../../../Images/Home/Notify.svg"
 import Spinner from "../../../Components/Spinner"
+import ProfileEditModal from '../../../Layout/ProfileEditModal';
 
 export default function Profile(props) {
     const [profile, setProfile] = useState({});
@@ -14,6 +15,11 @@ export default function Profile(props) {
     const { username } = useParams();
     const [followers, setFollowers] = useState(false)
     const [following, setFollowing] = useState(false)
+    const [previousLocation, setPreviousLocation] = useState(null);
+
+    useEffect(() => {
+        setPreviousLocation(window.location.pathname);
+    }, [window.location.pathname]);
 
     function calculateJoinedDate(postDate) {
         const postDateTime = new Date(postDate);
@@ -24,21 +30,22 @@ export default function Profile(props) {
         return postDateTime.toLocaleDateString(undefined, options);
     }
 
-    const fetchProfile = async () => {
+    const fetchProfile = async (user) => {
         const response = await fetch(`${process.env.REACT_APP_API_URL}/api/auth/getuserinfowithusername`, {
             method: "post",
             headers: {
                 "authtoken": localStorage.getItem("auth-token"),
                 "Content-Type": "Application/json"
             },
-            body: JSON.stringify({ username: username })
+            body: JSON.stringify({ username: window.location.pathname === "/settings/profile" ? user.username : username })
         })
         const json = await response.json();
         if (json.success) {
             setProfile(json.user);
-            return json.user
+            return json.user;
         }
         else {
+            console.log(json.error)
             navigate("/home")
         }
     }
@@ -77,7 +84,7 @@ export default function Profile(props) {
         if (profile.name && profile.username) {
             document.title = `${profile.name} (@${profile.username}) / X`;
         }
-    }, [profile])
+    }, [profile, username])
 
     const addFollower = async (_id) => {
         await fetch(`${process.env.REACT_APP_API_URL}/api/follow/addfollower`, {
@@ -113,20 +120,31 @@ export default function Profile(props) {
         })
     }
 
-    useEffect(() => {
-        setProfile({})
-        fetchProfile().then((profile) => {
-            fetchFollowers(profile)
-            fetchFollowing(profile)
-        })
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [username])
 
     useEffect(() => {
-        fetchProfile().then((profile) => {
-            fetchFollowers(profile)
-            fetchFollowing(profile)
-        })
+        setFollowing(false)
+        setFollowers(false)
+        if (window.location.pathname === "/settings/profile" || previousLocation === "/settings/profile") {
+            props.fetchUser().then((user) => {
+                fetchProfile(user).then((profile) => {
+                    fetchFollowers(profile)
+                    fetchFollowing(profile)
+                })
+            })
+        }
+        else if (window.location.pathname.endsWith("/verified_followers") || window.location.pathname.endsWith("/followers") || window.location.pathname.endsWith("/following")) {
+            fetchProfile().then((profile) => {
+                fetchFollowers(profile)
+                fetchFollowing(profile)
+            })
+        }
+        else {
+            setProfile({})
+            fetchProfile().then((profile) => {
+                fetchFollowers(profile)
+                fetchFollowing(profile)
+            })
+        }
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [window.location.pathname])
 
@@ -204,43 +222,43 @@ export default function Profile(props) {
                                     <div className={Styles.followingPageContianer}>
                                         {
                                             !following ? <Spinner /> :
-                                            following.length > 0 ?
-                                                following.map((follower) => {
-                                                    return (
-                                                        <div key={follower._id} className={Styles.followersItem}>
-                                                            <Link to={`/${follower.username}`}>
-                                                                <div className={Styles.followItemContainer}>
-                                                                    <div className={Styles.profileImageContainer}>
-                                                                        <img src={follower.profile} referrerPolicy="no-referrer" className={Styles.profileImage} alt="" />
-                                                                    </div>
-                                                                    <div className={Styles.followerInfo}>
-                                                                        <div className={Styles.followerButtonFlex}>
-                                                                            <div>
-                                                                                <p className={Styles.followerName}>{follower.name}</p>
-                                                                                <p className={Styles.followerUsername}>@{follower.username}</p>
-                                                                            </div>
+                                                following.length > 0 ?
+                                                    following.map((follower) => {
+                                                        return (
+                                                            <div key={follower._id} className={Styles.followersItem}>
+                                                                <Link to={`/${follower.username}`}>
+                                                                    <div className={Styles.followItemContainer}>
+                                                                        <div className={Styles.profileImageContainer}>
+                                                                            <img src={follower.profile} referrerPolicy="no-referrer" className={Styles.profileImage} alt="" />
                                                                         </div>
-                                                                        <p className={Styles.followerBio}>{follower.bio}</p>
+                                                                        <div className={Styles.followerInfo}>
+                                                                            <div className={Styles.followerButtonFlex}>
+                                                                                <div>
+                                                                                    <p className={Styles.followerName}>{follower.name}</p>
+                                                                                    <p className={Styles.followerUsername}>@{follower.username}</p>
+                                                                                </div>
+                                                                            </div>
+                                                                            <p className={Styles.followerBio}>{follower.bio}</p>
+                                                                        </div>
                                                                     </div>
-                                                                </div>
-                                                            </Link>
-                                                            {
-                                                                follower.followers?.includes(props.user._id) || props.user.following?.includes(follower._id) ?
-                                                                    follower._id !== props.user._id ?
-                                                                        <button type='button' onClick={() => removeFollower(follower._id)} className={`${Styles.followingButton} btn rounded-pill`} onMouseEnter={(e) => { e.currentTarget.innerText = "Unfollow" }} onMouseLeave={(e) => e.currentTarget.innerText = "Following"} >Following</button>
-                                                                        : null :
-                                                                    follower._id !== props.user._id ?
-                                                                        <button type='button' onClick={() => addFollower(follower._id)} className={`${Styles.followButton} btn btn-light rounded-pill`}>Follow</button>
-                                                                        : null
-                                                            }
-                                                        </div>
-                                                    )
-                                                })
-                                                :
-                                                <div className={Styles.verifiedFollowersPageContainer}>
-                                                    <h2 className={Styles.verifiedFollowersText}>@{profile.username} isn’t following anyone</h2>
-                                                    <p className={Styles.verifiedFollowersFadedText}>Once they follow accounts, they’ll show up here.</p>
-                                                </div>
+                                                                </Link>
+                                                                {
+                                                                    follower.followers?.includes(props.user._id) || props.user.following?.includes(follower._id) ?
+                                                                        follower._id !== props.user._id ?
+                                                                            <button type='button' onClick={() => removeFollower(follower._id)} className={`${Styles.followingButton} btn rounded-pill`} onMouseEnter={(e) => { e.currentTarget.innerText = "Unfollow" }} onMouseLeave={(e) => e.currentTarget.innerText = "Following"} >Following</button>
+                                                                            : null :
+                                                                        follower._id !== props.user._id ?
+                                                                            <button type='button' onClick={() => addFollower(follower._id)} className={`${Styles.followButton} btn btn-light rounded-pill`}>Follow</button>
+                                                                            : null
+                                                                }
+                                                            </div>
+                                                        )
+                                                    })
+                                                    :
+                                                    <div className={Styles.verifiedFollowersPageContainer}>
+                                                        <h2 className={Styles.verifiedFollowersText}>@{profile.username} isn’t following anyone</h2>
+                                                        <p className={Styles.verifiedFollowersFadedText}>Once they follow accounts, they’ll show up here.</p>
+                                                    </div>
                                         }
                                     </div>
                                     :
@@ -255,7 +273,7 @@ export default function Profile(props) {
             !profile.username ? <Spinner /> :
                 <div className={Styles.container}>
                     <div className={Styles.topNameConatiner}>
-                        <img onClick={() => { window.history.back() }} className={Styles.backButton} src={BackButton} alt='backButton' />
+                        <img onClick={() => { navigate("/home") }} className={Styles.backButton} src={BackButton} alt='backButton' />
                         <h5 className={Styles.topName}>{profile.name?.length === 0 ? "Profile" : profile.name}</h5>
                     </div>
                     <div className={Styles.profileContainer}>
@@ -269,14 +287,14 @@ export default function Profile(props) {
                         </div>
                         {
                             props.user._id === profile._id ?
-                                <button className={`${Styles.editProfileButton} btn rounded-pill`}>Edit&nbsp;Profile</button>
+                                <button onClick={() => navigate("/settings/profile")} className={`${Styles.editProfileButton} btn rounded-pill`}>Edit&nbsp;Profile</button>
                                 :
                                 <div className={Styles.followContainer}>
                                     <img className={Styles.circleButton} src={ThreeDotsButton} alt='ThreeDotsButton' />
                                     {
                                         profile.followers?.includes(props.user._id) || props.user.following?.includes(profile._id) ?
                                             <>
-                                                <img className={Styles.circleButton} src={Messages} alt='ThreeDotsButton' />
+                                                <img onClick={() => navigate(`/messages/${profile._id}`)} className={Styles.circleButton} src={Messages} alt='ThreeDotsButton' />
                                                 <img className={Styles.circleButton} src={Notify} alt='ThreeDotsButton' />
                                                 <button type='button' onClick={() => removeFollower(profile._id)} onMouseEnter={(e) => { e.currentTarget.innerText = "Unfollow" }} onMouseLeave={(e) => e.currentTarget.innerText = "Following"} className={`${Styles.followingButton} btn rounded-pill`}>Following</button>
                                             </>
@@ -307,6 +325,9 @@ export default function Profile(props) {
                             </div>
                         </div>
                     </div>
+                    {
+                        window.location.pathname === "/settings/profile" ? <ProfileEditModal user={props.user} /> : null
+                    }
                 </div>
         )
     }

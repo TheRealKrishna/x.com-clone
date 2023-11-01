@@ -53,8 +53,21 @@ const UserSchema = new mongoose.Schema({
     type: String,
     default: ""
   },
+  website: {
+    type: String,
+    default: ""
+  },
+  location: {
+    type: String,
+    default: ""
+  },
   followers: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
   following: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
+  contacts: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
+  unreadMessages: {
+    type: mongoose.Schema.Types.Mixed,
+    default: {}
+  },
 }, { minimize: false });
 
 const User = new mongoose.model("User", UserSchema);
