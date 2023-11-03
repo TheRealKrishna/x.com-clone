@@ -44,8 +44,10 @@ const addPost = async (req, res) => {
 const addView = async (req, res) => {
     try {
         if (req.body.user) {
-            const post = await new Post.findOne({_id:req.body._id})
-            post.views += 1;
+            const post = await Post.findOne({_id:req.body._id})
+            if (!post.views.includes(req.body.user._id)) {
+                await post.views.push(req.body.user._id)
+            }
             await post.save()
             return res.json({ success: true })
         }
@@ -59,4 +61,44 @@ const addView = async (req, res) => {
     }
 }
 
-module.exports = { getPosts, addPost, addView }
+const addLike = async (req, res) => {
+    try {
+        if (req.body.user) {
+            const post = await Post.findOne({_id:req.body._id})
+            if (!post.likes.includes(req.body.user._id)) {
+                await post.likes.push(req.body.user._id)
+            }
+            await post.save()
+            return res.json({ success: true })
+        }
+        else {
+            return res.status(400).json({ success: false, error: "Invalid Request!" })
+        }
+    }
+    catch (error) {
+        errorHandler(error)
+        return res.status(500).json({ success: false, error: "An internal server error occured!" })
+    }
+}
+
+const removeLike = async (req, res) => {
+    try {
+        if (req.body.user) {
+            const post = await Post.findOne({_id:req.body._id})
+            if (post.likes.includes(req.body.user._id)) {
+                await post.likes.splice(post.likes.indexOf(req.body.user._id), 1);
+            }
+            await post.save()
+            return res.json({ success: true })
+        }
+        else {
+            return res.status(400).json({ success: false, error: "Invalid Request!" })
+        }
+    }
+    catch (error) {
+        errorHandler(error)
+        return res.status(500).json({ success: false, error: "An internal server error occured!" })
+    }
+}
+
+module.exports = { getPosts, addPost, addView, addLike, removeLike }

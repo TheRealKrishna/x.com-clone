@@ -34,8 +34,8 @@ const PostSchema = new mongoose.Schema({
     default: [],
   },
   views: {
-    type: Number,
-    default: 0,
+    type: Array,
+    default: [],
   }
 
 }, { minimize: false });

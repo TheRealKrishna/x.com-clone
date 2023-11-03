@@ -6,12 +6,16 @@ import spinnerStyles from "../../../css/Spinner.module.css"
 import Replies from "../../../Images/Home/Posts/Replies.svg"
 import Repost from "../../../Images/Home/Posts/Repost.svg"
 import Like from "../../../Images/Home/Posts/Like.svg"
+import LikeSelected from "../../../Images/Home/Posts/LikeSelected.svg"
 import Views from "../../../Images/Home/Posts/Views.svg"
 import Bookmark from "../../../Images/Home/Posts/Bookmark.svg"
 import Share from "../../../Images/Home/Posts/Share.svg"
 
 export default function Posts(props) {
     const [posts, setPosts] = useState([]);
+    // const [renderedPosts, setRenderedPosts] = useState(5);
+    // const [viewedPosts, setViewedPosts] = useState([]);
+    // const [addViewTimeout, setAddViewTimeout] = useState()
 
     function calculatePostAge(postDate) {
         const postDateTime = new Date(postDate);
@@ -53,43 +57,61 @@ export default function Posts(props) {
         }
     }
 
-    const isInViewport = async (element) => {
-        const rect = element.getBoundingClientRect();
-        return rect.top >= 0 && rect.bottom <= (window.innerHeight || document.documentElement.clientHeight);
-    }
-
-    const addViewToPost = async (_id) => {
-        await fetch(`${process.env.REACT_APP_API_URL}/api/post/addview`, {
+    // const addViewToPosts = async (_id) => {
+    //     await fetch(`${process.env.REACT_APP_API_URL}/api/post/addview`, {
+    //         method: "post",
+    //         headers: {
+    //             "Content-Type": "application/json",
+    //             "authToken": localStorage.getItem("auth-token")
+    //         },
+    //         body: JSON.stringify({ _id: _id })
+    //     })
+    // }
+    
+    const addLikeToPost = async (_id) => {
+        await fetch(`${process.env.REACT_APP_API_URL}/api/post/addlike`, {
             method: "post",
             headers: {
                 "Content-Type": "application/json",
                 "authToken": localStorage.getItem("auth-token")
             },
             body: JSON.stringify({ _id: _id })
-        })
+        }).then(()=>fetchPosts())
     }
 
+    const removeLikeFromPost = async (_id) => {
+        await fetch(`${process.env.REACT_APP_API_URL}/api/post/removelike`, {
+            method: "post",
+            headers: {
+                "Content-Type": "application/json",
+                "authToken": localStorage.getItem("auth-token")
+            },
+            body: JSON.stringify({ _id: _id })
+        }).then(()=>fetchPosts())
+    }
+
+    // const addToViewedPosts = async (post) => {
+    //     if (addViewTimeout) {
+    //         clearTimeout(addViewTimeout);
+    //     }
+    //     if (viewedPosts && post.views && props.user._id) {
+    //         if (!viewedPosts.includes(post._id)) {
+    //             if (!post.views.includes(props.user._id)) {
+    //                 setViewedPosts(prev => [...prev, post._id]);
+    //             }
+    //         }
+    //     }
+    //     setAddViewTimeout(setTimeout(() => {
+    //         viewedPosts.forEach((_id) => addViewToPosts(_id))
+    //         setViewedPosts([]);
+    //     }, 5000))
+    // }
+
+    
     useEffect(() => {
         fetchPosts()
     }, [props.reRenderPosts])
 
-    useEffect(() => {
-        const handleScroll = () => {
-            console.log("scroll triggered!")
-            posts.forEach((post) => {
-                const postElement = document.getElementById(`post-${post._id}`);
-                if (postElement && isInViewport(postElement)) {
-                    addViewToPost(post._id);
-                }
-            });
-        };
-
-        window.addEventListener('scroll', handleScroll);
-
-        return () => {
-            window.removeEventListener('scroll', handleScroll);
-        };
-    }, [posts]);
 
     return (
         <>
@@ -99,9 +121,9 @@ export default function Posts(props) {
                         <img className={spinnerStyles.spinner} src={spinner} alt="O" />
                     </div>
                     :
-                    posts.map((post) => {
+                    posts.map((post, index) => {
                         return (
-                            <div key={post._id} id={`post-${post._id}`} className={Styles.postBox}>
+                            <div key={index} className={Styles.postBox}>
                                 <div className={Styles.profileContainer}>
                                     <Link to={`/${post.sender.username}`}><img src={post.sender.profile} referrerPolicy="no-referrer" className={Styles.profileImage} alt="" /></Link>
                                 </div>
@@ -136,13 +158,13 @@ export default function Posts(props) {
                                                 <img src={Repost} alt="" className={`${Styles.postButton} ${Styles.repostButton}`} />
                                                 <p className={`${Styles.postButtonText} ${Styles.repostText}`}>{post.reposts.length}</p>
                                             </div>
-                                            <div className={Styles.likeContainer}>
-                                                <img src={Like} alt="" className={`${Styles.postButton} ${Styles.likeButton}`} />
-                                                <p className={`${Styles.postButtonText} ${Styles.likeText}`}>{post.likes.length}</p>
+                                            <div className={Styles.likeContainer} onClick={()=>post.likes.includes(props.user._id) ? removeLikeFromPost(post._id) : addLikeToPost(post._id)}>
+                                                <img src={post.likes.includes(props.user._id) ? LikeSelected : Like} alt="" className={`${Styles.postButton} ${Styles.likeButton}`} />
+                                                <p className={`${Styles.postButtonText} ${Styles.likeText} ${post.likes.includes(props.user._id) ? Styles.likeTextSelected : ""}`}>{post.likes.length}</p>
                                             </div>
                                             <div className={Styles.viewsContainer}>
                                                 <img src={Views} alt="" className={`${Styles.postButton} ${Styles.viewsButton}`} />
-                                                <p className={`${Styles.postButtonText} ${Styles.viewsText}`}>{post.views}</p>
+                                                <p className={`${Styles.postButtonText} ${Styles.viewsText}`}>{post.views.length}</p>
                                             </div>
                                             <div className={Styles.bookmarkAndShareContainer}>
                                                 <img src={Bookmark} alt="" className={`${Styles.postButton} ${Styles.bookmarkButton}`} />

@@ -19,6 +19,8 @@ export default function Step1(props) {
   const emailFloatingLabel = useRef();
   const nextButton = useRef();
   const [apiCalling, setApiCalling] = useState(false)
+  const [emailValidateTimeout, setEmailValidateTimeout] = useState()
+  const [phoneValidateTimeout, setPhoneValidateTimeout] = useState()
   const [schema, setSchema] = useState(yup
     .object({
       name: yup.string().required("What’s your name?"),
@@ -39,7 +41,7 @@ export default function Step1(props) {
   const handleNextButton = async (data, e) => {
     props.setLoading(true)
     e.preventDefault();
-    if (!(errors.name || errors.phone || errors.email)  ) {
+    if (!(errors.name || errors.phone || errors.email)) {
       props.setCredentials({ ...data, dob: new Date(dob) })
       props.setCurrentStep(prev => prev + 1);
     }
@@ -48,34 +50,44 @@ export default function Step1(props) {
 
   const onEmailChange = async (e) => {
     setApiCalling(true)
-    const response = await fetch(`${process.env.REACT_APP_API_URL}/api/auth/emailvalidate`, {
-      method: "post",
-      body: JSON.stringify({ email: e.target.value }),
-      headers: {
-        "Content-Type": "application/json"
-      }
-    })
-    const json = await response.json();
-    if (!json.success) {
-      setError('email', { type: "custom", message: json.error }, { shouldFocus: false });
+    if (emailValidateTimeout) {
+      clearTimeout(emailValidateTimeout);
     }
-    setApiCalling(false)
+    setEmailValidateTimeout(setTimeout(async () => {
+      const response = await fetch(`${process.env.REACT_APP_API_URL}/api/auth/emailvalidate`, {
+        method: "post",
+        body: JSON.stringify({ email: e.target.value }),
+        headers: {
+          "Content-Type": "application/json"
+        }
+      })
+      const json = await response.json();
+      if (!json.success) {
+        setError('email', { type: "custom", message: json.error }, { shouldFocus: false });
+      }
+      setApiCalling(false)
+    }, 1000))
   }
 
   const onPhoneChange = async (e) => {
     setApiCalling(true)
-    const response = await fetch(`${process.env.REACT_APP_API_URL}/api/auth/phonevalidate`, {
-      method: "post",
-      body: JSON.stringify({ phone: e.target.value, country:(await getUserInfo()).country }),
-      headers: {
-        "Content-Type": "application/json"
-      }
-    })
-    const json = await response.json();
-    if (!json.success) {
-      setError('phone', { type: "custom", message: json.error }, { shouldFocus: false });
+    if (phoneValidateTimeout) {
+      clearTimeout(phoneValidateTimeout);
     }
-    setApiCalling(false)
+    setPhoneValidateTimeout(setTimeout(async () => {
+      const response = await fetch(`${process.env.REACT_APP_API_URL}/api/auth/phonevalidate`, {
+        method: "post",
+        body: JSON.stringify({ phone: e.target.value, country: (await getUserInfo()).country }),
+        headers: {
+          "Content-Type": "application/json"
+        }
+      })
+      const json = await response.json();
+      if (!json.success) {
+        setError('phone', { type: "custom", message: json.error }, { shouldFocus: false });
+      }
+      setApiCalling(false)
+    }, 1000))
   }
 
 
@@ -138,7 +150,7 @@ export default function Step1(props) {
         nextButton.current.disabled = false;
       }
     }
-    if(apiCalling){
+    if (apiCalling) {
       nextButton.current.disabled = true;
     }
   }, [errors.name, errors.phone, errors.email, dob, props.currentMethod, watchAllFields, getValues, apiCalling])
@@ -190,10 +202,10 @@ export default function Step1(props) {
         </div>
         <p className={Styles.error}>{errors.name && errors.name?.message}</p>
         {
-          props.currentMethod === "phone" ? 
+          props.currentMethod === "phone" ?
             <>
               <div ref={phoneInputBox} className={Styles.phoneInputBox}>
-                <input ref={phoneInput} className={Styles.phoneInput} placeholder=" " name='phone' type="number" {...register('phone', { onBlur: onPhoneChange })} />
+                <input ref={phoneInput} className={Styles.phoneInput} placeholder=" " name='phone' type="number" {...register('phone', { onChange: onPhoneChange })} />
                 <label ref={phoneFloatingLabel} className={`${Styles.floatingLabel} ${Styles.phoneFloatingLabel}`}>Phone</label>
               </div>
               <p className={Styles.error}>{errors.phone && errors.phone?.message}</p>
@@ -202,7 +214,7 @@ export default function Step1(props) {
             props.currentMethod === "email" ?
               <>
                 <div ref={emailInputBox} className={Styles.emailInputBox}>
-                  <input ref={emailInput} className={Styles.emailInput} placeholder=" " name='email' type="email" {...register('email', { onBlur: onEmailChange })} />
+                  <input ref={emailInput} className={Styles.emailInput} placeholder=" " name='email' type="email" {...register('email', { onChange: onEmailChange })} />
                   <label ref={emailFloatingLabel} className={`${Styles.floatingLabel} ${Styles.emailFloatingLabel}`}>Email</label>
                 </div>
                 <p className={Styles.error}>{errors.email && errors.email?.message}</p>

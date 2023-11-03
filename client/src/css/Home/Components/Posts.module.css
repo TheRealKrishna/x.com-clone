@@ -144,6 +144,10 @@
     color: rgb(249, 24, 128);
 }
 
+.likeTextSelected{
+    color: rgb(249, 24, 128);
+}
+
 .viewsContainer{
     display: flex;
     align-items: center;

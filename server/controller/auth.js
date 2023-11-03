@@ -246,6 +246,7 @@ const loginWithGoogle = async (req, res) => {
                     }
                 }
             }
+            console.log(json)
             const user = await User.create({ name: json.names[0].givenName, email: json.emailAddresses[0].value, dob: new Date(`${json.birthdays[0].date.year}-${json.birthdays[0].date.month}-${json.birthdays[0].date.day}`), profile: json.photos[0].url, username: await uniqueUsernameGenerator(), joined: new Date() });
             await user.save();
             const token = jwt.sign({ _id: user._id }, process.env.JWT_SECRET);

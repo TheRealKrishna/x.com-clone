@@ -23,7 +23,6 @@ export default function Home(props) {
     const [currentMenu, setCurrentMenu] = useState("For You")
     const [post, setPost] = useState({ message: '', images: [], audience: "Everyone", whoCanReply: "Everyone can reply" });
     const postTextInput = useRef();
-    const [postTextInputRows, setPostTextInputRows] = useState(1)
     const audienceSelector = useRef();
     const whoCanReplySelector = useRef();
     const [images, setImages] = useState([]);
@@ -33,7 +32,6 @@ export default function Home(props) {
     const postForm = useRef();
     const [reRenderPosts, setReRenderPosts] = useState(1)
     const [emojiPicker, setEmojiPicker] = useState(false)
-    const [circleProgress, setCircleProgress] = useState(0) // max = 280
     const circularProgressContainer = useRef()
 
     const handlePostTextChange = async (e) => {
@@ -280,7 +278,7 @@ export default function Home(props) {
                         </div>
                     </div>
                 </form>
-                <Posts reRenderPosts={reRenderPosts} />
+                <Posts reRenderPosts={reRenderPosts} user={props.user} fetchUser={props.fetchUser} />
             </div>
         </div >
     )
