@@ -1,4 +1,4 @@
-.container{
+.container {
     width: 100%;
     height: 100vh;
     display: flex;
@@ -7,70 +7,72 @@
     overflow-x: hidden;
 }
 
-.mainPanelSmall{
+.mainPanelSmall {
     flex: 2;
     border-left: 1px solid rgb(47, 51, 54);
-    border-right: 1px solid rgb(47, 51, 54);;
+    border-right: 1px solid rgb(47, 51, 54);
 }
 
-.rightPanelLarge{
+.rightPanelLarge {
     flex: 3.10;
-    border-right: 1px solid rgb(47, 51, 54);;
 }
 
-.topBlackConatiner{
+.topBlackConatiner {
     display: flex;
     justify-content: space-between;
     padding: 10px;
 }
 
-.heading{
+.heading {
     color: white;
     margin: 5px;
     font-weight: bold;
     font-family: 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
 }
 
-.topContainerIcon{
+.topContainerIcon {
     width: 20px;
     height: 20px;
     margin: 4px 7px;
 }
 
-.searchInputBox{
+.searchInputBox {
     display: flex;
     justify-content: flex-start;
     align-items: center;
     border: 1px solid rgba(113, 118, 123, 0.508);
     margin: 10px 10px;
-    padding: 6px 12px;
-    padding-bottom: 9px;
+    padding: 10px 15px;
+    padding-bottom: 11px;
     border-radius: 25px;
+    cursor: text;
 }
 
-.searchIcon{
+.searchIcon {
     width: 16px;
     height: 16px;
     padding: 0px;
     margin: 0px;
-    margin-top: 3px;
+    margin-top: 2px;
     margin-right: 3px;
 }
 
-.searchInput{
+.searchInput {
     background-color: transparent;
     outline: none;
     border: none;
     color: white;
+    width: 100%;
+    margin: 0px 10px;
 }
 
-.searchInput::placeholder{
+.searchInput::placeholder {
     font-size: 14px;
     color: rgb(113, 118, 123);
-    font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
-.selectMessageContainer{
+.selectMessageContainer {
     height: 100%;
     width: 100%;
     display: flex;
@@ -80,18 +82,332 @@
     padding: 0px 20%;
 }
 
-.selectMessageText{
+.selectMessageText {
     color: white;
     font-weight: bold;
 }
 
-.selectMessageTextSmaller{
+.selectMessageTextSmaller {
     color: rgb(113, 118, 123);
 }
 
-.newMessageButton{
+.newMessageButton {
     background-color: rgb(29, 155, 240);
     padding: 15px 45px;
     font-weight: bold;
+    margin-top: 10px;
+}
+
+.contacts {
+    margin-top: 15px;
+}
+
+.contactContainer {
+    width: 100%;
+    display: flex;
+    padding: 18px 20px;
+    cursor: pointer;
+}
+
+.contactContainer:hover {
+    background-color: rgb(22, 24, 28);
+}
+
+.contactContainerSelected {
+    background-color: rgb(32, 35, 39);
+    border-right: 2px solid rgb(29, 155, 240);
+}
+
+.contactProfileContainer {
+    width: 45px;
+    height: 45px;
+}
+
+.contactProfile {
+    border-radius: 50%;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.contactNameContainer {
+    display: flex;
+    margin: 0px;
+    margin-left: 12px;
+    padding: 2px 0px;
+}
+
+.name {
+    color: white;
+    margin: 0px;
+    font-size: 18px;
+    margin-right: 5px;
+    cursor: pointer;
+}
+
+.username {
+    margin: 0px;
+    color: rgb(113, 118, 123);
+    font-size: 18px;
+    margin-top: -4px;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    margin-right: 5px;
+    cursor: pointer;
+}
+
+.dot {
+    margin: 0px;
+    color: rgb(113, 118, 123);
+    font-size: 14px;
+    margin-right: 5px;
+}
+
+.timestamp {
+    margin: 0px;
+    color: rgb(113, 118, 123);
+    font-size: 14px;
+    margin-right: 5px;
+}
+
+.lastMessage {
+    margin: 0px;
+    margin-top: -1px;
+    margin-left: 12px;
+    color: rgb(113, 118, 123);
+}
+
+.chatArea {
+    width: 100%;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+}
+
+.chatAreaTopBlackConatiner {
+    background: rgba(0, 0, 0, 0.71);
+    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+    backdrop-filter: blur(9.9px);
+    -webkit-backdrop-filter: blur(9.9px);
+    display: flex;
+    justify-content: space-between;
+    padding: 10px;
+    width: 100%;
+    position: absolute;
+    top: 0;
+    z-index: 999;
+}
+
+.chatAreaInfoIcon {
+    width: 25px;
+    height: 25px;
+    margin: 5px;
+}
+
+.chat {
+    height: 100vh;
+    overflow-x: hidden;
+    overflow-y: auto;
+    color: white;
+    padding-top: 60px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+
+.chat::-webkit-scrollbar {
+    width: .4em;
+}
+
+.chat::-webkit-scrollbar-thumb {
+    background-color: rgb(98, 98, 98);
+    border-radius: 5px;
+}
+
+.chatContactInfoContainer {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+    cursor: pointer;
+    padding: 20px;
+    padding-bottom: 40px;
+    border-bottom: 1px solid rgb(47, 51, 54);
+}
+
+.chatContactInfoContainer:hover {
+    background-color: rgb(22, 24, 28);
+}
+
+.chatMessages {
+    padding: 0px 20px;
+}
+
+
+.chatContactProfileContainer {
+    width: 75px;
+    height: 75px;
+}
+
+.chatContactProfile {
+    border-radius: 50%;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.chatContactName {
+    color: white;
+    font-weight: bold;
+    font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
+    padding: 0px;
+    margin: 0px;
+}
+
+.chatContactUsername {
+    color: rgb(113, 118, 123);
+    font-family: Tahoma, Geneva, Verdana, sans-serif;
+    padding: 0px;
+    margin: 0px;
+}
+
+.chatContactBio {
+    color: white;
+    font-family: sans-serif;
+    padding: 0px;
+    margin: 0px;
+    margin-top: 10px;
+}
+
+.chatContactJoinedText {
+    margin: 0px;
+    color: rgb(113, 118, 123);
+    font-size: 16px;
+    margin-right: 5px;
+}
+
+.chatContactDot {
+    margin: 0px;
+    color: rgb(113, 118, 123);
+    font-size: 16px;
+    margin-right: 5px;
+}
+
+.chatContactFollowers {
+    margin: 0px;
+    color: rgb(113, 118, 123);
+    font-size: 16px;
+    margin-right: 5px;
+}
+
+
+.sendBox {
+    border-top: 1px solid rgb(47, 51, 54);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.messageInputBox {
+    width: 100%;
+    padding: 10px;
+    margin: 10px;
+    background-color: rgb(32, 35, 39);
+    border-radius: 20px;
+    display: flex;
+    justify-content: space-between;
+}
+
+.messageInputIcons {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+}
+
+.messageInput {
+    background-color: transparent;
+    outline: none;
+    border: none;
+    width: 75%;
+    color: white;
+    resize: none;
+    word-wrap: break-word;
+    word-break: break-word;
+    overflow-y: hidden;
+    padding-bottom: 0px;
+}
+
+.messageInput::placeholder {
+    color: #71767B;
+}
+
+.chatMessages {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+
+.sentMessage {
+    margin: 20px 0px;
+    align-self: flex-end;
+    width: max-content;
+    padding: 15px 20px;
+    height: auto;
+    text-align: center;
+    background: rgb(29, 155, 240);
+    position: relative;
+    -moz-border-radius: 15px;
+    -webkit-border-radius: 15px;
+    border-radius: 120px;
+    border-bottom-right-radius: 12px;
+}
+
+.receivedMessage {
+    margin: 20px 5px;
+    align-self: flex-start;
+    width: max-content;
+    padding: 15px 20px;
+    height: auto;
+    text-align: center;
+    background: rgb(47, 51, 54);
+    position: relative;
+    -moz-border-radius: 15px;
+    -webkit-border-radius: 15px;
+    border-radius: 120px;
+    border-bottom-left-radius: 12px;
+}
+
+.messageSendButton {
+    background-color: transparent;
+    outline: none;
+    border: none;
+}
+
+.welcomeInboxContainer {
+    height: 100%;
+    width: 80%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: flex-start;
+    margin: 40px 50px;
+}
+
+.welcomeMessageText {
+    color: white;
+    font-weight: bold;
+}
+
+.welcomeMessageTextSmaller {
+    color: rgb(113, 118, 123);
+}
+
+.writeMessageButton {
+    background-color: rgb(29, 155, 240);
+    padding: 15px 45px;
+    font-weight: bold;
+    font-size: 18px;
     margin-top: 10px;
 }

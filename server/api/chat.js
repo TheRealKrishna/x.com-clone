@@ -5,7 +5,7 @@ const { getContacts, getMessages, addContact, createChat, addMessage } = require
 const getUser = require("../middleware/getUser.js")
 
 
-app.post("/getcontacts", getContacts)
+app.post("/getcontacts",getUser, getContacts)
 app.post("/getmessages", getUser, getMessages)
 app.post("/addcontact", getUser, addContact)
 app.post("/createchat", getUser, createChat)

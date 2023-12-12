@@ -14,8 +14,8 @@ import Share from "../../../Images/Home/Posts/Share.svg"
 export default function Posts(props) {
     const [posts, setPosts] = useState([]);
     // const [renderedPosts, setRenderedPosts] = useState(5);
-    // const [viewedPosts, setViewedPosts] = useState([]);
-    // const [addViewTimeout, setAddViewTimeout] = useState()
+    const [viewedPosts, setViewedPosts] = useState([]);
+    const [viewsUpdateTimeout, setViewsUpdateTimeout] = useState()
 
     function calculatePostAge(postDate) {
         const postDateTime = new Date(postDate);
@@ -57,17 +57,17 @@ export default function Posts(props) {
         }
     }
 
-    // const addViewToPosts = async (_id) => {
-    //     await fetch(`${process.env.REACT_APP_API_URL}/api/post/addview`, {
-    //         method: "post",
-    //         headers: {
-    //             "Content-Type": "application/json",
-    //             "authToken": localStorage.getItem("auth-token")
-    //         },
-    //         body: JSON.stringify({ _id: _id })
-    //     })
-    // }
-    
+    const addViewToPost = async (_id) => {
+        await fetch(`${process.env.REACT_APP_API_URL}/api/post/addview`, {
+            method: "post",
+            headers: {
+                "Content-Type": "application/json",
+                "authToken": localStorage.getItem("auth-token")
+            },
+            body: JSON.stringify({ _id: _id })
+        })
+    }
+
     const addLikeToPost = async (_id) => {
         await fetch(`${process.env.REACT_APP_API_URL}/api/post/addlike`, {
             method: "post",
@@ -76,7 +76,7 @@ export default function Posts(props) {
                 "authToken": localStorage.getItem("auth-token")
             },
             body: JSON.stringify({ _id: _id })
-        }).then(()=>fetchPosts())
+        }).then(() => fetchPosts())
     }
 
     const removeLikeFromPost = async (_id) => {
@@ -87,7 +87,7 @@ export default function Posts(props) {
                 "authToken": localStorage.getItem("auth-token")
             },
             body: JSON.stringify({ _id: _id })
-        }).then(()=>fetchPosts())
+        }).then(() => fetchPosts())
     }
 
     // const addToViewedPosts = async (post) => {
@@ -107,7 +107,21 @@ export default function Posts(props) {
     //     }, 5000))
     // }
 
-    
+    const addToViewedPosts = async (post) => {
+        if (viewsUpdateTimeout) {
+            clearTimeout(viewsUpdateTimeout);
+        }
+        
+        setViewsUpdateTimeout(setTimeout(() => {
+            updateViewedPosts.then(()=>fetchPosts().then(()=>setViewedPosts([])))
+        }, 5000))
+    }
+
+    const updateViewedPosts = async()=>{
+        viewedPosts.forEach((_id) => addViewToPost(_id))
+    }
+
+
     useEffect(() => {
         fetchPosts()
     }, [props.reRenderPosts])
@@ -158,7 +172,7 @@ export default function Posts(props) {
                                                 <img src={Repost} alt="" className={`${Styles.postButton} ${Styles.repostButton}`} />
                                                 <p className={`${Styles.postButtonText} ${Styles.repostText}`}>{post.reposts.length}</p>
                                             </div>
-                                            <div className={Styles.likeContainer} onClick={()=>post.likes.includes(props.user._id) ? removeLikeFromPost(post._id) : addLikeToPost(post._id)}>
+                                            <div className={Styles.likeContainer} onClick={() => post.likes.includes(props.user._id) ? removeLikeFromPost(post._id) : addLikeToPost(post._id)}>
                                                 <img src={post.likes.includes(props.user._id) ? LikeSelected : Like} alt="" className={`${Styles.postButton} ${Styles.likeButton}`} />
                                                 <p className={`${Styles.postButtonText} ${Styles.likeText} ${post.likes.includes(props.user._id) ? Styles.likeTextSelected : ""}`}>{post.likes.length}</p>
                                             </div>

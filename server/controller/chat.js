@@ -1,10 +1,14 @@
 const User = require("../database/models/UserSchema.js")
 const Chat = require("../database/models/ChatSchema.js")
+const jwt = require("jsonwebtoken");
+const mongoose = require("mongoose")
 const errorHandler = require("../handler/errorHandler.js")
 
 const getContacts = async (req, res) => {
     try {
-        const user = await User.find({}).populate('contacts', '-password -__v')
+        const { authtoken } = req.headers;
+        const userId = jwt.verify(authtoken, process.env.JWT_SECRET);
+        const user = await User.findOne({ _id: userId }).populate('contacts', '-password -__v')
         if (user) {
             return res.json({ success: true, contacts: user.contacts })
         }
@@ -99,7 +103,7 @@ const createChat = async (req, res) => {
                 members: [user._id, contact._id],
                 messages: [{
                     _id: new mongoose.Types.ObjectId(),
-                    message: req.body.message,
+                    message: req.body.message.trim(),
                     sender: user._id,
                     timeStamp: new Date()
                 }]
@@ -125,6 +129,7 @@ const createChat = async (req, res) => {
     }
 }
 
+
 const addMessage = async (req, res) => {
     try {
         if (req.body.user) {
@@ -139,7 +144,7 @@ const addMessage = async (req, res) => {
             }
             chat.messages.push({
                 _id: new mongoose.Types.ObjectId(),
-                message: req.body.message,
+                message: req.body.message.trim(),
                 sender: user._id,
                 timeStamp: new Date()
             })
