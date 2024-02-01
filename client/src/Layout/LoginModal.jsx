@@ -17,7 +17,7 @@ export default function LoginModal(props) {
     const loginModal = useRef();
     const { pathname } = useLocation();
     const navigate = useNavigate();
-    const [credentials, setCredentials] = useState({ name: "", password: "", method:"" });
+    const [credentials, setCredentials] = useState({ name: "", password: "", method: "" });
     const renderCurrentStep = () => {
         switch (currentStep) {
             case 1:
@@ -32,9 +32,17 @@ export default function LoginModal(props) {
     const login = async () => {
         setLoading(true)
         const getUserInfo = async () => {
-            const response = await fetch("https://ipapi.co/json");
-            const json = await response.json()
-            return json
+            return fetch("https://ipapi.co/json").then(response => response.json())
+                .then(data => data).catch(error => {
+                    toast(json.error ? json.error : 'Oops, something went wrong. Please try a different web browser.', {
+                        style: {
+                            border: '1px solid white',
+                            padding: '16px 30px',
+                            color: 'white',
+                            backgroundColor: "rgb(29, 155, 240)",
+                        }
+                    });
+                });;
         }
         const response = await fetch(`${process.env.REACT_APP_API_URL}/api/auth/login`, {
             method: "post",
@@ -62,10 +70,10 @@ export default function LoginModal(props) {
 
         }
         else {
-            if(json.authError){
+            if (json.authError) {
                 setCurrentStep(prev => 1);
             }
-            else{
+            else {
                 setCurrentStep(prev => 2);
             }
             toast(json.error ? json.error : 'Oops, something went wrong. Please try again later.', {
@@ -80,63 +88,63 @@ export default function LoginModal(props) {
         }
     }
 
-useEffect(() => {
-    if (currentStep < 1) {
-        setCurrentStep(1) // this won't let current step go below 1;
-    }
-    if (pathname === "/i/flow/login") {
-        document.getElementsByClassName(props.Styles.loginButton)[0].click();
-    }
+    useEffect(() => {
+        if (currentStep < 1) {
+            setCurrentStep(1) // this won't let current step go below 1;
+        }
+        if (pathname === "/i/flow/login") {
+            document.getElementsByClassName(props.Styles.loginButton)[0].click();
+        }
 
-    if (currentStep > 2) {
-        login();
-    }
+        if (currentStep > 2) {
+            login();
+        }
 
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-}, [currentStep, pathname])
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [currentStep, pathname])
 
-useEffect(() => {
-    setTimeout(() => {
-        setLoading(false)
-    }, 500);
-}, [])
-
-
-useEffect(() => {
-    loginModal.current.addEventListener('shown.bs.modal', () => {
-        document.title = "Log in to Twitter / X"
-    })
-    loginModal.current.addEventListener('hidden.bs.modal', () => {
-        document.title = "X. It's what's happening / X"
-    })
-}, [])
-
-return (
-    <div>
-        <div className={`modal ${Styles.fade}`} ref={loginModal} id="loginModal" data-bs-backdrop="static" data-bs-keyboard="false" tabIndex="-1" aria-labelledby="loginModalLabel" aria-hidden="true">
-            <div className={`modal-dialog ${Styles.modalDialog}`}>
-                <div className={`modal-content ${Styles.modalBox}`}>
-                    {loading ? <Spinner /> :
-                        <>
-                            <div className={`${Styles.modalHeader}`}>
-                                <button type="button" className={Styles.closeButton} data-bs-dismiss="modal" aria-label="Close" onClick={() => {
-                                    navigate("/")
-                                    setCurrentStep(prev => 1)
-                                }}><img className={Styles.closeButtonIcon} src={closeButtonIcon} alt="closebutton" /></button>
-                                <img src={logo} className={Styles.logo} alt="x.com Logo" />
-                                <img src="" className="" alt="" />
-                            </div>
-                            <div className={`modal-body ${Styles.modalBody}`}>
-
-                                {renderCurrentStep()}
+    useEffect(() => {
+        setTimeout(() => {
+            setLoading(false)
+        }, 500);
+    }, [])
 
 
-                            </div>
-                        </>
-                    }
+    useEffect(() => {
+        loginModal.current.addEventListener('shown.bs.modal', () => {
+            document.title = "Log in to Twitter / X"
+        })
+        loginModal.current.addEventListener('hidden.bs.modal', () => {
+            document.title = "X. It's what's happening / X"
+        })
+    }, [])
+
+    return (
+        <div>
+            <div className={`modal ${Styles.fade}`} ref={loginModal} id="loginModal" data-bs-backdrop="static" data-bs-keyboard="false" tabIndex="-1" aria-labelledby="loginModalLabel" aria-hidden="true">
+                <div className={`modal-dialog ${Styles.modalDialog}`}>
+                    <div className={`modal-content ${Styles.modalBox}`}>
+                        {loading ? <Spinner /> :
+                            <>
+                                <div className={`${Styles.modalHeader}`}>
+                                    <button type="button" className={Styles.closeButton} data-bs-dismiss="modal" aria-label="Close" onClick={() => {
+                                        navigate("/")
+                                        setCurrentStep(prev => 1)
+                                    }}><img className={Styles.closeButtonIcon} src={closeButtonIcon} alt="closebutton" /></button>
+                                    <img src={logo} className={Styles.logo} alt="x.com Logo" />
+                                    <img src="" className="" alt="" />
+                                </div>
+                                <div className={`modal-body ${Styles.modalBody}`}>
+
+                                    {renderCurrentStep()}
+
+
+                                </div>
+                            </>
+                        }
+                    </div>
                 </div>
             </div>
         </div>
-    </div>
-)
+    )
 }
