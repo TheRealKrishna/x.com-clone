@@ -1,4 +1,4 @@
-.menuContainer{
+.menuContainer {
     height: 100vh;
     display: flex;
     flex-direction: column;
@@ -8,34 +8,34 @@
 
 .menuContainer::-webkit-scrollbar {
     width: .4em;
-  }
-   
+}
+
 .menuContainer::-webkit-scrollbar-thumb {
     background-color: rgb(98, 98, 98);
     border-radius: 5px;
-  }
+}
 
-.logo{
+.logo {
     height: 2rem;
     margin: 15px 0px;
 }
 
-a{
+a {
     color: white;
     text-decoration: none;
 }
 
-.menu{
+.menu {
     padding: 0px;
 }
 
-.menuList{
-    list-style:none;
+.menuList {
+    list-style: none;
     width: 100%;
 }
 
-.menuListItem{
-    margin: 0px;    
+.menuListItem {
+    margin: 0px;
     display: flex;
     justify-content: flex-start;
     width: max-content;
@@ -43,20 +43,28 @@ a{
     border-radius: 25px;
 }
 
-a:hover > .menuList > .menuListItem{
+a:hover>.menuList>.menuListItem {
     background-color: rgba(231, 233, 234, 0.1);
 }
 
-.menuListItemicon{
+.menuListItemicon {
     height: 2rem;
 }
 
-.menuListItemText{
+.menuListItemText {
     margin: 0px 20px;
     font-size: 20px;
 }
 
-.postButton{
+.menuPostButtonWithIcon {
+    display: none;
+}
+
+.menuPostButtonWithText {
+    display: block;
+}
+
+.postButton {
     background-color: rgb(29, 155, 240);
     margin-top: 6px;
     padding: 13px 0px;
@@ -66,11 +74,9 @@ a:hover > .menuList > .menuListItem{
     font-weight: bold;
 }
 
-.profileContainer::before{
+.profileContainer::before {}
 
-}
-
-.profileContainer{
+.profileContainer {
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -82,50 +88,50 @@ a:hover > .menuList > .menuListItem{
     cursor: pointer;
 }
 
-.profileContainer:hover{
+.profileContainer:hover {
     background-color: rgba(231, 233, 234, 0.1);
 }
 
-.profileImageContainer{
+.profileImageContainer {
     height: 40px;
     width: 40px;
 }
 
-.profileImage{
+.profileImage {
     border-radius: 50%;
     width: 100%;
     height: 100%;
     object-fit: cover;
 }
 
-.profileNamesContainer{
+.profileNamesContainer {
     display: flex;
     flex-direction: column;
     flex: 10;
 }
 
-.profileName{
+.profileName {
     color: white;
     margin: 0px;
     margin-left: 10px;
 }
 
-.profileUsername{
+.profileUsername {
     color: rgb(113, 118, 123);
     margin: 0px;
     margin-left: 10px;
 }
 
-.threeDotsContainer{
+.threeDotsContainer {
     color: white;
 }
 
-.profileBoxContainer{
+.profileBoxContainer {
     position: absolute;
     z-index: 1;
 }
 
-.profileBox{
+.profileBox {
     min-width: 300px;
     min-height: 120px;
     margin: 0px;
@@ -144,24 +150,66 @@ a:hover > .menuList > .menuListItem{
     background-color: transparent;
     color: white;
     padding: 10px 15px;
-    cursor:default;
+    cursor: default;
 }
 
-.profileBoxOption:hover{
+.profileBoxOption:hover {
     background-color: rgb(22, 24, 28);
     color: white;
     cursor: pointer;
 }
 
-.profileMenuArrowContainer{
-    display: flex;    
+.profileMenuArrowContainer {
+    display: flex;
     width: 100%;
     justify-content: center;
     position: absolute;
     bottom: -17px;
 }
 
-.profileMenuArrow{
+.profileMenuArrow {
     filter: drop-shadow(0px -1px 1px rgba(255, 255, 255, 0.511));
     transform: rotate(180deg);
+}
+
+@media (max-width:535px) {
+    .menuListItemText {
+        display: none;
+    }
+
+    .profileMenuArrowContainer{
+        left: -128px;
+    }
+
+    .menuPostButtonWithIcon {
+        display: block;
+        padding: 0px;
+        margin: 0px;
+    }
+
+    .menuPostButtonWithIcon button {
+        background-color: rgb(29, 155, 240);
+        margin-top: 6px;
+        padding: 5px 0px;
+        width: 100%;
+        color: white;
+        font-weight: bold;
+        border-radius: 169px !important;
+    }
+
+    .menuPostButtonWithText {
+        display: none;
+    }
+
+    .profileContainer{
+        padding: 0px;
+        margin-right: 0px;
+    }
+
+    .profileNamesContainer{
+        display: none;
+    }
+    .threeDotsContainer{
+        display: none;
+    }
 }

@@ -110,7 +110,14 @@ export default function Menu(props) {
                             </div>
                         </li>
                     </Link>
-                    <Link to={"/home"}>
+                    <Link to={"/home"} className={Styles.menuPostButtonWithIcon}>
+                        <button onClick={()=>{
+                            if(window.location.pathname === "/home"){
+                                document.getElementById("postTextInput").focus()
+                            }
+                        }} className={`${Styles.postButton} btn btn-primary rounded-pill`}>+</button>
+                    </Link>
+                    <Link to={"/home"} className={Styles.menuPostButtonWithText}>
                         <button onClick={()=>{
                             if(window.location.pathname === "/home"){
                                 document.getElementById("postTextInput").focus()

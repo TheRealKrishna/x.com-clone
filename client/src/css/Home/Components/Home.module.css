@@ -13,11 +13,11 @@
 }
 
 .menuSelectorContainer {
+    width: 100%;
     display: flex;
     justify-content: space-evenly;
     color: rgb(113, 118, 123);
     border-bottom: 1px solid rgb(47, 51, 54);
-    width: 39vw;
     text-align: center;
 }
 

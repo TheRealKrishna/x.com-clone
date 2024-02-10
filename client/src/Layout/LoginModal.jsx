@@ -32,9 +32,15 @@ export default function LoginModal(props) {
     const login = async () => {
         setLoading(true)
         const getUserInfo = async () => {
-            return fetch("https://ipapi.co/json").then(response => response.json())
-                .then(data => data).catch(error => {
-                    toast(json.error ? json.error : 'Oops, something went wrong. Please try a different web browser.', {
+            return fetch("https://ipapi.co/json")
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.json();
+                }).catch(error => {
+                    console.error('Error fetching IP data:', error);
+                    toast('Oops, something went wrong. Please try a different web browser.', {
                         style: {
                             border: '1px solid white',
                             padding: '16px 30px',
@@ -42,7 +48,7 @@ export default function LoginModal(props) {
                             backgroundColor: "rgb(29, 155, 240)",
                         }
                     });
-                });;
+                });
         }
         const response = await fetch(`${process.env.REACT_APP_API_URL}/api/auth/login`, {
             method: "post",
