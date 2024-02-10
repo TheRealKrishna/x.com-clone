@@ -20,10 +20,17 @@ export default function Menu(props) {
     const navigate = useNavigate();
     const profileBox = useRef()
     const profileMenu = useRef()
-    const profileMenuArrow = useRef()
 
     useEffect(() => {
-
+        function handleClick(event) {
+            if (!profileMenu.current.style.display === 'none') {
+                profileMenu.current.style.display = 'none';
+            }
+        }
+        document.addEventListener('click', handleClick);
+        return () => {
+            document.removeEventListener('click', handleClick);
+        };
     }, [])
 
     const handleLogout = () => {
@@ -111,15 +118,15 @@ export default function Menu(props) {
                         </li>
                     </Link>
                     <Link to={"/home"} className={Styles.menuPostButtonWithIcon}>
-                        <button onClick={()=>{
-                            if(window.location.pathname === "/home"){
+                        <button onClick={() => {
+                            if (window.location.pathname === "/home") {
                                 document.getElementById("postTextInput").focus()
                             }
                         }} className={`${Styles.postButton} btn btn-primary rounded-pill`}>+</button>
                     </Link>
                     <Link to={"/home"} className={Styles.menuPostButtonWithText}>
-                        <button onClick={()=>{
-                            if(window.location.pathname === "/home"){
+                        <button onClick={() => {
+                            if (window.location.pathname === "/home") {
                                 document.getElementById("postTextInput").focus()
                             }
                         }} className={`${Styles.postButton} btn btn-primary rounded-pill`}>Post</button>

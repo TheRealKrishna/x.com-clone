@@ -8,6 +8,7 @@ import Send from "../../../Images/Home/Messages/Send.svg"
 import Emoji from "../../../Images/Home/Messages/Emoji.svg"
 import Gallery from "../../../Images/Home/Messages/Gallery.svg"
 import Gif from "../../../Images/Home/Messages/Gif.svg"
+import BackButton from "../../../Images/backButtonIcon.svg"
 import { Link, useNavigate, useParams } from "react-router-dom"
 import Spinner from "../../../Components/Spinner"
 import io from 'socket.io-client';
@@ -239,87 +240,93 @@ export default function Messages(props) {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [searchQuery])
 
-    return (
-        <div className={Styles.container}>
-            <div className={Styles.mainPanelSmall}>
-                {
-                    leftLoading ?
-                        <Spinner />
-                        :
-                        <>
-                            <div className={Styles.topBlackConatiner}>
-                                <h5 className={Styles.heading}>Messages</h5>
-                                <div>
-                                    <img src={Settings} alt="settings" className={Styles.topContainerIcon} />
-                                    <img src={MessagesPlus} alt="messageplus" className={Styles.topContainerIcon} />
+    if (!contact) {
+        return (
+            <div className={Styles.container}>
+                <div className={Styles.mainPanelSmall}>
+                    {
+                        leftLoading ?
+                            <Spinner />
+                            :
+                            <>
+                                <div className={Styles.topBlackConatiner}>
+                                    <h5 className={Styles.heading}>Messages</h5>
+                                    <div>
+                                        <img src={Settings} alt="settings" className={Styles.topContainerIcon} />
+                                        <img src={MessagesPlus} alt="messageplus" className={Styles.topContainerIcon} />
+                                    </div>
                                 </div>
-                            </div>
-                            {contacts.length > 0 ?
-                                <div className={Styles.searchInputBox} onClick={() => contactSearchInput.current.focus()}>
-                                    <img src={Search} alt="search" className={Styles.searchIcon} />
-                                    <input type="text" value={searchQuery} onChange={onSearchQueryChange} ref={contactSearchInput} placeholder='Search Direct Messages' className={Styles.searchInput} />
-                                </div>
-                                :
-                                null
-                            }
-                            <div className={Styles.contacts}>
-                                {
-                                    searchedContacts.length > 0 ?
-                                    searchedContacts.map((contact) => {
-                                            return (
-                                                <div key={contact._id} onClick={() => navigate(`/messages/${contact._id}`)} className={`${Styles.contactContainer} ${_id === contact._id ? Styles.contactContainerSelected : ""}`}>
-                                                    <div className={Styles.contactProfileContainer}>
-                                                        <img src={contact.profile} alt="contactProfile" className={Styles.contactProfile} />
-                                                    </div>
-                                                    <div className={Styles.contactInfoContainer}>
-                                                        <div className={Styles.contactNameContainer}>
-                                                            <h6 className={Styles.name}>{contact.name}</h6>
-                                                            <p className={Styles.username}>@{contact.username}</p>
-                                                            <p className={Styles.dot}>•</p>
-                                                            {/* <p className={Styles.timestamp}>{calculatePostAge(post.timestamp)}</p> */}
-                                                            <p className={Styles.timestamp}>33m</p>
-                                                        </div>
-                                                        <div className={Styles.lastMessage}>
-                                                            Last Message
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            )
-                                        })
-                                        :
-                                        contacts.length > 0 ? contacts.map((contact) => {
-                                            return (
-                                                <div key={contact._id} onClick={() => navigate(`/messages/${contact._id}`)} className={`${Styles.contactContainer} ${_id === contact._id ? Styles.contactContainerSelected : ""}`}>
-                                                    <div className={Styles.contactProfileContainer}>
-                                                        <img src={contact.profile} alt="contactProfile" className={Styles.contactProfile} />
-                                                    </div>
-                                                    <div className={Styles.contactInfoContainer}>
-                                                        <div className={Styles.contactNameContainer}>
-                                                            <h6 className={Styles.name}>{contact.name}</h6>
-                                                            <p className={Styles.username}>@{contact.username}</p>
-                                                            <p className={Styles.dot}>•</p>
-                                                            {/* <p className={Styles.timestamp}>{calculatePostAge(post.timestamp)}</p> */}
-                                                            <p className={Styles.timestamp}>33m</p>
-                                                        </div>
-                                                        <div className={Styles.lastMessage}>
-                                                            Last Message
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            )
-                                        })
-                                            :
-                                            <div className={Styles.welcomeInboxContainer}>
-                                                <h2 className={Styles.welcomeMessageText}>Welcome to your inbox!</h2>
-                                                <p className={Styles.welcomeMessageTextSmaller}>Drop a line, share posts and more with private conversations between you and others on X. </p>
-                                                <button className={`btn btn-primary rounded-pill ${Styles.writeMessageButton}`}>Write a message</button>
-                                            </div>
+                                {contacts.length > 0 ?
+                                    <div className={Styles.searchInputBox} onClick={() => contactSearchInput.current.focus()}>
+                                        <img src={Search} alt="search" className={Styles.searchIcon} />
+                                        <input type="text" value={searchQuery} onChange={onSearchQueryChange} ref={contactSearchInput} placeholder='Search Direct Messages' className={Styles.searchInput} />
+                                    </div>
+                                    :
+                                    null
                                 }
-                            </div>
-                        </>
-                }
+                                <div className={Styles.contacts}>
+                                    {
+                                        searchedContacts.length > 0 ?
+                                            searchedContacts.map((contact) => {
+                                                return (
+                                                    <div key={contact._id} onClick={() => navigate(`/messages/${contact._id}`)} className={`${Styles.contactContainer} ${_id === contact._id ? Styles.contactContainerSelected : ""}`}>
+                                                        <div className={Styles.contactProfileContainer}>
+                                                            <img src={contact.profile} alt="contactProfile" className={Styles.contactProfile} />
+                                                        </div>
+                                                        <div className={Styles.contactInfoContainer}>
+                                                            <div className={Styles.contactNameContainer}>
+                                                                <h6 className={Styles.name}>{contact.name}</h6>
+                                                                <p className={Styles.username}>@{contact.username}</p>
+                                                                <p className={Styles.dot}>•</p>
+                                                                {/* <p className={Styles.timestamp}>{calculatePostAge(post.timestamp)}</p> */}
+                                                                <p className={Styles.timestamp}>33m</p>
+                                                            </div>
+                                                            <div className={Styles.lastMessage}>
+                                                                Last Message
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                )
+                                            })
+                                            :
+                                            contacts.length > 0 ? contacts.map((contact) => {
+                                                return (
+                                                    <div key={contact._id} onClick={() => navigate(`/messages/${contact._id}`)} className={`${Styles.contactContainer} ${_id === contact._id ? Styles.contactContainerSelected : ""}`}>
+                                                        <div className={Styles.contactProfileContainer}>
+                                                            <img src={contact.profile} alt="contactProfile" className={Styles.contactProfile} />
+                                                        </div>
+                                                        <div className={Styles.contactInfoContainer}>
+                                                            <div className={Styles.contactNameContainer}>
+                                                                <h6 className={Styles.name}>{contact.name}</h6>
+                                                                <p className={Styles.username}>@{contact.username}</p>
+                                                                <p className={Styles.dot}>•</p>
+                                                                {/* <p className={Styles.timestamp}>{calculatePostAge(post.timestamp)}</p> */}
+                                                                <p className={Styles.timestamp}>33m</p>
+                                                            </div>
+                                                            <div className={Styles.lastMessage}>
+                                                                Last Message
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                )
+                                            })
+                                                :
+                                                <div className={Styles.welcomeInboxContainer}>
+                                                    <h2 className={Styles.welcomeMessageText}>Welcome to your inbox!</h2>
+                                                    <p className={Styles.welcomeMessageTextSmaller}>Drop a line, share posts and more with private conversations between you and others on X. </p>
+                                                    <button className={`btn btn-primary rounded-pill ${Styles.writeMessageButton}`}>Write a message</button>
+                                                </div>
+                                    }
+                                </div>
+                            </>
+                    }
+                </div>
             </div>
-            <div className={Styles.rightPanelLarge}>
+        )
+    }
+    else {
+        return (
+            <div className={Styles.mainPanelSmall}>
                 {
                     contact ?
                         RightLoading ?
@@ -327,6 +334,7 @@ export default function Messages(props) {
                             :
                             <div className={Styles.chatArea}>
                                 <div className={Styles.chatAreaTopBlackConatiner}>
+                                    <img onClick={() => { navigate(`/messages`) }} className={Styles.backButton} src={BackButton} alt='backButton' />
                                     <h5 className={Styles.heading}>{contact.name}</h5>
                                     <img src={Info} alt="Info" className={Styles.chatAreaInfoIcon} />
                                 </div>
@@ -355,6 +363,7 @@ export default function Messages(props) {
                                             })
                                         }
                                     </div>
+                                </div>
                                     <form onSubmit={onMessageSend}>
                                         <div className={Styles.sendBox}>
                                             <div className={Styles.messageInputBox} ref={messageInputBox}>
@@ -372,7 +381,6 @@ export default function Messages(props) {
                                             </div>
                                         </div>
                                     </form>
-                                </div>
                             </div>
                         :
                         <div className={Styles.selectMessageContainer}>
@@ -382,6 +390,6 @@ export default function Messages(props) {
                         </div>
                 }
             </div>
-        </div>
-    )
+        )
+    }
 }

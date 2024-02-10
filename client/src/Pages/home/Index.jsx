@@ -7,6 +7,7 @@ import Home from './Components/Home';
 import Profile from './Components/Profile';
 import Messages from './Components/Messages';
 import ProfileEditModal from '../../Layout/ProfileEditModal';
+import MobileMenu from "./Components/MobileMenu"
 
 
 export default function Index() {
@@ -53,18 +54,35 @@ export default function Index() {
             </div>
             <div className={window.location.pathname.startsWith("/messages") ? Styles.mainPanelFull : Styles.mainPanelLarge}>
                 {
-                    window.location.pathname === "/home" ? <Home user={user} fetchUser={fetchUser} />
+                    window.location.pathname === "/home" ?
+                        <>
+                            <MobileMenu user={user} fetchUser={fetchUser} />
+                            <Home user={user} fetchUser={fetchUser} />
+                        </>
 
                         :
 
-                        window.location.pathname.startsWith("/messages") ? <Messages contactId={window.location.pathname.replace("/messages/", "")} user={user} fetchUser={fetchUser} setUser={setUser} />
+                        window.location.pathname.startsWith("/messages") ?
+                            <>
+                                <Messages contactId={window.location.pathname.replace("/messages/", "")} user={user} fetchUser={fetchUser} setUser={setUser} />
+                                {
+                                    window.location.pathname === "/messages" ? <MobileMenu user={user} fetchUser={fetchUser} /> : null
+                                }
+                            </>
 
                             :
 
-                            window.location.pathname === "/settings/profile" ? <Profile user={user} fetchUser={fetchUser} setUser={setUser} />
+                            window.location.pathname === "/settings/profile" ?
+                                <>
+                                    <Profile user={user} fetchUser={fetchUser} setUser={setUser} />
+                                    <MobileMenu user={user} fetchUser={fetchUser} />
+                                </>
 
                                 :
-                                <Profile user={user} fetchUser={fetchUser} setUser={setUser} />
+                                <>
+                                    <MobileMenu user={user} fetchUser={fetchUser} />
+                                    <Profile user={user} fetchUser={fetchUser} setUser={setUser} />
+                                </>
                 }
             </div>
             {

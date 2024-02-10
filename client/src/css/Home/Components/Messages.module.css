@@ -204,7 +204,7 @@
 }
 
 .chat {
-    height: 100vh;
+    height: 91.5vh;
     overflow-x: hidden;
     overflow-y: auto;
     color: white;
@@ -311,7 +311,7 @@
 .messageInputBox {
     width: 100%;
     padding: 10px;
-    margin: 10px;
+    margin: 4px;
     background-color: rgb(32, 35, 39);
     border-radius: 20px;
     display: flex;
@@ -410,4 +410,10 @@
     font-weight: bold;
     font-size: 18px;
     margin-top: 10px;
+}
+
+@media (max-width:425px) {
+    .rightPanelLarge {
+        display: none;
+    }
 }

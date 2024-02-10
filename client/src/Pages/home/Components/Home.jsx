@@ -214,7 +214,6 @@ export default function Home(props) {
     return (
         <div className={Styles.container}>
             <div className={Styles.header}>
-                <h5 className={Styles.title}>Home</h5>
                 <div className={Styles.menuSelectorContainer}>
                     <div onClick={() => setCurrentMenu("For You")} className={`${Styles.menuSelectorItem} ${currentMenu === "For You" ? Styles.forYouSelected : ""}`}>For&nbsp;you</div>
                     <div onClick={() => setCurrentMenu("Following")} className={`${Styles.menuSelectorItem} ${currentMenu === "Following" ? Styles.followingItemSelected : ""}`}>Following</div>

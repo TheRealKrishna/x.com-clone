@@ -1,0 +1,132 @@
+.mobileMenuContainer {
+    display: none;
+    position: absolute;
+    width: 100%;
+    height: 55px;
+    background-color: black;
+    bottom: 0;
+    z-index: 9999;
+    border-top: 1px solid rgb(47, 51, 54);
+    justify-content: space-evenly;
+    align-items: center;
+    padding-bottom: 5px;
+}
+
+.menuList {
+    list-style: none;
+    width: 100%;
+}
+
+.menuListItem {
+    margin: 0px;
+    display: flex;
+    justify-content: flex-start;
+    width: max-content;
+    padding: 10px 10px;
+    border-radius: 25px;
+}
+
+a:hover>.menuList>.menuListItem {
+    background-color: rgba(231, 233, 234, 0.1);
+}
+
+.menuListItemicon {
+    height: 2rem;
+}
+
+.profileContainer::before {}
+
+.profileContainer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-radius: 30px;
+    cursor: pointer;
+}
+
+.profileContainer:hover {
+    background-color: rgba(231, 233, 234, 0.1);
+}
+
+.profileImageContainer {
+    height: 30px;
+    width: 30px;
+}
+
+.profileImage {
+    border-radius: 50%;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.profileBoxContainer {
+    position: absolute;
+    z-index: 1;
+    left: auto !important;
+    right: 9px !important;
+    top: 471px !important;
+}
+
+.profileBox {
+    min-width: 300px;
+    min-height: 120px;
+    margin: 0px;
+    background-color: black;
+    box-shadow: rgba(255, 255, 255, 0.2) 0px 0px 15px 1px, rgba(255, 255, 255, 0.15) 0px 0px 3px 1px;
+    border-radius: 15px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-evenly;
+}
+
+.profileBoxOption {
+    width: 100%;
+    text-decoration: none;
+    list-style: none;
+    background-color: transparent;
+    color: white;
+    padding: 10px 15px;
+    cursor: default;
+}
+
+.profileBoxOption:hover {
+    background-color: rgb(22, 24, 28);
+    color: white;
+    cursor: pointer;
+}
+
+.profileMenuArrowContainer {
+    display: flex;
+    width: 100%;
+    justify-content: right;
+    left: auto !important;
+    right: 45px;
+    position: absolute;
+    bottom: -17px;
+}
+
+.profileMenuArrow {
+    filter: drop-shadow(0px -1px 1px rgba(255, 255, 255, 0.511));
+    transform: rotate(180deg);
+}
+
+
+
+@media (max-width:425px) {
+    .mobileMenuContainer {
+        display: flex;
+    }
+}
+
+
+@media (max-width:375px) {
+    .profileMenuArrowContainer {
+        right: 35px;
+    }
+}
+@media (max-width:337px) {
+    .profileMenuArrowContainer {
+        right: 25px;
+    }
+}

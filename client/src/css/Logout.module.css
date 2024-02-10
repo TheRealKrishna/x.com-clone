@@ -50,6 +50,20 @@
     }
 }
 
+@media screen and (max-width:425px) {
+    .modalBody{
+        padding: 0px !important;
+    }
+
+    .logoutButton{
+        min-width: 270px !important;
+    }
+
+    .cancelButton{
+        min-width: 270px !important;
+    }
+}
+
 .modalHeader{
     width: 100%;
     display: flex;

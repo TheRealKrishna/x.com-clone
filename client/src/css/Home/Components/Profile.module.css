@@ -226,7 +226,7 @@
     justify-content: space-evenly;
     color: rgb(113, 118, 123);
     border-bottom: 1px solid rgb(47, 51, 54);
-    width: 39vw;
+    width: 100%;
     text-align: center;
 }
 
@@ -308,22 +308,22 @@
     border-radius: 5px;
 }
 
-.verifiedFollowersPageContainer{
+.verifiedFollowersPageContainer {
     padding: 20px 130px;
 }
 
-.verifiedFollowersText{
+.verifiedFollowersText {
     font-weight: bold;
 }
 
-.verifiedFollowersFadedText{
+.verifiedFollowersFadedText {
     color: rgb(113, 118, 123);
     padding: 0px;
     margin: 0px;
     font-weight: 400;
 }
 
-.followersPageContainer{
+.followersPageContainer {
     height: 85vh;
     width: 100%;
     overflow-y: auto;
@@ -331,7 +331,7 @@
     padding: 10px;
 }
 
-.followingPageContianer{
+.followingPageContianer {
     height: 85vh;
     width: 100%;
     overflow-y: auto;
@@ -339,21 +339,21 @@
     padding: 10px;
 }
 
-.followersItem{
+.followersItem {
     display: flex;
     justify-content: space-between;
     align-items: center;
     margin-bottom: 15px;
 }
 
-.followItemContainer{
+.followItemContainer {
     display: flex;
     justify-content: space-between;
 }
 
 .profileImageContainer {
-    max-width: 40px;
-    max-height: 40px;
+    width: 40px;
+    height: 34px;
     margin-right: 10px;
     margin-top: 2px;
 }
@@ -364,11 +364,9 @@
     height: 100%;
 }
 
-.followerInfo{
-    
-}
+.followerInfo {}
 
-.followerName{
+.followerName {
     color: white;
     margin: 0px;
     padding: 0px;
@@ -376,7 +374,7 @@
     font-weight: bold;
 }
 
-.followerUsername{
+.followerUsername {
     color: rgb(113, 118, 123);
     margin: 0px;
     padding: 0px;
@@ -384,12 +382,12 @@
     font-size: 14px;
 }
 
-.followerButtonFlex{
+.followerButtonFlex {
     display: flex;
     justify-content: space-between;
 }
 
-.followerBio{
+.followerBio {
     font-size: 13px;
     margin: 0px;
     padding: 0px;
@@ -397,8 +395,52 @@
     word-break: break-all;
     margin-right: 30px;
     font-weight: 400;
-    font-family:Geneva, Verdana, sans-serif;
+    font-family: Geneva, Verdana, sans-serif;
 }
 
 
 
+@media (max-width:640px) {
+    .profilePhoto {
+        width: 77px;
+        height: 77px;
+        top: 215px;
+        left: 216px;
+    }
+}
+
+@media (max-width:535px) {
+    .profilePhoto {
+        width: 100px;
+        height: 100px;
+        top: 205px;
+        left: 52px;
+    }
+}
+
+@media (max-width:400px) {
+    .profilePhoto {
+        width: 75px;
+        height: 75px;
+        top: 222px;
+        left: 52px;
+    }
+}
+
+@media (max-width:375px) {
+    .profilePhoto {
+        width: 90px;
+        height: 90px;
+        top: 212px;
+        left: 17px;
+    }
+}
+
+@media (max-width:350px) {
+    .profilePhoto {
+        width: 70px;
+        height: 70px;
+        top: 220px;
+        left: 2px;
+    }
+}
