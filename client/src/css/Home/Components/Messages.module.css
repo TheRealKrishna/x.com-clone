@@ -34,6 +34,11 @@
     width: 20px;
     height: 20px;
     margin: 4px 7px;
+    cursor: pointer;
+}
+
+.backButton {
+    cursor: pointer;
 }
 
 .searchInputBox {
@@ -100,6 +105,8 @@
 
 .contacts {
     margin-top: 15px;
+    height: 72vh;
+    overflow-y: scroll !important;
 }
 
 .contactContainer {
@@ -415,5 +422,11 @@
 @media (max-width:425px) {
     .rightPanelLarge {
         display: none;
+    }
+    .mainPanelSmall{
+        border: none;
+    }
+    .rightPanelLarge{
+        border: none;
     }
 }

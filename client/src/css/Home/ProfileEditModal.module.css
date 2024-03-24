@@ -7,7 +7,7 @@
     display: flex;
     justify-content: center;
     align-items: center;
-    height: 100vh;
+    height: 92vh;
     margin-block: 0px;
 }
 
@@ -516,5 +516,11 @@
 
     .dobSelector>div {
         margin: 5px 0px;
+    }
+}
+
+@media screen and (max-width:425px) {
+    .modalBox {
+        min-height: 70vh;
     }
 }
