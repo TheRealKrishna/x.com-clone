@@ -50,7 +50,7 @@ export default function LoginModal(props) {
                     });
                 });
         }
-        const response = await fetch(`${process.env.REACT_APP_API_URL}/api/auth/login`, {
+        const response = await fetch(`${process.env.REACT_APP_API_URL}/auth/login`, {
             method: "post",
             body: JSON.stringify({ ...credentials, country: (await getUserInfo()).country }),
             headers: {

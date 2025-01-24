@@ -44,7 +44,7 @@ export default function Posts(props) {
     }
 
     const fetchPosts = async () => {
-        const response = await fetch(`${process.env.REACT_APP_API_URL}/api/post/getposts`, {
+        const response = await fetch(`${process.env.REACT_APP_API_URL}/post/getposts`, {
             method: "post",
             headers: {
                 "Content-Type": "application/json",
@@ -58,7 +58,7 @@ export default function Posts(props) {
     }
 
     const addViewToPost = async (_id) => {
-        await fetch(`${process.env.REACT_APP_API_URL}/api/post/addview`, {
+        await fetch(`${process.env.REACT_APP_API_URL}/post/addview`, {
             method: "post",
             headers: {
                 "Content-Type": "application/json",
@@ -69,7 +69,7 @@ export default function Posts(props) {
     }
 
     const addLikeToPost = async (_id) => {
-        await fetch(`${process.env.REACT_APP_API_URL}/api/post/addlike`, {
+        await fetch(`${process.env.REACT_APP_API_URL}/post/addlike`, {
             method: "post",
             headers: {
                 "Content-Type": "application/json",
@@ -80,7 +80,7 @@ export default function Posts(props) {
     }
 
     const removeLikeFromPost = async (_id) => {
-        await fetch(`${process.env.REACT_APP_API_URL}/api/post/removelike`, {
+        await fetch(`${process.env.REACT_APP_API_URL}/post/removelike`, {
             method: "post",
             headers: {
                 "Content-Type": "application/json",

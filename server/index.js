@@ -40,13 +40,13 @@ io.on('connection', (socket) => {
 });
 
 // app routes
-app.get('/api', (req, res) => {
+app.get('/', (req, res) => {
   res.send('Backend For x.com')
 })
-app.use("/api/auth", require("./api/auth.js"))
-app.use("/api/post", require("./api/post.js"))
-app.use("/api/follow", require("./api/follow.js"))
-app.use("/api/chat", require("./api/chat.js"))
+app.use("/auth", require("./api/auth.js"))
+app.use("/post", require("./api/post.js"))
+app.use("/follow", require("./api/follow.js"))
+app.use("/chat", require("./api/chat.js"))
 
 
 // server run

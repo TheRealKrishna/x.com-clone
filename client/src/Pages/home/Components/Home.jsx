@@ -189,7 +189,7 @@ export default function Home(props) {
             setPostingProgress(25)
         }
         setPost(prev => { return { ...prev, images: uploadedImageUrls } })
-        const response = await fetch(`${process.env.REACT_APP_API_URL}/api/post/addpost`, {
+        const response = await fetch(`${process.env.REACT_APP_API_URL}/post/addpost`, {
             method: "post",
             body: JSON.stringify({ ...post, images: uploadedImageUrls }),
             headers: {

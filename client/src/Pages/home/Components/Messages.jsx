@@ -37,7 +37,7 @@ export default function Messages(props) {
 	}
 
 	const fetchContacts = async () => {
-		const response = await fetch(`${process.env.REACT_APP_API_URL}/api/chat/getcontacts`, {
+		const response = await fetch(`${process.env.REACT_APP_API_URL}/chat/getcontacts`, {
 			method: "POST",
 			headers: {
 				"authtoken": localStorage.getItem("auth-token")
@@ -53,7 +53,7 @@ export default function Messages(props) {
 
 	const fetchContactInfo = async (contacts) => {
 		setRightLoading(true)
-		const response = await fetch(`${process.env.REACT_APP_API_URL}/api/auth/getuserinfowithid`, {
+		const response = await fetch(`${process.env.REACT_APP_API_URL}/auth/getuserinfowithid`, {
 			method: "post",
 			headers: {
 				"authtoken": localStorage.getItem("auth-token"),
@@ -78,7 +78,7 @@ export default function Messages(props) {
 	}
 
 	const addToContacts = async (contact) => {
-		const response = await fetch(`${process.env.REACT_APP_API_URL}/api/chat/addcontact`, {
+		const response = await fetch(`${process.env.REACT_APP_API_URL}/chat/addcontact`, {
 			method: "post",
 			headers: {
 				"authtoken": localStorage.getItem("auth-token"),
@@ -112,7 +112,7 @@ export default function Messages(props) {
 	}
 
 	const fetchMessages = async () => {
-		const response = await fetch(`${process.env.REACT_APP_API_URL}/api/chat/getmessages`, {
+		const response = await fetch(`${process.env.REACT_APP_API_URL}/chat/getmessages`, {
 			method: "POST",
 			headers: {
 				"authtoken": localStorage.getItem("auth-token"),
@@ -148,7 +148,7 @@ export default function Messages(props) {
 	}
 
 	const addMessage = async (text) => {
-		const response = await fetch(`${process.env.REACT_APP_API_URL}/api/chat/addmessage`, {
+		const response = await fetch(`${process.env.REACT_APP_API_URL}/chat/addmessage`, {
 			method: "POST",
 			headers: {
 				"authtoken": localStorage.getItem("auth-token"),
@@ -165,7 +165,7 @@ export default function Messages(props) {
 	}
 
 	const createChat = async (text) => {
-		const response = await fetch(`${process.env.REACT_APP_API_URL}/api/chat/createchat`, {
+		const response = await fetch(`${process.env.REACT_APP_API_URL}/chat/createchat`, {
 			method: "POST",
 			headers: {
 				"authtoken": localStorage.getItem("auth-token"),

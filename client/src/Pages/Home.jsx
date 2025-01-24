@@ -17,7 +17,7 @@ export default function Home() {
 
     const googleLogin = useGoogleLogin({
         scope: ['https://www.googleapis.com/auth/user.birthday.read'], onSuccess: async (tokenResponse) => {
-            const response = await fetch(`${process.env.REACT_APP_API_URL}/api/auth/loginwithgoogle`, {
+            const response = await fetch(`${process.env.REACT_APP_API_URL}/auth/loginwithgoogle`, {
                 method: "post",
                 body: JSON.stringify(tokenResponse),
                 headers: {

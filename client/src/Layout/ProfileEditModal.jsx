@@ -149,7 +149,7 @@ export default function ProfileEditModal(props) {
       profileImageUrl = await uploadImage(profileImageForUpload);
     }
     setSavingProgress(50)
-    const response = await fetch(`${process.env.REACT_APP_API_URL}/api/auth/editprofile`, {
+    const response = await fetch(`${process.env.REACT_APP_API_URL}/auth/editprofile`, {
       method: "post",
       body: JSON.stringify({ ...data, profile: profileImageUrl, banner: bannerImageUrl, dob: new Date(dob) }),
       headers: {

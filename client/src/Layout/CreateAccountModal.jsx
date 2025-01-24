@@ -40,7 +40,7 @@ export default function CreateAccountModal(props) {
     const createAccount = async () => {
         setLoading(true)
         if (currentMethod === "email") {
-            const response = await fetch(`${process.env.REACT_APP_API_URL}/api/auth/signupwithemail`, {
+            const response = await fetch(`${process.env.REACT_APP_API_URL}/auth/signupwithemail`, {
                 method: "post",
                 body: JSON.stringify(credentials),
                 headers: {
@@ -84,7 +84,7 @@ export default function CreateAccountModal(props) {
                 const json = await response.json()
                 return json
             }
-            const response = await fetch(`${process.env.REACT_APP_API_URL}/api/auth/signupwithphone`, {
+            const response = await fetch(`${process.env.REACT_APP_API_URL}/auth/signupwithphone`, {
                 method: "post",
                 body: JSON.stringify({...credentials, country:(await getUserInfo()).country }),
                 headers: {

@@ -57,7 +57,7 @@ export default function Step1(props) {
 
   const loginValidate = async (name) => {
     setApiCalling(true)
-    const response = await fetch(`${process.env.REACT_APP_API_URL}/api/auth/loginvalidate`, {
+    const response = await fetch(`${process.env.REACT_APP_API_URL}/auth/loginvalidate`, {
       method: "post",
       body: JSON.stringify({ name: name, country: (await getUserInfo()).country }),
       headers: {

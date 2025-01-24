@@ -54,7 +54,7 @@ export default function Step1(props) {
       clearTimeout(emailValidateTimeout);
     }
     setEmailValidateTimeout(setTimeout(async () => {
-      const response = await fetch(`${process.env.REACT_APP_API_URL}/api/auth/emailvalidate`, {
+      const response = await fetch(`${process.env.REACT_APP_API_URL}/auth/emailvalidate`, {
         method: "post",
         body: JSON.stringify({ email: e.target.value }),
         headers: {
@@ -75,7 +75,7 @@ export default function Step1(props) {
       clearTimeout(phoneValidateTimeout);
     }
     setPhoneValidateTimeout(setTimeout(async () => {
-      const response = await fetch(`${process.env.REACT_APP_API_URL}/api/auth/phonevalidate`, {
+      const response = await fetch(`${process.env.REACT_APP_API_URL}/auth/phonevalidate`, {
         method: "post",
         body: JSON.stringify({ phone: e.target.value, country: (await getUserInfo()).country }),
         headers: {

@@ -31,7 +31,7 @@ export default function Profile(props) {
     }
 
     const fetchProfile = async (user) => {
-        const response = await fetch(`${process.env.REACT_APP_API_URL}/api/auth/getuserinfowithusername`, {
+        const response = await fetch(`${process.env.REACT_APP_API_URL}/auth/getuserinfowithusername`, {
             method: "post",
             headers: {
                 "authtoken": localStorage.getItem("auth-token"),
@@ -51,7 +51,7 @@ export default function Profile(props) {
     }
 
     const fetchFollowers = async (profile) => {
-        const response = await fetch(`${process.env.REACT_APP_API_URL}/api/follow/getfollowers`, {
+        const response = await fetch(`${process.env.REACT_APP_API_URL}/follow/getfollowers`, {
             method: "post",
             headers: {
                 "authtoken": localStorage.getItem("auth-token"),
@@ -66,7 +66,7 @@ export default function Profile(props) {
     }
 
     const fetchFollowing = async (profile) => {
-        const response = await fetch(`${process.env.REACT_APP_API_URL}/api/follow/getfollowing`, {
+        const response = await fetch(`${process.env.REACT_APP_API_URL}/follow/getfollowing`, {
             method: "post",
             headers: {
                 "authtoken": localStorage.getItem("auth-token"),
@@ -87,7 +87,7 @@ export default function Profile(props) {
     }, [profile, username])
 
     const addFollower = async (_id) => {
-        await fetch(`${process.env.REACT_APP_API_URL}/api/follow/addfollower`, {
+        await fetch(`${process.env.REACT_APP_API_URL}/follow/addfollower`, {
             method: "post",
             headers: {
                 "authtoken": localStorage.getItem("auth-token"),
@@ -104,7 +104,7 @@ export default function Profile(props) {
     }
 
     const removeFollower = async (_id) => {
-        await fetch(`${process.env.REACT_APP_API_URL}/api/follow/removefollower`, {
+        await fetch(`${process.env.REACT_APP_API_URL}/follow/removefollower`, {
             method: "post",
             headers: {
                 "authtoken": localStorage.getItem("auth-token"),
