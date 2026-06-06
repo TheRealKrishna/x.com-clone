@@ -26,7 +26,15 @@ function removeSocket(socketId) {
 function initSocket(httpServer) {
   io = new Server(httpServer, {
     cors: {
-      origin: config.frontendUrls.includes("*") ? true : config.frontendUrls,
+      origin(origin, callback) {
+        if (!origin) return callback(null, true);
+        if (config.frontendUrls.includes("*")) return callback(null, true);
+        if (config.frontendUrls.includes(origin)) return callback(null, true);
+        if (!config.isProd && /^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(origin)) {
+          return callback(null, true);
+        }
+        return callback(null, false);
+      },
       credentials: true,
     },
   });

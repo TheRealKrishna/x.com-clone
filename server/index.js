@@ -16,7 +16,18 @@ const server = http.createServer(app);
 app.use(helmet());
 
 const corsOptions = {
-  origin: config.frontendUrls.includes("*") ? true : config.frontendUrls,
+  origin(origin, callback) {
+    // Allow non-browser clients (curl, mobile, same-origin) with no Origin header.
+    if (!origin) return callback(null, true);
+    if (config.frontendUrls.includes("*")) return callback(null, true);
+    if (config.frontendUrls.includes(origin)) return callback(null, true);
+    // In development, allow any localhost / 127.0.0.1 origin regardless of port
+    // so the Vite dev server (and any chosen port) just works.
+    if (!config.isProd && /^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(origin)) {
+      return callback(null, true);
+    }
+    return callback(null, false);
+  },
   credentials: true,
 };
 app.use(cors(corsOptions));
