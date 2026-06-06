@@ -31,3 +31,10 @@ yarn-debug.log*
 yarn-error.log*
 
 /.vscode
+# logs
+/server/error_logs.txt
+
+# vite build output
+/client/build
+# vite cache
+/client/node_modules/.vite

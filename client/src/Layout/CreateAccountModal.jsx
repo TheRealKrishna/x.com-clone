@@ -9,7 +9,10 @@ import Step2 from './CreateAccountSteps/Step2';
 import Step3 from './CreateAccountSteps/Step3';
 import Step4 from './CreateAccountSteps/Step4';
 import Step5 from './CreateAccountSteps/Step5';
-import toast from 'react-hot-toast';
+import { authApi } from '../api';
+import { setToken } from '../api/config';
+import { getCountry } from '../utils/country';
+import { notify, notifySuccess } from '../utils/toast';
 
 
 export default function CreateAccountModal(props) {
@@ -39,88 +42,21 @@ export default function CreateAccountModal(props) {
 
     const createAccount = async () => {
         setLoading(true)
+        let json;
         if (currentMethod === "email") {
-            const response = await fetch(`${process.env.REACT_APP_API_URL}/auth/signupwithemail`, {
-                method: "post",
-                body: JSON.stringify(credentials),
-                headers: {
-                    "Content-Type": "application/json"
-                }
-            })
-            const json = await response.json();
-            if (json.success) {
-                localStorage.setItem("auth-token", json.authToken)
-                navigate("/home")
-                toast.success('Account successfully created!', {
-                    style: {
-                        border: '1px solid white',
-                        padding: '16px 30px',
-                        color: 'white',
-                        backgroundColor: "rgb(29, 155, 240)",
-                    },
-                    iconTheme: {
-                        primary: 'white',
-                        secondary: 'rgb(29, 155, 240)',
-                    },
-                });
-                
-            }
-            else {
-                setCurrentStep(prev=>1);
-                toast('Oops, something went wrong. Please try again later.', {
-                    style: {
-                        border: '1px solid white',
-                        padding: '16px 30px',
-                        color: 'white',
-                        backgroundColor: "rgb(29, 155, 240)",
-                    }
-                });
-                setLoading(false)
-            }
+            json = await authApi.signUpWithEmail(credentials);
+        } else {
+            const country = await getCountry();
+            json = await authApi.signUpWithPhone({ ...credentials, country });
         }
-        else if (currentMethod === "phone") {
-            const getUserInfo = async () => {
-                const response = await fetch("https://ipapi.co/json/");
-                const json = await response.json()
-                return json
-            }
-            const response = await fetch(`${process.env.REACT_APP_API_URL}/auth/signupwithphone`, {
-                method: "post",
-                body: JSON.stringify({...credentials, country:(await getUserInfo()).country }),
-                headers: {
-                    "Content-Type": "application/json"
-                }
-            })
-            const json = await response.json();
-            if (json.success) {
-                localStorage.setItem("auth-token", json.authToken)
-                navigate("/home")
-                toast.success('Account successfully created!', {
-                    style: {
-                        border: '1px solid white',
-                        padding: '16px 30px',
-                        color: 'white',
-                        backgroundColor: "rgb(29, 155, 240)",
-                    },
-                    iconTheme: {
-                        primary: 'white',
-                        secondary: 'rgb(29, 155, 240)',
-                    },
-                });
-                
-            }
-            else {
-                setCurrentStep(prev=>1);
-                toast('Oops, something went wrong. Please try again later.', {
-                    style: {
-                        border: '1px solid white',
-                        padding: '16px 30px',
-                        color: 'white',
-                        backgroundColor: "rgb(29, 155, 240)",
-                    }
-                });
-                setLoading(false)
-            }
+        if (json.success) {
+            setToken(json.authToken)
+            navigate("/home")
+            notifySuccess('Account successfully created!')
+        } else {
+            setCurrentStep(() => 1);
+            notify(json.error || 'Oops, something went wrong. Please try again later.')
+            setLoading(false)
         }
     }
 

@@ -1,105 +1,53 @@
-const User = require("../database/models/UserSchema.js")
-const errorHandler = require("../handler/errorHandler.js")
+const User = require("../database/models/UserSchema");
+const { asyncHandler } = require("../utils/helpers");
+const { createNotification, removeNotification } = require("../utils/notify");
 
+const PUBLIC_FIELDS = "name username profile bio verified followers following";
 
-const getFollowers = async (req, res) => {
-    try {
-        if (req.body.user) {
-            const UserId = req.body._id
-            const user = await User.findOne({ _id: UserId }).populate('followers', '-password -__v')
-            if(!user){
-                return res.json({ success: false, error: "Invalid Request" })
-            }
-            return res.json({ success: true, followers: user.followers })
-        }
-        else {
-            return res.json({ success: false, error: "Invalid Request!" })
-        }
-    }
-    catch (error) {
-        errorHandler(error)
-        return res.status(500).json({ success: false, error: "An internal server error occured!" })
-    }
-}
+const getFollowers = asyncHandler("follow/getFollowers", async (req, res) => {
+  const user = await User.findById(req.body._id).populate("followers", PUBLIC_FIELDS);
+  if (!user) return res.status(404).json({ success: false, error: "User not found." });
+  return res.json({ success: true, followers: user.followers });
+});
 
-const getFollownig = async (req, res) => {
-    try {
-        if (req.body.user) {
-            const UserId = req.body._id
-            const user = await User.findOne({ _id: UserId }).populate('following', '-password -__v')
-            if(!user){
-                return res.json({ success: false, error: "Invalid Request" })
-            }
-            return res.json({ success: true, following: user.following })
-        }
-        else {
-            return res.json({ success: false, error: "Invalid Request!" })
-        }
-    }
-    catch (error) {
-        errorHandler(error)
-        return res.status(500).json({ success: false, error: "An internal server error occured!" })
-    }
-}
+const getFollowing = asyncHandler("follow/getFollowing", async (req, res) => {
+  const user = await User.findById(req.body._id).populate("following", PUBLIC_FIELDS);
+  if (!user) return res.status(404).json({ success: false, error: "User not found." });
+  return res.json({ success: true, following: user.following });
+});
 
+const addFollower = asyncHandler("follow/addFollower", async (req, res) => {
+  if (String(req.body._id) === String(req.user._id)) {
+    return res.status(400).json({ success: false, error: "You cannot follow yourself." });
+  }
+  const target = await User.findById(req.body._id);
+  if (!target) return res.status(404).json({ success: false, error: "User not found." });
 
-const addFollower = async (req, res) => {
-    try {
-        if (req.body.user) {
-            const user = await User.findOne({ _id: req.body._id }, ["-password", "-__v"])
-            if (user) {
-                if (!user.followers.includes(req.body.user._id)) {
-                    await user.followers.push(req.body.user._id)
-                }
-                if (!req.body.user.following.includes(user._id)) {
-                    await req.body.user.following.push(user._id);
-                }
-                await user.save()
-                await req.body.user.save()
-                return res.json({ success: true })
-            }
-            else {
-                return res.json({ success: false, error: "Invalid Request" })
-            }
-        }
-        else {
-            return res.json({ success: false, error: "Invalid Request!" })
-        }
-    }
-    catch (error) {
-        errorHandler(error)
-        return res.status(500).json({ success: false, error: "An internal server error occured!" })
-    }
-}
+  await User.updateOne({ _id: target._id }, { $addToSet: { followers: req.user._id } });
+  await User.updateOne({ _id: req.user._id }, { $addToSet: { following: target._id } });
+  await createNotification({ recipient: target._id, actor: req.user._id, type: "follow" });
+  return res.json({ success: true });
+});
 
-const removeFollower = async (req, res) => {
-    try {
-        if (req.body.user) {
-            const user = await User.findOne({ _id: req.body._id }, ["-password", "-__v"])
-            if (user) {
-                if (user.followers.includes(req.body.user._id)) {
-                    await user.followers.splice(user.followers.indexOf(req.body.user._id), 1);
-                }
-                if (req.body.user.following.includes(user._id)) {
-                    await req.body.user.following.splice(req.body.user.following.indexOf(user._id), 1);
-                }
-                await user.save()
-                await req.body.user.save()
-                return res.json({ success: true })
-            }
-            else {
-                return res.json({ success: false, error: "Invalid Request" })
-            }
-        }
-        else {
-            return res.json({ success: false, error: "Invalid Request!" })
-        }
-    }
-    catch (error) {
-        errorHandler(error)
-        return res.status(500).json({ success: false, error: "An internal server error occured!" })
-    }
-}
+const removeFollower = asyncHandler("follow/removeFollower", async (req, res) => {
+  const target = await User.findById(req.body._id);
+  if (!target) return res.status(404).json({ success: false, error: "User not found." });
 
+  await User.updateOne({ _id: target._id }, { $pull: { followers: req.user._id } });
+  await User.updateOne({ _id: req.user._id }, { $pull: { following: target._id } });
+  await removeNotification({ recipient: target._id, actor: req.user._id, type: "follow" });
+  return res.json({ success: true });
+});
 
-module.exports = { addFollower, removeFollower, getFollowers, getFollownig }
+// "Who to follow" — users the current user doesn't already follow.
+const getSuggestions = asyncHandler("follow/getSuggestions", async (req, res) => {
+  const me = await User.findById(req.user._id).select("following");
+  const exclude = [...(me.following || []), req.user._id];
+  const suggestions = await User.find({ _id: { $nin: exclude } })
+    .select(PUBLIC_FIELDS)
+    .sort({ createdAt: -1 })
+    .limit(req.body.limit || 5);
+  return res.json({ success: true, suggestions });
+});
+
+module.exports = { addFollower, removeFollower, getFollowers, getFollowing, getSuggestions };

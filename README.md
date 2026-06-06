@@ -1,16 +1,143 @@
-<h1>X / Twitter Clone</h1><p>Welcome to the Twitter Clone project! This project is a comprehensive Twitter clone developed using React, Node.js, Express, and MongoDB. It mimics the core features of Twitter, allowing users to register accounts, compose tweets, manage individual profiles, follow other users, engage with tweets through likes, and message each other in real-time. The platform boasts a responsive design and real-time updates, delivering an authentic Twitter experience within a custom framework.</p><h2>Technologies Used</h2><ul><li>React</li><li>Node.js</li><li>Express</li><li>MongoDB</li></ul><h2>Directory Structure</h2><pre><div class="dark bg-gray-950 rounded-md"><div class="flex items-center relative text-token-text-secondary bg-token-main-surface-secondary px-4 py-2 text-xs font-sans justify-between rounded-t-md"></div><div class="p-4 overflow-y-auto"><code class="!whitespace-pre hljs language-scss">twitter-clone/
-│   ├── client (React frontend)
-│   │   └── ...
-│   ├── server (Node.js backend)
-│   │   └── ...
-│   └── README<span class="hljs-selector-class">.md</span>
-</code></div></div></pre><h2>Environment Variables</h2><h3>For Frontend (client/.env)</h3><ul><li><code>REACT_APP_API_URL</code>: Backend API endpoint URL.</li><li><code>REACT_APP_WS_URL</code>: WebSocket URL for real-time updates.</li><li><code>REACT_APP_GOOGLE_CLIENT_ID</code>: Google client ID for authentication.</li><li><code>REACT_APP_IMGUR_CLIENT_ID</code>: Imgur client ID for image uploads.</li></ul><h3>For Backend (server/.env)</h3><ul><li><code>MONGO_URI</code>: MongoDB connection URI.</li><li><code>JWT_SECRET</code>: Secret key for JWT token generation.</li><li><code>FRONTEND_URL</code>: Frontend URL for CORS.</li></ul><h2>Setting Up</h2><ol><li><p>Clone the repository:</p><pre><div class="dark bg-gray-950 rounded-md"><div class="flex items-center relative text-token-text-secondary bg-token-main-surface-secondary px-4 py-2 text-xs font-sans justify-between rounded-t-md"></div><div class="p-4 overflow-y-auto"><code class="!whitespace-pre hljs language-bash">git <span class="hljs-built_in">clone</span> https://github.com/TheRealKrishna/x.com-clone
-</code></div></div></pre></li><li><p>Navigate to the project directory:</p><pre><div class="dark bg-gray-950 rounded-md"><div class="flex items-center relative text-token-text-secondary bg-token-main-surface-secondary px-4 py-2 text-xs font-sans justify-between rounded-t-md"></div><div class="p-4 overflow-y-auto"><code class="!whitespace-pre hljs language-bash"><span class="hljs-built_in">cd</span> twitter-clone
-</code></div></div></pre></li><li><p>Set up backend environment variables by creating a <code>.env</code> file inside the <code>server</code> directory and add the necessary variables mentioned above.</p></li><li><p>Set up frontend environment variables by creating a <code>.env</code> file inside the <code>client</code> directory and add the necessary variables mentioned above.</p></li><li><p>Install dependencies for both frontend and backend:</p><pre><div class="dark bg-gray-950 rounded-md"><div class="flex items-center relative text-token-text-secondary bg-token-main-surface-secondary px-4 py-2 text-xs font-sans justify-between rounded-t-md"></div><div class="p-4 overflow-y-auto"><code class="!whitespace-pre hljs language-bash"><span class="hljs-built_in">cd</span> client
+# X / Twitter Clone
+
+A full-stack X (Twitter) clone built with the MERN stack — **M**ongoDB, **E**xpress, **R**eact (Vite), and **N**ode.js — with real-time messaging and notifications over Socket.IO.
+
+This project was rebuilt and modernized from an earlier prototype: the client was migrated from Create React App to Vite, the backend was restructured and hardened, every known bug was fixed, and the remaining features (replies, reposts, bookmarks, search, notifications, real-time chat) were completed.
+
+## Features
+
+- **Auth** — sign up / log in with email or phone + password; optional Google OAuth. JWT sessions.
+- **Posts** — compose with text (280 chars), images, emoji; hashtag and @mention parsing.
+- **Engagement** — like, reply (threaded), repost, bookmark, view counts.
+- **Threads** — dedicated post pages showing ancestors → post → replies.
+- **Profiles** — editable profile (name, bio, location, website, avatar, banner, DOB) with Posts / Replies / Media / Likes tabs.
+- **Follow** — follow / unfollow, followers & following lists, "who to follow" suggestions.
+- **Explore & Search** — search users, posts, and #hashtags; trending hashtags.
+- **Notifications** — likes, follows, replies, reposts, mentions — delivered in real time with an unread badge.
+- **Direct Messages** — real-time 1:1 chat with unread counts, last-message previews, read receipts, and typing indicators.
+- **Bookmarks** — save posts to a dedicated page.
+- Responsive layout for desktop and mobile.
+
+## Tech Stack
+
+| Layer    | Technology |
+|----------|-----------|
+| Frontend | React 18, Vite 7, React Router 6, React Hook Form + Yup, Bootstrap 5, Socket.IO client |
+| Backend  | Node.js, Express 4, Mongoose 8, Socket.IO, JWT, bcryptjs, Helmet, express-rate-limit |
+| Database | MongoDB (in-memory fallback for zero-config local dev) |
+
+## Project Structure
+
+```
+x.com/
+├── client/                 React + Vite frontend
+│   ├── src/
+│   │   ├── api/            Central API layer (config, http client, endpoints)
+│   │   ├── hooks/          useRealtime (shared Socket.IO connection)
+│   │   ├── utils/          upload, toast, format, country helpers
+│   │   ├── Components/     Reusable UI (PostCard, Loader, Spinner)
+│   │   ├── Layout/         Auth modals & steps
+│   │   ├── Pages/          Landing, Logout, and the home app shell
+│   │   └── css/            CSS modules
+│   └── .env.example
+└── server/                 Express backend
+    ├── config/            Env loading & config
+    ├── api/               Route definitions
+    ├── controller/        Route handlers
+    ├── database/          Connection + Mongoose models
+    ├── middleware/        Auth (getUser)
+    ├── realtime/          Socket.IO setup + emit helpers
+    ├── utils/             Helpers, notifications, username generation
+    └── .env.example
+```
+
+## Getting Started
+
+### Prerequisites
+
+- Node.js 18+ (tested on Node 22)
+- npm
+
+No database installation is required for local development — the server spins up an in-memory MongoDB automatically when `MONGO_URI` is not set.
+
+### 1. Backend
+
+```bash
+cd server
 npm install
-<span class="hljs-built_in">cd</span> ../server
+cp .env.example .env.local   # optional — defaults work out of the box
+npm run dev                  # starts on http://localhost:5000
+```
+
+On first run with no `MONGO_URI`, an in-memory MongoDB is downloaded and started (data resets on restart). To persist data, set `MONGO_URI` in `server/.env.local` to a local MongoDB or Atlas connection string.
+
+### 2. Frontend
+
+```bash
+cd client
 npm install
-</code></div></div></pre></li><li><p>Start the backend server:</p><pre><div class="dark bg-gray-950 rounded-md"><div class="flex items-center relative text-token-text-secondary bg-token-main-surface-secondary px-4 py-2 text-xs font-sans justify-between rounded-t-md"></div><div class="p-4 overflow-y-auto"><code class="!whitespace-pre hljs">node index.js
-</code></div></div></pre></li><li><p>Start the frontend development server:</p><pre><div class="dark bg-gray-950 rounded-md"><div class="flex items-center relative text-token-text-secondary bg-token-main-surface-secondary px-4 py-2 text-xs font-sans justify-between rounded-t-md"></div><div class="p-4 overflow-y-auto"><code class="!whitespace-pre hljs language-bash"><span class="hljs-built_in">cd</span> ../client
-npm start
-</code></div></div></pre></li><li><p>Access the application at <code>http://localhost:3000</code>.</p></li></ol><h2>Features</h2><ul><li>User registration and authentication</li><li>Tweet composition and engagement</li><li>Real-time messaging</li><li>Responsive design</li></ul><h2>License</h2><p>This project is licensed under the MIT License.</p><p>Feel free to reach out if you have any questions or suggestions! 😊</p><p>GitHub Link: <a target="_new" href="https://github.com/TheRealKrishna/x.com-clone">Twitter Clone Repository</a></p>
+cp .env.example .env.local   # optional — defaults point at localhost:5000
+npm run dev                  # starts on http://localhost:5173
+```
+
+Open **http://localhost:5173** and create an account.
+
+### Optional integrations
+
+All of these are optional — the app runs fully without them:
+
+- **Google login** — set `VITE_GOOGLE_CLIENT_ID` (client) to enable the Google buttons.
+- **Image uploads** — set `VITE_CLOUDINARY_CLOUD_NAME` and `VITE_CLOUDINARY_UPLOAD_PRESET` (client) to upload to Cloudinary; otherwise images are embedded as data URLs (fine for local testing).
+
+## Environment Variables
+
+### Server (`server/.env.local`)
+
+| Variable | Required | Description |
+|----------|----------|-------------|
+| `PORT` | no | API port (default 5000) |
+| `MONGO_URI` | prod only | MongoDB connection string; in-memory DB if empty (dev) |
+| `JWT_SECRET` | prod only | Secret for signing JWTs; dev fallback if empty |
+| `FRONTEND_URL` | no | Comma-separated allowed CORS origins |
+| `NODE_ENV` | no | `development` (default) or `production` |
+
+### Client (`client/.env.local`)
+
+| Variable | Required | Description |
+|----------|----------|-------------|
+| `VITE_API_URL` | no | Backend base URL (default `http://localhost:5000`) |
+| `VITE_WS_URL` | no | Socket.IO URL (defaults to API URL) |
+| `VITE_GOOGLE_CLIENT_ID` | no | Enables Google login |
+| `VITE_CLOUDINARY_CLOUD_NAME` | no | Cloudinary cloud name for uploads |
+| `VITE_CLOUDINARY_UPLOAD_PRESET` | no | Cloudinary unsigned upload preset |
+
+## API Overview
+
+All endpoints are `POST` and (except auth) require an `authtoken` header.
+
+| Group | Endpoints |
+|-------|-----------|
+| `/auth` | `signupwithemail`, `signupwithphone`, `login`, `loginvalidate`, `loginwithgoogle`, `getuserinfo`, `getuserinfowithid`, `getuserinfowithusername`, `editprofile`, `emailvalidate`, `phonevalidate` |
+| `/post` | `getposts`, `getuserposts`, `getpost`, `addpost`, `addreply`, `addlike`, `removelike`, `togglerepost`, `togglebookmark`, `getbookmarks`, `addview`, `deletepost` |
+| `/follow` | `addfollower`, `removefollower`, `getfollowers`, `getfollowing`, `getsuggestions` |
+| `/chat` | `getcontacts`, `getmessages`, `addcontact`, `sendmessage` |
+| `/explore` | `search`, `trends` |
+| `/notification` | `get`, `unreadcount`, `markallread` |
+
+Real-time events (Socket.IO): `join`, `newMessage`, `notification`, `typing`, `messagesRead`.
+
+## Production Build
+
+```bash
+# Frontend
+cd client && npm run build      # outputs to client/build
+
+# Backend
+cd server && NODE_ENV=production MONGO_URI=... JWT_SECRET=... npm start
+```
+
+In production, `MONGO_URI` and `JWT_SECRET` are required and the in-memory / dev-secret fallbacks are disabled.
+
+## License
+
+MIT

@@ -1,395 +1,322 @@
-import React, { useEffect, useRef, useState } from 'react'
-import Styles from "../../../css/Home/Components/Messages.module.css"
-import MessagesPlus from "../../../Images/Home/Messages/MessagePlus.svg"
-import Search from "../../../Images/Home/Messages/Search.svg"
-import Settings from "../../../Images/Home/Messages/Settings.svg"
-import Info from "../../../Images/Home/Messages/Info.svg"
-import Send from "../../../Images/Home/Messages/Send.svg"
-import Emoji from "../../../Images/Home/Messages/Emoji.svg"
-import Gallery from "../../../Images/Home/Messages/Gallery.svg"
-import Gif from "../../../Images/Home/Messages/Gif.svg"
-import BackButton from "../../../Images/backButtonIcon.svg"
-import { Link, useNavigate, useParams } from "react-router-dom"
-import Spinner from "../../../Components/Spinner"
-import io from 'socket.io-client';
+import React, { useEffect, useRef, useState } from "react";
+import { Link, useNavigate, useParams } from "react-router-dom";
 
+import Styles from "../../../css/Home/Components/Messages.module.css";
+import MessagesPlus from "../../../Images/Home/Messages/MessagePlus.svg";
+import Search from "../../../Images/Home/Messages/Search.svg";
+import Settings from "../../../Images/Home/Messages/Settings.svg";
+import Info from "../../../Images/Home/Messages/Info.svg";
+import Send from "../../../Images/Home/Messages/Send.svg";
+import Emoji from "../../../Images/Home/Messages/Emoji.svg";
+import Gallery from "../../../Images/Home/Messages/Gallery.svg";
+import Gif from "../../../Images/Home/Messages/Gif.svg";
+import BackButton from "../../../Images/backButtonIcon.svg";
+import Spinner from "../../../Components/Spinner";
+import { authApi, chatApi } from "../../../api";
+import { formatJoinedDate, formatPostAge, formatTime } from "../../../utils/format";
 
-export default function Messages(props) {
-	const [contacts, setContacts] = useState([])
-	const [searchedContacts, setSearchedContacts] = useState([])
-	const [contact, setContact] = useState(false)
-	const [searchQuery, setSearchQuery] = useState([])
-	const [message, setMessage] = useState("")
-	const [messages, setMessages] = useState([])
-	const chat = useRef()
-	const messageInput = useRef()
-	const messageSendButton = useRef()
-	const messageInputBox = useRef()
-	const contactSearchInput = useRef()
-	const [leftLoading, setLeftLoading] = useState(true);
-	const [RightLoading, setRightLoading] = useState(true);
-	const { _id } = useParams();
-	const socket = useRef();
-	const navigate = useNavigate();
+export default function Messages({ user, setUser, realtime }) {
+  const { _id } = useParams();
+  const navigate = useNavigate();
 
-	const onSearchQueryChange = async (e) => {
-		setSearchQuery(e.target.value);
-	}
+  const [contacts, setContacts] = useState([]);
+  const [contact, setContact] = useState(null);
+  const [messages, setMessages] = useState([]);
+  const [message, setMessage] = useState("");
+  const [searchQuery, setSearchQuery] = useState("");
+  const [leftLoading, setLeftLoading] = useState(true);
+  const [rightLoading, setRightLoading] = useState(true);
+  const [typing, setTyping] = useState(false);
 
-	const fetchContacts = async () => {
-		const response = await fetch(`${process.env.REACT_APP_API_URL}/chat/getcontacts`, {
-			method: "POST",
-			headers: {
-				"authtoken": localStorage.getItem("auth-token")
-			}
-		})
-		const json = await response.json()
-		if (json.success) {
-			setContacts(json.contacts)
-			return json.contacts
-		}
-	}
+  const chatRef = useRef();
+  const inputRef = useRef();
+  const typingTimeout = useRef();
 
+  /* --------------------------------- Loaders -------------------------------- */
+  const fetchContacts = async () => {
+    const json = await chatApi.getContacts();
+    if (json.success) {
+      setContacts(json.contacts);
+      return json.contacts;
+    }
+    return [];
+  };
 
-	const fetchContactInfo = async (contacts) => {
-		setRightLoading(true)
-		const response = await fetch(`${process.env.REACT_APP_API_URL}/auth/getuserinfowithid`, {
-			method: "post",
-			headers: {
-				"authtoken": localStorage.getItem("auth-token"),
-				"Content-Type": "Application/json"
-			},
-			body: JSON.stringify({ _id: _id })
-		})
-		const json = await response.json();
-		if (json.success) {
-			setContact(json.user)
-			const doesContactAlreadyExist = contacts.some((contact) => contact._id === json.user._id)
-			if (!doesContactAlreadyExist) {
-				addToContacts(json.user)
-			}
-			return json.user
-		}
-		else {
-			setContact(false)
-			navigate("/messages")
-		}
-		setRightLoading(false)
-	}
+  const fetchMessages = async () => {
+    if (!_id) return;
+    const json = await chatApi.getMessages(_id);
+    if (json.success) setMessages(json.messages);
+    // Reading clears unread; refresh contact list counts + the user's badge.
+    fetchContacts();
+  };
 
-	const addToContacts = async (contact) => {
-		const response = await fetch(`${process.env.REACT_APP_API_URL}/chat/addcontact`, {
-			method: "post",
-			headers: {
-				"authtoken": localStorage.getItem("auth-token"),
-				"Content-Type": "Application/json"
-			},
-			body: JSON.stringify({ _id: contact._id })
-		})
-		const json = await response.json();
-		if (json.success) {
-			fetchContacts();
-			return json.user
-		}
-	}
+  const fetchContactInfo = async () => {
+    const json = await authApi.getById(_id);
+    if (json.success) {
+      setContact(json.user);
+    } else {
+      navigate("/messages");
+    }
+  };
 
-	const fixMessageSendInputBox = async () => {
-		messageInput.current.style.height = 'auto';
-		const computedStyle = window.getComputedStyle(messageInput.current);
-		const lineHeight = parseFloat(computedStyle.lineHeight);
-		const padding = parseFloat(computedStyle.paddingTop) + parseFloat(computedStyle.paddingBottom);
-		const scrollHeight = messageInput.current.scrollHeight - padding;
-		messageInput.current.style.height = (scrollHeight < lineHeight ? lineHeight : scrollHeight) + 'px';
-	}
+  /* ------------------------------- Lifecycle -------------------------------- */
+  useEffect(() => {
+    setLeftLoading(true);
+    fetchContacts().finally(() => setLeftLoading(false));
+  }, []);
 
-	function calculateJoinedDate(postDate) {
-		const postDateTime = new Date(postDate);
-		const options = {
-			month: "long",
-			year: 'numeric'
-		}
-		return postDateTime.toLocaleDateString(undefined, options);
-	}
+  useEffect(() => {
+    if (!_id) {
+      setContact(null);
+      setMessages([]);
+      return;
+    }
+    setRightLoading(true);
+    Promise.all([fetchContactInfo(), fetchMessages()]).finally(() => setRightLoading(false));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [_id]);
 
-	const fetchMessages = async () => {
-		const response = await fetch(`${process.env.REACT_APP_API_URL}/chat/getmessages`, {
-			method: "POST",
-			headers: {
-				"authtoken": localStorage.getItem("auth-token"),
-				"Content-Type": "application/json",
-			},
-			body: JSON.stringify({ _id: _id })
-		})
-		const json = await response.json()
-		if (json.success) {
-			setMessages(json.messages)
-			return json.messages
-		}
-	}
+  // Realtime: new messages, read receipts, typing indicator.
+  useEffect(() => {
+    if (!realtime) return undefined;
+    const offNew = realtime.on("newMessage", ({ from, message: msg }) => {
+      if (String(from) === String(_id)) {
+        setMessages((prev) => [...prev, msg]);
+        chatApi.getMessages(_id); // mark read immediately since the chat is open
+      }
+      fetchContacts();
+    });
+    const offRead = realtime.on("messagesRead", ({ by }) => {
+      if (String(by) === String(_id)) {
+        setMessages((prev) => prev.map((m) => (String(m.sender) === String(user._id) ? { ...m, read: true } : m)));
+      }
+    });
+    const offTyping = realtime.on("typing", ({ from, isTyping }) => {
+      if (String(from) === String(_id)) setTyping(isTyping);
+    });
+    return () => {
+      offNew();
+      offRead();
+      offTyping();
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [realtime, _id, user._id]);
 
-	const onMessageChange = async (e) => {
-		setMessage(e.target.value);
-		fixMessageSendInputBox();
-	}
+  // Auto-scroll to newest message.
+  useEffect(() => {
+    if (chatRef.current) chatRef.current.scrollTop = chatRef.current.scrollHeight;
+  }, [messages, typing]);
 
-	const onMessageSend = async (e) => {
-		e.preventDefault()
-		if (message.trim().length > 0) {
-			const text = message;
-			setMessage(prev => "");
-			fixMessageSendInputBox();
-			if (messages.length === 0) {
-				createChat(text);
-			}
-			else {
-				addMessage(text);
-			}
-		}
-	}
+  /* --------------------------------- Sending -------------------------------- */
+  const onMessageChange = (e) => {
+    setMessage(e.target.value);
+    realtime?.emit("typing", { to: _id, from: user._id, isTyping: true });
+    clearTimeout(typingTimeout.current);
+    typingTimeout.current = setTimeout(() => {
+      realtime?.emit("typing", { to: _id, from: user._id, isTyping: false });
+    }, 1500);
+  };
 
-	const addMessage = async (text) => {
-		const response = await fetch(`${process.env.REACT_APP_API_URL}/chat/addmessage`, {
-			method: "POST",
-			headers: {
-				"authtoken": localStorage.getItem("auth-token"),
-				"Content-Type": "application/json",
-			},
-			body: JSON.stringify({ _id: _id, message: message })
-		})
-		const json = await response.json()
-		if (json.success) {
-			socket.current?.emit('sendMessage', _id);
-			setMessages(json.messages)
-			return json.messages
-		}
-	}
+  const onSend = async (e) => {
+    e.preventDefault();
+    const text = message.trim();
+    if (!text) return;
+    setMessage("");
+    realtime?.emit("typing", { to: _id, from: user._id, isTyping: false });
+    const json = await chatApi.sendMessage(_id, text);
+    if (json.success) {
+      setMessages(json.messages);
+      fetchContacts();
+    }
+  };
 
-	const createChat = async (text) => {
-		const response = await fetch(`${process.env.REACT_APP_API_URL}/chat/createchat`, {
-			method: "POST",
-			headers: {
-				"authtoken": localStorage.getItem("auth-token"),
-				"Content-Type": "application/json",
-			},
-			body: JSON.stringify({ _id: _id, message: message })
-		})
-		const json = await response.json()
-		if (json.success) {
-			socket.current?.emit('sendMessage', _id);
-			setMessages(json.messages)
-			return json.messages
-		}
-	}
+  const filteredContacts = searchQuery.trim()
+    ? contacts.filter((c) => {
+        const q = searchQuery.toLowerCase();
+        return (
+          c.name?.toLowerCase().includes(q) ||
+          c.username?.toLowerCase().includes(q) ||
+          c.bio?.toLowerCase().includes(q)
+        );
+      })
+    : contacts;
 
-	useEffect(() => {
-		if (_id) {
-			setContact(true);
-		}
-		else {
-			setContact(false);
-		}
-		setRightLoading(true)
-		fetchContacts().then((contacts) => {
-			setLeftLoading(false)
-			if (_id) {
-				fetchContactInfo(contacts).then(() => fetchMessages()).then(() => setRightLoading(false))
+  /* ------------------------------- Left column ------------------------------ */
+  const ContactList = (
+    <div className={Styles.mainPanelSmall}>
+      {leftLoading ? (
+        <Spinner />
+      ) : (
+        <>
+          <div className={Styles.topBlackConatiner}>
+            <h5 className={Styles.heading}>Messages</h5>
+            <div>
+              <img src={Settings} alt="settings" className={Styles.topContainerIcon} />
+              <img src={MessagesPlus} alt="new message" className={Styles.topContainerIcon} />
+            </div>
+          </div>
+          {contacts.length > 0 && (
+            <div className={Styles.searchInputBox}>
+              <img src={Search} alt="search" className={Styles.searchIcon} />
+              <input
+                type="text"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder="Search Direct Messages"
+                className={Styles.searchInput}
+              />
+            </div>
+          )}
+          <div className={Styles.contacts}>
+            {filteredContacts.length > 0 ? (
+              filteredContacts.map((c) => (
+                <div
+                  key={c._id}
+                  onClick={() => navigate(`/messages/${c._id}`)}
+                  className={`${Styles.contactContainer} ${_id === c._id ? Styles.contactContainerSelected : ""}`}
+                >
+                  <div className={Styles.contactProfileContainer}>
+                    <img src={c.profile} referrerPolicy="no-referrer" alt="" className={Styles.contactProfile} />
+                  </div>
+                  <div className={Styles.contactInfoContainer}>
+                    <div className={Styles.contactNameContainer}>
+                      <h6 className={Styles.name}>{c.name}</h6>
+                      <p className={Styles.username}>@{c.username}</p>
+                      {c.lastMessageAt && (
+                        <>
+                          <p className={Styles.dot}>•</p>
+                          <p className={Styles.timestamp}>{formatPostAge(c.lastMessageAt)}</p>
+                        </>
+                      )}
+                      {c.unreadCount > 0 && (
+                        <span
+                          style={{
+                            marginLeft: "auto",
+                            background: "rgb(29,155,240)",
+                            color: "white",
+                            borderRadius: 9999,
+                            minWidth: 18,
+                            height: 18,
+                            fontSize: 11,
+                            display: "inline-flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                            padding: "0 5px",
+                          }}
+                        >
+                          {c.unreadCount}
+                        </span>
+                      )}
+                    </div>
+                    <div className={Styles.lastMessage} style={{ fontWeight: c.unreadCount > 0 ? 700 : 400 }}>
+                      {c.lastMessage || "Start a conversation"}
+                    </div>
+                  </div>
+                </div>
+              ))
+            ) : (
+              <div className={Styles.welcomeInboxContainer}>
+                <h2 className={Styles.welcomeMessageText}>Welcome to your inbox!</h2>
+                <p className={Styles.welcomeMessageTextSmaller}>
+                  Drop a line, share posts and more with private conversations between you and others on X.
+                </p>
+              </div>
+            )}
+          </div>
+        </>
+      )}
+    </div>
+  );
 
-			}
-		});
-		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [window.location.pathname, _id])
+  // No conversation selected → show only the contact list.
+  if (!_id) return <div className={Styles.container}>{ContactList}</div>;
 
-	useEffect(() => {
-		if (messageInput.current) {
-			fixMessageSendInputBox();
-		}
-	}, [message])
+  /* ------------------------------ Right column ------------------------------ */
+  return (
+    <div className={Styles.mainPanelSmall}>
+      {rightLoading || !contact ? (
+        <Spinner />
+      ) : (
+        <div className={Styles.chatArea}>
+          <div className={Styles.chatAreaTopBlackConatiner}>
+            <img onClick={() => navigate("/messages")} className={Styles.backButton} src={BackButton} alt="back" />
+            <h5 className={Styles.heading}>{contact.name}</h5>
+            <img src={Info} alt="info" className={Styles.chatAreaInfoIcon} />
+          </div>
 
-	useEffect(() => {
-		socket.current = io(process.env.REACT_APP_API_URL);
-		socket.current.on('newMessage', () => {
-			console.log("new messages")
-			fetchMessages()
-		});
-		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [])
+          <div className={Styles.chat} ref={chatRef}>
+            <div className={Styles.chatMessages}>
+              <Link to={`/${contact.username}`}>
+                <div className={Styles.chatContactInfoContainer}>
+                  <div className={Styles.chatContactProfileContainer}>
+                    <img src={contact.profile} referrerPolicy="no-referrer" alt="" className={Styles.chatContactProfile} />
+                  </div>
+                  <p className={Styles.chatContactName}>{contact.name}</p>
+                  <p className={Styles.chatContactUsername}>@{contact.username}</p>
+                  <p className={Styles.chatContactBio}>{contact.bio}</p>
+                  <div className="d-flex justify-content-center">
+                    <p className={Styles.chatContactJoinedText}>
+                      Joined {formatJoinedDate(contact.createdAt || contact.joined)}
+                    </p>
+                    <p className={Styles.chatContactDot}>•</p>
+                    <p className={Styles.chatContactFollowers}>{contact.followers?.length || 0} Followers</p>
+                  </div>
+                </div>
+              </Link>
 
-	useEffect(() => {
-		if (chat.current) {
-			chat.current.scrollTop = chat.current.scrollHeight;
-		}
-	}, [messages]);
+              {messages.map((m, i) => {
+                const mine = String(m.sender) === String(user._id);
+                const isLastMine = mine && i === messages.length - 1;
+                return (
+                  <div key={m._id || i} className={mine ? Styles.sentMessage : Styles.receivedMessage} title={m.createdAt ? formatTime(m.createdAt) : ""}>
+                    {m.message}
+                    {isLastMine && (
+                      <span style={{ display: "block", fontSize: 11, opacity: 0.7, marginTop: 2 }}>
+                        {m.read ? "Seen" : "Sent"}
+                      </span>
+                    )}
+                  </div>
+                );
+              })}
 
-	useEffect(() => {
-		socket.current.emit('join', props.user._id)
-	}, [props.user._id])
+              {typing && (
+                <div className={Styles.receivedMessage} style={{ opacity: 0.7 }}>
+                  <i>typing…</i>
+                </div>
+              )}
+            </div>
+          </div>
 
-	useEffect(() => {
-		if (searchQuery.length > 0) {
-			const lowerCaseQuery = searchQuery.toLowerCase();
-			const matchingContacts = contacts.filter(contact =>
-				contact.name.toLowerCase().includes(lowerCaseQuery) ||
-				contact.username.toLowerCase().includes(lowerCaseQuery) ||
-				contact.bio.toLowerCase().includes(lowerCaseQuery)
-			);
-			setSearchedContacts(matchingContacts)
-		}
-		else {
-			setSearchedContacts([])
-		}
-		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [searchQuery])
-
-	if (!contact) {
-		return (
-			<div className={Styles.container}>
-				<div className={Styles.mainPanelSmall}>
-					{
-						leftLoading ?
-							<Spinner />
-							:
-							<>
-								<div className={Styles.topBlackConatiner}>
-									<h5 className={Styles.heading}>Messages</h5>
-									<div>
-										<img src={Settings} alt="settings" className={Styles.topContainerIcon} />
-										<img src={MessagesPlus} alt="messageplus" className={Styles.topContainerIcon} />
-									</div>
-								</div>
-								{contacts.length > 0 ?
-									<div className={Styles.searchInputBox} onClick={() => contactSearchInput.current.focus()}>
-										<img src={Search} alt="search" className={Styles.searchIcon} />
-										<input type="text" value={searchQuery} onChange={onSearchQueryChange} ref={contactSearchInput} placeholder='Search Direct Messages' className={Styles.searchInput} />
-									</div>
-									:
-									null
-								}
-								<div className={Styles.contacts}>
-									{
-										searchedContacts.length > 0 ?
-											searchedContacts.map((contact) => {
-												return (
-													<div key={contact._id} onClick={() => navigate(`/messages/${contact._id}`)} className={`${Styles.contactContainer} ${_id === contact._id ? Styles.contactContainerSelected : ""}`}>
-														<div className={Styles.contactProfileContainer}>
-															<img src={contact.profile} alt="contactProfile" className={Styles.contactProfile} />
-														</div>
-														<div className={Styles.contactInfoContainer}>
-															<div className={Styles.contactNameContainer}>
-																<h6 className={Styles.name}>{contact.name}</h6>
-																<p className={Styles.username}>@{contact.username}</p>
-																<p className={Styles.dot}>•</p>
-																{/* <p className={Styles.timestamp}>{calculatePostAge(post.timestamp)}</p> */}
-																<p className={Styles.timestamp}>33m</p>
-															</div>
-															<div className={Styles.lastMessage}>
-																Last Message
-															</div>
-														</div>
-													</div>
-												)
-											})
-											:
-											contacts.length > 0 ? contacts.map((contact) => {
-												return (
-													<div key={contact._id} onClick={() => navigate(`/messages/${contact._id}`)} className={`${Styles.contactContainer} ${_id === contact._id ? Styles.contactContainerSelected : ""}`}>
-														<div className={Styles.contactProfileContainer}>
-															<img src={contact.profile} alt="contactProfile" className={Styles.contactProfile} />
-														</div>
-														<div className={Styles.contactInfoContainer}>
-															<div className={Styles.contactNameContainer}>
-																<h6 className={Styles.name}>{contact.name}</h6>
-																<p className={Styles.username}>@{contact.username}</p>
-																<p className={Styles.dot}>•</p>
-																{/* <p className={Styles.timestamp}>{calculatePostAge(post.timestamp)}</p> */}
-																<p className={Styles.timestamp}>33m</p>
-															</div>
-															<div className={Styles.lastMessage}>
-																Last Message
-															</div>
-														</div>
-													</div>
-												)
-											})
-												:
-												<div className={Styles.welcomeInboxContainer}>
-													<h2 className={Styles.welcomeMessageText}>Welcome to your inbox!</h2>
-													<p className={Styles.welcomeMessageTextSmaller}>Drop a line, share posts and more with private conversations between you and others on X. </p>
-													<button className={`btn btn-primary rounded-pill ${Styles.writeMessageButton}`}>Write a message</button>
-												</div>
-									}
-								</div>
-							</>
-					}
-				</div>
-			</div>
-		)
-	}
-	else {
-		return (
-			<div className={Styles.mainPanelSmall}>
-				{
-					contact ?
-						RightLoading ?
-							<Spinner />
-							:
-							<div className={Styles.chatArea}>
-								<div className={Styles.chatAreaTopBlackConatiner}>
-									<img onClick={() => { navigate(`/messages`) }} className={Styles.backButton} src={BackButton} alt='backButton' />
-									<h5 className={Styles.heading}>{contact.name}</h5>
-									<img src={Info} alt="Info" className={Styles.chatAreaInfoIcon} />
-								</div>
-								<div className={Styles.chat} ref={chat}>
-									<div className={Styles.chatMessages}>
-										<Link to={`/${contact.username}`}>
-											<div className={Styles.chatContactInfoContainer}>
-												<div className={Styles.chatContactProfileContainer}>
-													<img src={contact.profile} alt="contactProfile" className={Styles.chatContactProfile} />
-												</div>
-												<p className={Styles.chatContactName}>{contact.name}</p>
-												<p className={Styles.chatContactUsername}>@{contact.username}</p>
-												<p className={Styles.chatContactBio}>{contact.bio}</p>
-												<div className='d-flex justify-content-center'>
-													<p className={Styles.chatContactJoinedText}>Joined {calculateJoinedDate(contact.joined)}</p>
-													<p className={Styles.chatContactDot}>•</p>
-													<p className={Styles.chatContactFollowers}>{contact.followers?.length} Followers</p>
-												</div>
-											</div>
-										</Link>
-										{
-											messages && messages.map((message) => {
-												return (
-													<div key={message._id} className={message.sender === props.user._id ? Styles.sentMessage : Styles.receivedMessage}>{message.message}</div>
-												)
-											})
-										}
-									</div>
-								</div>
-								<form onSubmit={onMessageSend}>
-									<div className={Styles.sendBox}>
-										<div className={Styles.messageInputBox} ref={messageInputBox}>
-											<div className={Styles.messageInputIcons}>
-												<img src={Gallery} className={Styles.messageInputIcon} alt="" />
-												<img src={Gif} className={Styles.messageInputIcon} alt="" />
-												<img src={Emoji} className={Styles.messageInputIcon} alt="" />
-											</div>
-											<textarea rows="1" type="text" value={message} onChange={onMessageChange} ref={messageInput} className={Styles.messageInput} placeholder='Start a new message' />
-											<div className={Styles.messageSendButton}>
-												<button type='submit' ref={messageSendButton} disabled={message.trim()?.length <= 0} className={Styles.messageSendButton}>
-													<img src={Send} className={Styles.messageInputIcon} alt="" style={{ opacity: message.trim()?.length <= 0 ? .5 : 1 }} />
-												</button>
-											</div>
-										</div>
-									</div>
-								</form>
-							</div>
-						:
-						<div className={Styles.selectMessageContainer}>
-							<h2 className={Styles.selectMessageText}>Select a message</h2>
-							<p className={Styles.selectMessageTextSmaller}>Choose from your existing conversations, start a new one, or just keep swimming.</p>
-							<button className={`btn btn-primary rounded-pill ${Styles.newMessageButton}`}>New message</button>
-						</div>
-				}
-			</div>
-		)
-	}
+          <form onSubmit={onSend}>
+            <div className={Styles.sendBox}>
+              <div className={Styles.messageInputBox}>
+                <div className={Styles.messageInputIcons}>
+                  <img src={Gallery} className={Styles.messageInputIcon} alt="" />
+                  <img src={Gif} className={Styles.messageInputIcon} alt="" />
+                  <img src={Emoji} className={Styles.messageInputIcon} alt="" />
+                </div>
+                <textarea
+                  rows="1"
+                  value={message}
+                  onChange={onMessageChange}
+                  ref={inputRef}
+                  className={Styles.messageInput}
+                  placeholder="Start a new message"
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" && !e.shiftKey) {
+                      e.preventDefault();
+                      onSend(e);
+                    }
+                  }}
+                />
+                <button type="submit" disabled={message.trim().length === 0} className={Styles.messageSendButton}>
+                  <img src={Send} className={Styles.messageInputIcon} alt="send" style={{ opacity: message.trim().length === 0 ? 0.5 : 1 }} />
+                </button>
+              </div>
+            </div>
+          </form>
+        </div>
+      )}
+    </div>
+  );
 }

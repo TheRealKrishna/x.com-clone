@@ -1,55 +1,98 @@
-const express = require('express')
-const http = require('http');
-const mongoConnect = require("./database/connect.js")
-const cors = require('cors');
-const app = express()
-const { Server } = require('socket.io');
+const http = require("http");
+const express = require("express");
+const cors = require("cors");
+const helmet = require("helmet");
+const rateLimit = require("express-rate-limit");
+
+const config = require("./config");
+const { connectDatabase, disconnectDatabase } = require("./database/connect");
+const { initSocket } = require("./realtime/socket");
+const { logError } = require("./handler/errorHandler");
+
+const app = express();
 const server = http.createServer(app);
-const socketIo = require('socket.io');
-const io = new socketIo.Server(server, {
-  cors: {
-    origin: process.env.FRONTEND_URL
-  }
+
+/* --------------------------------- Security -------------------------------- */
+app.use(helmet());
+
+const corsOptions = {
+  origin(origin, callback) {
+    // Allow non-browser clients (curl, mobile, same-origin) with no Origin header.
+    if (!origin) return callback(null, true);
+    if (config.frontendUrls.includes("*")) return callback(null, true);
+    if (config.frontendUrls.includes(origin)) return callback(null, true);
+    // In development, allow any localhost / 127.0.0.1 origin regardless of port
+    // so the Vite dev server (and any chosen port) just works.
+    if (!config.isProd && /^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(origin)) {
+      return callback(null, true);
+    }
+    return callback(null, false);
+  },
+  credentials: true,
+};
+app.use(cors(corsOptions));
+
+app.use(express.json({ limit: "10mb" })); // images are sent as URLs, but allow headroom
+
+// Basic rate limiting to blunt brute-force / abuse.
+const apiLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 1000,
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+const authLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 100,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { success: false, error: "Too many attempts. Please try again later." },
 });
 
-// basic server inits
-mongoConnect()
-app.use(express.json())
-app.use(cors());
+/* ---------------------------------- Routes --------------------------------- */
+app.get("/", (req, res) => res.json({ success: true, message: "Backend for x.com is running." }));
+app.get("/health", (req, res) => res.json({ success: true, status: "ok" }));
 
-const rooms = {};
-io.on('connection', (socket) => {
-  socket.on('join', (user) => {
-    rooms[user] = socket.id;
-    console.log(`a user joined with id ${user} and socket id ${socket.id}`)
-  });
+app.use("/auth", authLimiter, require("./api/auth"));
+app.use("/post", apiLimiter, require("./api/post"));
+app.use("/follow", apiLimiter, require("./api/follow"));
+app.use("/chat", apiLimiter, require("./api/chat"));
+app.use("/explore", apiLimiter, require("./api/explore"));
+app.use("/notification", apiLimiter, require("./api/notification"));
 
-  socket.on('sendMessage', (user) => {
-    if (rooms[user]) {
-      io.to(rooms[user]).emit('newMessage');
-    }
-  });
-
-  socket.on('disconnect', () => {
-    const user = Object.keys(rooms).find((key) => rooms[key] === socket.id);
-    if (user) {
-      delete rooms[user];
-    }
-    console.log(`deleted user ${user} because user disconnected!`);
-  });
+// 404 + centralized error handler.
+app.use((req, res) => res.status(404).json({ success: false, error: "Not found." }));
+// eslint-disable-next-line no-unused-vars
+app.use((err, req, res, next) => {
+  logError("express", err);
+  res.status(500).json({ success: false, error: "An internal server error occurred." });
 });
 
-// app routes
-app.get('/', (req, res) => {
-  res.send('Backend For x.com')
-})
-app.use("/auth", require("./api/auth.js"))
-app.use("/post", require("./api/post.js"))
-app.use("/follow", require("./api/follow.js"))
-app.use("/chat", require("./api/chat.js"))
+/* ------------------------------- Bootstrapping ------------------------------ */
+initSocket(server);
 
+async function start() {
+  await connectDatabase();
+  server.listen(config.port, () => {
+    // eslint-disable-next-line no-console
+    console.log(`[server] Running on http://localhost:${config.port} (${config.nodeEnv})`);
+  });
+}
 
-// server run
-server.listen(80, () => {
-  console.log(`Server Runinng on: http://localhost`)
-})
+start().catch((err) => {
+  logError("startup", err);
+  process.exit(1);
+});
+
+// Graceful shutdown.
+const shutdown = async (signal) => {
+  // eslint-disable-next-line no-console
+  console.log(`\n[server] ${signal} received, shutting down…`);
+  server.close();
+  await disconnectDatabase().catch(() => {});
+  process.exit(0);
+};
+process.on("SIGINT", () => shutdown("SIGINT"));
+process.on("SIGTERM", () => shutdown("SIGTERM"));
+
+module.exports = app;

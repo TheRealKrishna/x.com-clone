@@ -1,12 +1,12 @@
-const express = require('express')
-const app = express()
-const getUser = require("../middleware/getUser.js")
-const { addFollower, removeFollower, getFollowers, getFollownig } = require("../controller/follow.js")
+const express = require("express");
+const router = express.Router();
+const getUser = require("../middleware/getUser");
+const ctrl = require("../controller/follow");
 
+router.post("/addfollower", getUser, ctrl.addFollower);
+router.post("/removefollower", getUser, ctrl.removeFollower);
+router.post("/getfollowers", getUser, ctrl.getFollowers);
+router.post("/getfollowing", getUser, ctrl.getFollowing);
+router.post("/getsuggestions", getUser, ctrl.getSuggestions);
 
-app.post("/addfollower", getUser, addFollower)
-app.post("/removefollower", getUser, removeFollower)
-app.post("/getfollowers", getUser, getFollowers)
-app.post("/getfollowing", getUser, getFollownig)
-
-module.exports = app
+module.exports = router;

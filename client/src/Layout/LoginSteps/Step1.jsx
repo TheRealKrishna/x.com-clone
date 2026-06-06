@@ -6,6 +6,9 @@ import * as yup from "yup"
 import googleLogo from "../../Images/googleLogo.svg";
 import appleLogo from "../../Images/appleLogo.svg";
 import { Link } from 'react-router-dom';
+import { authApi } from '../../api';
+import { hasGoogle } from '../../api/config';
+import { getCountry } from '../../utils/country';
 
 export default function Step1(props) {
   const nameInputBox = useRef();
@@ -57,25 +60,13 @@ export default function Step1(props) {
 
   const loginValidate = async (name) => {
     setApiCalling(true)
-    const response = await fetch(`${process.env.REACT_APP_API_URL}/auth/loginvalidate`, {
-      method: "post",
-      body: JSON.stringify({ name: name, country: (await getUserInfo()).country }),
-      headers: {
-        "Content-Type": "application/json"
-      }
-    })
-    const json = await response.json();
+    const json = await authApi.loginValidate(name, await getCountry());
     if (!json.success) {
       setError('name', { type: "custom", message: json.error }, { shouldFocus: true });
     }
     await props.setCredentials(prev => { return { ...prev, method: json.method } })
     setApiCalling(false)
     return json.success;
-  }
-  const getUserInfo = async () => {
-    const response = await fetch("https://ipapi.co/json/");
-    const json = await response.json()
-    return json
   }
 
   useEffect(() => {
@@ -118,9 +109,12 @@ export default function Step1(props) {
     <form onSubmit={handleSubmit(handleNextButton)} style={{ height: "100%" }} className={`${Styles.formContainer}`}>
       <h2 className={Styles.headingTitle}>Sign in to X</h2>
       <div className='d-flex flex-column align-items-center'>
-        <button className={`btn btn-light rounded-pill ${Styles.signUpWithGoogleButton}`} type='button' onClick={props.googleLogin}><img src={googleLogo} className={Styles.googleLogo} alt="google Logo" />Sign in with Google</button>
-        <button className={`btn btn-light rounded-pill ${Styles.signUpWithAppleButton}`}><img src={appleLogo} className={Styles.appleLogo} alt="apple Logo" />Sign in with Apple</button>
-        <div className={Styles.orDivider}>or</div>
+        {hasGoogle && (
+          <>
+            <button className={`btn btn-light rounded-pill ${Styles.signUpWithGoogleButton}`} type='button' onClick={props.googleLogin}><img src={googleLogo} className={Styles.googleLogo} alt="google Logo" />Sign in with Google</button>
+            <div className={Styles.orDivider}>or</div>
+          </>
+        )}
         <div ref={nameInputBox} className={Styles.nameInputBox}>
           <input className={Styles.nameInput} ref={nameInput} placeholder=" " name='name' type="text" {...register('name', { onChange: onNameChange })} />
           <label ref={nameFloatingLabel} className={`${Styles.floatingLabel} ${Styles.nameFloatingLabel}`}>Phone, email address, or username</label>

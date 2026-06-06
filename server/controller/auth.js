@@ -1,356 +1,244 @@
-const { validationResult } = require('express-validator')
-const User = require("../database/models/UserSchema.js")
-const errorHandler = require("../handler/errorHandler.js")
-const bcrypt = require("bcrypt")
-const jwt = require("jsonwebtoken")
-const { default: phone } = require('phone')
-const Joi = require("@hapi/joi");
-const customJoi = Joi.extend(require("joi-age"));
-const ageSchema = customJoi.date().minAge(13);
-const { generateFromEmail } = require("unique-username-generator");
-const { default: axios } = require('axios')
+const { body } = require("express-validator");
+const axios = require("axios");
+const bcrypt = require("bcryptjs");
+const jwt = require("jsonwebtoken");
+const { phone } = require("phone");
 
+const config = require("../config");
+const User = require("../database/models/UserSchema");
+const { asyncHandler, isAtLeastAge } = require("../utils/helpers");
+const { generateUniqueUsername } = require("../utils/username");
 
-const emailValidate = async (req, res) => {
-    try {
-        const errors = validationResult(req)
-        if (!errors.isEmpty() && errors.errors[0].path === 'email') {
-            return res.status(400).json({ success: false, error: 'Invalid email address!' })
-        }
-        const emailCheck = await User.findOne({ email: req.body.email })
-        if (emailCheck) {
-            return res.status(400).json({ success: false, error: 'Email already exists!' })
-        }
-        return res.json({ success: true })
+const signToken = (userId) => jwt.sign({ _id: userId }, config.jwtSecret, { expiresIn: "30d" });
+
+// Strip sensitive/internal fields before sending a user to the client.
+const publicUser = (userDoc) => {
+  const obj = userDoc.toObject ? userDoc.toObject() : { ...userDoc };
+  delete obj.password;
+  delete obj.__v;
+  return obj;
+};
+
+/* ----------------------------- Validation chains ---------------------------- */
+
+const emailValidators = [body("email").isEmail().withMessage("Invalid email address!")];
+const phoneValidators = [body("phone").isLength({ min: 1 }).withMessage("Phone number is required!")];
+const signupEmailValidators = [
+  body("name").trim().isLength({ min: 1 }).withMessage("Name is required!"),
+  body("email").isEmail().withMessage("Invalid email address. Please try again."),
+  body("password").isLength({ min: 8 }).withMessage("Password must be at least 8 characters long."),
+];
+const signupPhoneValidators = [
+  body("name").trim().isLength({ min: 1 }).withMessage("Name is required!"),
+  body("phone").isLength({ min: 1 }).withMessage("Phone number is required!"),
+  body("password").isLength({ min: 8 }).withMessage("Password must be at least 8 characters long."),
+];
+const loginValidators = [
+  body("password").isLength({ min: 8 }).withMessage("Wrong password!"),
+];
+
+/* -------------------------------- Controllers ------------------------------- */
+
+const emailValidate = asyncHandler("auth/emailValidate", async (req, res) => {
+  const exists = await User.findOne({ email: String(req.body.email).toLowerCase() });
+  if (exists) {
+    return res.status(400).json({ success: false, error: "Email already exists!" });
+  }
+  return res.json({ success: true });
+});
+
+const phoneValidate = asyncHandler("auth/phoneValidate", async (req, res) => {
+  const parsed = phone(req.body.phone, { country: req.body.country });
+  if (!parsed.isValid) {
+    return res.status(400).json({ success: false, error: "Invalid phone number!" });
+  }
+  const exists = await User.findOne({ phone: parsed.phoneNumber });
+  if (exists) {
+    return res.status(400).json({ success: false, error: "Phone number already exists!" });
+  }
+  return res.json({ success: true });
+});
+
+const signUpWithEmail = asyncHandler("auth/signUpWithEmail", async (req, res) => {
+  if (!isAtLeastAge(req.body.dob, 13)) {
+    return res.status(400).json({ success: false, error: "You must be at least 13 years old!" });
+  }
+  const email = String(req.body.email).toLowerCase();
+  if (await User.findOne({ email })) {
+    return res.status(400).json({ success: false, error: "An account already exists with that email." });
+  }
+
+  const hashed = await bcrypt.hash(req.body.password, 10);
+  const user = await User.create({
+    name: req.body.name.trim(),
+    email,
+    password: hashed,
+    dob: new Date(req.body.dob),
+    username: await generateUniqueUsername(req.body.name),
+  });
+
+  return res.json({ success: true, authToken: signToken(user._id) });
+});
+
+const signUpWithPhone = asyncHandler("auth/signUpWithPhone", async (req, res) => {
+  if (!isAtLeastAge(req.body.dob, 13)) {
+    return res.status(400).json({ success: false, error: "You must be at least 13 years old!" });
+  }
+  const parsed = phone(String(req.body.phone), { country: req.body.country });
+  if (!parsed.isValid) {
+    return res.status(400).json({ success: false, error: "Invalid phone number!" });
+  }
+  if (await User.findOne({ phone: parsed.phoneNumber })) {
+    return res.status(400).json({ success: false, error: "An account already exists with that phone number." });
+  }
+
+  const hashed = await bcrypt.hash(req.body.password, 10);
+  const user = await User.create({
+    name: req.body.name.trim(),
+    phone: parsed.phoneNumber,
+    password: hashed,
+    dob: new Date(req.body.dob),
+    username: await generateUniqueUsername(req.body.name),
+  });
+
+  return res.json({ success: true, authToken: signToken(user._id) });
+});
+
+// Find a user by username, email, or phone (used by login + loginValidate).
+const findByIdentifier = async (identifier, country) => {
+  const value = String(identifier || "").trim();
+  let user = await User.findOne({ username: value.toLowerCase() }).select("+password");
+  let method = "Username";
+  if (!user) {
+    user = await User.findOne({ email: value.toLowerCase() }).select("+password");
+    method = "Email";
+  }
+  if (!user) {
+    const parsed = phone(value, { country });
+    if (parsed.isValid) {
+      user = await User.findOne({ phone: parsed.phoneNumber }).select("+password");
+      method = "Phone";
     }
-    catch (error) {
-        errorHandler(error)
-        return res.status(500).json({ success: false, error: "An internal server error occured!" })
-    }
-}
+  }
+  return { user, method };
+};
 
-const phoneValidate = async (req, res) => {
-    try {
-        const errors = validationResult(req)
-        if (!errors.isEmpty() && errors.errors[0].path === 'phone') {
-            return res.status(400).json({ success: false, error: 'Phone number is required!' })
-        }
-        if (!(phone(req.body.phone, { country: req.body.country }).isValid)) {
-            return res.status(400).json({ success: false, error: 'Invalid phone number!' })
-        }
-        const phoneCheck = await User.findOne({ phone: phone(req.body.phone, { country: req.body.country }).phoneNumber })
-        if (phoneCheck) {
-            return res.status(400).json({ success: false, error: 'Phone number already exists!' })
-        }
-        return res.json({ success: true })
-    }
-    catch (error) {
-        errorHandler(error)
-        return res.status(500).json({ success: false, error: "An internal server error occured!" })
-    }
-}
+const loginValidate = asyncHandler("auth/loginValidate", async (req, res) => {
+  const { user, method } = await findByIdentifier(req.body.name, req.body.country);
+  if (!user) {
+    return res.status(400).json({ success: false, error: "Sorry, we could not find your account." });
+  }
+  if (!user.password) {
+    return res.status(400).json({ success: false, error: "Please use Google or Apple login for this account." });
+  }
+  return res.json({ success: true, method });
+});
 
-const signUpWithEmail = async (req, res) => {
-    try {
-        // basic checks
-        const errors = validationResult(req)
-        if (!errors.isEmpty() && errors.errors[0].path === 'name') {
-            return res.status(400).json({ success: false, error: 'Name is required!' })
-        }
-        if (!errors.isEmpty() && errors.errors[0].path === 'email') {
-            return res.status(400).json({ success: false, error: 'Invalid email address. Please try again.' })
-        }
-        if (!errors.isEmpty() && errors.errors[0].path === 'password') {
-            return res.status(400).json({ success: false, error: 'Password must be atleast 8 characters long.' })
-        }
-        if (ageSchema.validate(`${new Date(req.body.dob).getFullYear()}-${new Date(req.body.dob).getMonth()}-${new Date(req.body.dob).getDate()}`).error) {
-            return res.status(400).json({ success: false, error: 'You must be atleast 13 years old!' })
-        }
-        const emailCheck = await User.findOne({ email: req.body.email });
-        if (emailCheck) {
-            return res.status(400).json({ success: false, error: 'An account already exists with that email.' })
-        }
+const login = asyncHandler("auth/login", async (req, res) => {
+  const { user } = await findByIdentifier(req.body.name, req.body.country);
+  if (!user) {
+    return res.status(400).json({ success: false, error: "Sorry, we could not find your account." });
+  }
+  if (!user.password) {
+    return res.status(400).json({
+      success: false,
+      authError: true,
+      error: "Oops! Looks like you signed up using Google or Apple. Please log in with them.",
+    });
+  }
+  const match = await bcrypt.compare(req.body.password, user.password);
+  if (!match) {
+    return res.status(400).json({ success: false, error: "Wrong password!" });
+  }
+  return res.json({ success: true, authToken: signToken(user._id) });
+});
 
-        //password hash
-        const securePassword = bcrypt.hashSync(req.body.password, 10);
+const loginWithGoogle = asyncHandler("auth/loginWithGoogle", async (req, res) => {
+  const response = await axios.get(
+    "https://people.googleapis.com/v1/people/me?personFields=names,emailAddresses,photos,birthdays",
+    { headers: { Authorization: `Bearer ${req.body.access_token}` } }
+  );
+  const json = response.data;
+  const email = json.emailAddresses?.[0]?.value?.toLowerCase();
+  if (!email) {
+    return res.status(400).json({ success: false, error: "Could not read Google account email." });
+  }
 
-        //username generate
-        const uniqueUsernameGenerator = async () => {
-            const name = req.body.name.split(" ").join("").slice(0, 12);
-            while (1) {
-                const newUsername = generateFromEmail(name, 3)
-                const usernameCheck = await User.findOne({ username: newUsername });
-                if (!usernameCheck) {
-                    return newUsername;
-                }
-            }
-        }
+  let user = await User.findOne({ email });
+  if (!user) {
+    const givenName = json.names?.[0]?.givenName || email.split("@")[0];
+    const birthday = json.birthdays?.[0]?.date;
+    const dob = birthday
+      ? new Date(birthday.year || 2000, (birthday.month || 1) - 1, birthday.day || 1)
+      : new Date(2000, 0, 1);
+    user = await User.create({
+      name: givenName,
+      email,
+      dob,
+      profile: json.photos?.[0]?.url || undefined,
+      username: await generateUniqueUsername(givenName),
+    });
+  }
+  return res.json({ success: true, authToken: signToken(user._id) });
+});
 
-        //user creation
-        const user = await User.create({ ...req.body, password: securePassword, username: await uniqueUsernameGenerator(), joined: new Date() });
-        await user.save();
+const getUserInfo = asyncHandler("auth/getUserInfo", async (req, res) =>
+  res.json({ success: true, user: publicUser(req.user) })
+);
 
-        //token creation
-        const token = jwt.sign({ _id: user._id }, process.env.JWT_SECRET);
+const getUserInfoWithId = asyncHandler("auth/getUserInfoWithId", async (req, res) => {
+  const user = await User.findById(req.body._id).select("-__v");
+  if (!user) return res.status(404).json({ success: false, error: "User not found!" });
+  return res.json({ success: true, user: publicUser(user) });
+});
 
-        //success response
-        return res.json({ success: true, authToken: token })
-    }
-    catch (error) {
-        errorHandler(error)
-        return res.status(500).json({ success: false, error: "An internal server error occured." })
-    }
-}
+const getUserInfoWithUsername = asyncHandler("auth/getUserInfoWithUsername", async (req, res) => {
+  const user = await User.findOne({ username: String(req.body.username).toLowerCase() }).select("-__v");
+  if (!user) return res.status(404).json({ success: false, error: "User not found!" });
+  return res.json({ success: true, user: publicUser(user) });
+});
 
-const signUpWithPhone = async (req, res) => {
-    try {
-        // basic checks
-        const errors = validationResult(req)
-        if (!errors.isEmpty() && errors.errors[0].path === 'name') {
-            return res.status(400).json({ success: false, error: 'Name is required!' })
-        }
-        if (!errors.isEmpty() && errors.errors[0].path === 'phone') {
-            return res.status(400).json({ success: false, error: 'phone number is required' })
-        }
-        if (!errors.isEmpty() && errors.errors[0].path === 'password') {
-            return res.status(400).json({ success: false, error: 'Password must be atleast 8 characters long.' })
-        }
-        if (ageSchema.validate(`${new Date(req.body.dob).getFullYear()}-${new Date(req.body.dob).getMonth()}-${new Date(req.body.dob).getDate()}`).error) {
-            return res.status(400).json({ success: false, error: 'You must be atleast 13 years old!' })
-        }
-        if (!(phone(String(req.body.phone), { country: req.body.country }).isValid)) {
-            return res.status(400).json({ success: false, error: 'Invalid phone number!' })
-        }
+const editProfile = asyncHandler("auth/editProfile", async (req, res) => {
+  const user = req.user;
+  const { name, bio, location, website, profile, banner, dob } = req.body;
 
-        const phoneCheck = await User.findOne({ phone: phone(req.body.phone, { country: req.body.country }).phoneNumber });
-        if (phoneCheck) {
-            return res.status(400).json({ success: false, error: 'An account already exists with that phone number.' })
-        }
+  if (!name || name.trim().length < 1) {
+    return res.status(400).json({ success: false, error: "Name is required!" });
+  }
+  if (dob && !isAtLeastAge(dob, 13)) {
+    return res.status(400).json({ success: false, error: "You must be at least 13 years old!" });
+  }
 
-        //password hash
-        const securePassword = bcrypt.hashSync(req.body.password, 10);
+  user.name = name.trim();
+  if (typeof bio === "string") user.bio = bio;
+  if (typeof location === "string") user.location = location;
+  if (typeof website === "string") user.website = website;
+  // profile/banner come back as a URL (uploaded) or false (unchanged) or "" (removed).
+  if (profile) user.profile = profile;
+  if (banner === "") user.banner = "";
+  else if (banner) user.banner = banner;
+  if (dob) user.dob = new Date(dob);
 
-        //username generate
-        const uniqueUsernameGenerator = async () => {
-            const name = req.body.name.split(" ").join("").slice(0, 12);
-            while (1) {
-                const newUsername = generateFromEmail(name, 3)
-                const usernameCheck = await User.findOne({ username: newUsername });
-                if (!usernameCheck) {
-                    return newUsername;
-                }
-            }
-        }
+  await user.save();
+  return res.json({ success: true, user: publicUser(user) });
+});
 
-        //user creation
-        const user = await User.create({ ...req.body, password: securePassword, phone: phone(String(req.body.phone), { country: req.body.country }).phoneNumber, username: await uniqueUsernameGenerator(), joined: new Date() });
-        await user.save();
-
-        //token creation
-        const token = jwt.sign({ _id: user._id }, process.env.JWT_SECRET);
-
-        //success response
-        return res.json({ success: true, authToken: token })
-    }
-    catch (error) {
-        errorHandler(error)
-        return res.status(500).json({ success: false, error: "An internal server error occured." })
-    }
-
-}
-
-const loginValidate = async (req, res) => {
-    try {
-        let user = undefined;
-        let method = undefined;
-        const usernameCheck = await User.findOne({ username: req.body.name })
-        user = usernameCheck;
-        method = "Username";
-        if (!usernameCheck) {
-            const emailCheck = await User.findOne({ email: req.body.name })
-            user = emailCheck;
-            method = "Email";
-            if (!emailCheck) {
-                const phoneCheck = await User.findOne({ phone: phone(String(req.body.name), { country: req.body.country }).phoneNumber })
-                user = phoneCheck;
-                method = "Phone";
-                if (!phoneCheck) {
-                    return res.status(400).json({ success: false, error: 'Sorry, we could not find your account.' })
-                }
-            }
-        }
-        if (!user.password) {
-            return res.status(400).json({ success: false, error: 'Please use Google or Apple login for this account.' })
-        }
-        // const token = jwt.sign({ _id: user._id }, process.env.JWT_SECRET);
-        return res.json({ success: true, method: method })
-    }
-    catch (error) {
-        errorHandler(error)
-        return res.status(500).json({ success: false, error: "An internal server error occured!" })
-    }
-}
-
-const login = async (req, res) => {
-    try {
-        const errors = validationResult(req)
-        if (!errors.isEmpty() && errors.errors[0].path === 'password') {
-            return res.status(400).json({ success: false, error: 'Wrong password!' })
-        }
-        let user = undefined;
-        const usernameCheck = await User.findOne({ username: req.body.name })
-        user = usernameCheck;
-        if (!usernameCheck) {
-            const emailCheck = await User.findOne({ email: req.body.name })
-            user = emailCheck;
-            if (!emailCheck) {
-                const phoneCheck = await User.findOne({ phone: phone(String(req.body.name), { country: req.body.country }).phoneNumber })
-                user = phoneCheck;
-                if (!phoneCheck) {
-                    return res.status(400).json({ success: false, error: 'Sorry, we could not find your account.' })
-                }
-            }
-        }
-        if (!user.password) {
-            return res.status(400).json({ success: false, authError: true, error: 'Oops! looks like You signed up using Google or Apple. Please log in with them.' })
-        }
-        if (!(bcrypt.compareSync(req.body.password, user.password))) {
-            return res.status(400).json({ success: false, error: 'Wrong password!' })
-        }
-        const token = jwt.sign({ _id: user._id }, process.env.JWT_SECRET);
-        return res.json({ success: true, authToken: token })
-    }
-    catch (error) {
-        errorHandler(error)
-        return res.status(500).json({ success: false, error: "An internal server error occured!" })
-    }
-}
-
-const loginWithGoogle = async (req, res) => {
-    try {
-        const response = await axios.get('https://people.googleapis.com/v1/people/me?personFields=names,emailAddresses,photos,birthdays', {
-            headers: {
-                'Authorization': `Bearer ${req.body.access_token}`
-            },
-        });
-        const json = response.data;
-        const user = await User.findOne({ email: json.emailAddresses[0].value });
-        if (!user) {
-            const uniqueUsernameGenerator = async () => {
-                const name = json.names[0].givenName.split(" ").join("").slice(0, 12);
-                while (1) {
-                    const newUsername = generateFromEmail(name, 3)
-                    const usernameCheck = await User.findOne({ username: newUsername });
-                    if (!usernameCheck) {
-                        return newUsername;
-                    }
-                }
-            }
-            console.log(json)
-            const user = await User.create({ name: json.names[0].givenName, email: json.emailAddresses[0].value, dob: new Date(`${json.birthdays[0].date.year}-${json.birthdays[0].date.month}-${json.birthdays[0].date.day}`), profile: json.photos[0].url, username: await uniqueUsernameGenerator(), joined: new Date() });
-            await user.save();
-            const token = jwt.sign({ _id: user._id }, process.env.JWT_SECRET);
-            return res.json({ success: true, authToken: token })
-        }
-        const token = jwt.sign({ _id: user._id }, process.env.JWT_SECRET);
-        return res.json({ success: true, authToken: token })
-    }
-    catch (error) {
-        errorHandler(error)
-        return res.status(500).json({ success: false, error: "An internal server error occured!" })
-    }
-}
-
-const getUserInfo = async (req, res) => {
-    try {
-        if (req.body.user) {
-            return res.json({ success: true, user: req.body.user })
-        }
-        else {
-            return res.json({ success: false, error: "User not found!" })
-        }
-    }
-    catch (error) {
-        errorHandler(error)
-        return res.status(500).json({ success: false, error: "An internal server error occured!" })
-    }
-}
-
-const getUserInfoWithId = async (req, res) => {
-    try {
-        if (req.body.user) {
-            const user = await User.findOne({ _id: req.body._id }, ["-password", "-__v"])
-            if (user) {
-                return res.json({ success: true, user: user })
-            }
-            else {
-                return res.json({ success: false, error: "User not found!" })
-            }
-        }
-        else {
-            return res.json({ success: false, error: "Invalid Request!" })
-        }
-    }
-    catch (error) {
-        errorHandler(error)
-        return res.status(500).json({ success: false, error: "An internal server error occured!" })
-    }
-}
-
-const getUserInfoWithUsername = async (req, res) => {
-    try {
-        if (req.body.user) {
-            const user = await User.findOne({ username: req.body.username }, ["-password", "-__v"])
-            if (user) {
-                return res.json({ success: true, user: user })
-            }
-            else {
-                return res.json({ success: false, error: "User not found!" })
-            }
-        }
-        else {
-            return res.json({ success: false, error: "Invalid Request!" })
-        }
-    }
-    catch (error) {
-        errorHandler(error)
-        return res.status(500).json({ success: false, error: "An internal server error occured!" })
-    }
-}
-
-const editProfile = async (req, res) => {
-    try {
-        if (req.body.user) {
-            const errors = validationResult(req)
-            if (req.body.name < 1) {
-                return res.status(400).json({ success: false, error: 'Name is required!' })
-            }
-
-            if (ageSchema.validate(`${new Date(req.body.dob).getFullYear()}-${new Date(req.body.dob).getMonth()}-${new Date(req.body.dob).getDate()}`).error) {
-                return res.status(400).json({ success: false, error: 'You must be atleast 13 years old!' })
-            }
-            req.body.name.length > 1 ? req.body.user.name = req.body.name : null
-            req.body.profile ? req.body.user.profile = req.body.profile : null
-            req.body.banner !== "" ? req.body.banner ? req.body.user.banner = req.body.banner : null : req.body.user.banner = "";
-            req.body.user.bio = req.body.bio
-            req.body.user.location = req.body.location
-            req.body.user.website = req.body.website
-            
-            if (!(ageSchema.validate(`${new Date(req.body.dob).getFullYear()}-${new Date(req.body.dob).getMonth()}-${new Date(req.body.dob).getDate()}`).error)) {
-                req.body.user.dob = req.body.dob
-            }
-            await req.body.user.save();
-            return res.json({ success: true })
-        }
-        else {
-            return res.json({ success: false, error: "Invalid Request!" })
-        }
-    }
-    catch (error) {
-        errorHandler(error)
-        return res.status(500).json({ success: false, error: "An internal server error occured." })
-    }
-
-}
-
-module.exports = { emailValidate, phoneValidate, signUpWithEmail, signUpWithPhone, loginValidate, login, loginWithGoogle, getUserInfo, getUserInfoWithId, getUserInfoWithUsername, editProfile }
+module.exports = {
+  emailValidators,
+  phoneValidators,
+  signupEmailValidators,
+  signupPhoneValidators,
+  loginValidators,
+  emailValidate,
+  phoneValidate,
+  signUpWithEmail,
+  signUpWithPhone,
+  loginValidate,
+  login,
+  loginWithGoogle,
+  getUserInfo,
+  getUserInfoWithId,
+  getUserInfoWithUsername,
+  editProfile,
+  publicUser,
+};

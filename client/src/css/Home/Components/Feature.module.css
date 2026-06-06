@@ -1,0 +1,132 @@
+.container {
+  min-height: 100vh;
+  border-right: 1px solid rgb(47, 51, 54);
+  color: white;
+}
+
+.header {
+  position: sticky;
+  top: 0;
+  z-index: 5;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 12px 16px;
+  background: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid rgb(47, 51, 54);
+}
+
+.sectionTitle {
+  font-size: 20px;
+  font-weight: 800;
+  margin: 0;
+  color: white;
+}
+
+.section {
+  border-bottom: 1px solid rgb(47, 51, 54);
+  padding: 8px 0;
+}
+
+.muted {
+  color: rgb(113, 118, 123);
+  font-size: 14px;
+  margin: 0;
+}
+
+.bio {
+  color: rgb(231, 233, 234);
+  font-size: 14px;
+  margin: 4px 0 0;
+}
+
+/* Search box */
+.searchBox {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: rgb(32, 35, 39);
+  border: 1px solid transparent;
+  border-radius: 9999px;
+  padding: 10px 16px;
+  width: 100%;
+}
+
+.searchBox:focus-within {
+  background: black;
+  border-color: rgb(29, 155, 240);
+}
+
+.searchInput {
+  flex: 1;
+  background: transparent;
+  border: none;
+  outline: none;
+  color: white;
+  font-size: 15px;
+}
+
+/* Trends */
+.trendItem {
+  padding: 12px 16px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.trendItem:hover {
+  background: rgba(255, 255, 255, 0.03);
+}
+.trendTag {
+  font-weight: 700;
+  font-size: 15px;
+  margin: 2px 0;
+  color: white;
+}
+
+/* User rows */
+.userRow {
+  display: flex;
+  gap: 12px;
+  padding: 12px 16px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.userRow:hover {
+  background: rgba(255, 255, 255, 0.03);
+}
+.avatar {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+.avatarSmall {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  object-fit: cover;
+  margin-bottom: 6px;
+}
+.userName {
+  font-weight: 700;
+  margin: 0;
+  color: white;
+}
+
+/* Notifications */
+.notifRow {
+  display: flex;
+  gap: 16px;
+  padding: 14px 16px;
+  border-bottom: 1px solid rgb(47, 51, 54);
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.notifRow:hover {
+  background: rgba(255, 255, 255, 0.03);
+}
+.notifText {
+  font-size: 15px;
+  margin: 0;
+  color: rgb(231, 233, 234);
+}

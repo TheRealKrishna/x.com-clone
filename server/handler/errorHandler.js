@@ -1,22 +1,25 @@
-const fs = require('fs');
+const fs = require("fs");
+const path = require("path");
+const config = require("../config");
 
-const errorHandler = (error) => {
-    console.log(error)
-    const date = new Date();
-    const log = date + "\n" + String(error) + "\n\n\n";
-    let existingContent = '';
-    try {
-        existingContent = fs.readFileSync("error_logs.txt", "utf8");
-    } catch (readError) {
-        console.error("Error reading the file:", readError);
-    }
-    const updatedContent = log + existingContent;
-    try {
-        fs.writeFileSync("error_logs.txt", updatedContent);
-    } catch (writeError) {
+const LOG_FILE = path.join(__dirname, "..", "error_logs.txt");
 
-        console.error("Error writing to the file:", writeError);
-    }
-};
+/**
+ * Log an error to the console and append it to error_logs.txt.
+ * Appends (does not rewrite the whole file) and never throws.
+ */
+function logError(context, error) {
+  const timestamp = new Date().toISOString();
+  const message = error && error.stack ? error.stack : String(error);
+  // eslint-disable-next-line no-console
+  console.error(`[${timestamp}] [${context}]`, message);
 
-module.exports = errorHandler;
+  if (config.isProd) return; // avoid unbounded disk writes in production
+  try {
+    fs.appendFileSync(LOG_FILE, `[${timestamp}] [${context}] ${message}\n`);
+  } catch {
+    /* best-effort logging only */
+  }
+}
+
+module.exports = { logError };
