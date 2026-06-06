@@ -49,7 +49,7 @@ a:hover>.menuList>.menuListItem {
 
 .menuListLink {
     text-decoration: none;
-    color: inherit;
+    color: white;
 }
 
 .menuListLink:hover>.menuList>.menuListItem {
