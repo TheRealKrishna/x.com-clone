@@ -9,8 +9,10 @@ import * as yup from "yup"
 import { SelectDatepicker } from 'react-select-datepicker';
 import Camera from "../Images/Home/Camera.svg"
 import Cross from "../Images/Home/Cross.svg"
-import toast from 'react-hot-toast';
 import ProgressBar from 'react-bootstrap/ProgressBar';
+import { authApi } from '../api';
+import { uploadImage, fileToDataUrl } from '../utils/upload';
+import { notify, notifySuccess } from '../utils/toast';
 
 export default function ProfileEditModal(props) {
   const [loading, setLoading] = useState(false)
@@ -69,123 +71,51 @@ export default function ProfileEditModal(props) {
   }
 
   const onBannerImageUpload = async (e) => {
-    const selectedImages = e.target.files;
-
-    const loadImage = (image) => {
-      return new Promise((resolve) => {
-        const fileReader = new FileReader();
-        fileReader.readAsDataURL(image);
-        fileReader.onload = () => {
-          resolve(fileReader.result);
-        };
-      });
-    };
-
-    const loadedImages = await Promise.all(Array.from(selectedImages).map(loadImage));
-    setBannerImageForUpload(prev => selectedImages[0]);
-    setBannerImage(prev => loadedImages[0]);
+    const file = e.target.files[0];
+    if (!file) return;
+    setBannerImageForUpload(file);
+    setBannerImage(await fileToDataUrl(file));
   }
 
   const onProfileImageUpload = async (e) => {
-    const selectedImages = e.target.files;
-
-    const loadImage = (image) => {
-      return new Promise((resolve) => {
-        const fileReader = new FileReader();
-        fileReader.readAsDataURL(image);
-        fileReader.onload = () => {
-          resolve(fileReader.result);
-        };
-      });
-    };
-
-    const loadedImages = await Promise.all(Array.from(selectedImages).map(loadImage));
-    setProfileImageForUpload(prev => selectedImages[0]);
-    if (loadedImages[0]) {
-      setProfileImage(prev => loadedImages[0]);
-    }
-    else {
-      setProfileImage(props.user.profile)
-    }
+    const file = e.target.files[0];
+    if (!file) return;
+    setProfileImageForUpload(file);
+    const preview = await fileToDataUrl(file);
+    setProfileImage(preview || props.user.profile);
   }
 
-
-  const uploadImage = async (image) => {
-    const data = new FormData();
-    data.append("file", image);
-    data.append(
-      "upload_preset", "eaajn3c2"
-    );
-    data.append("cloud_name", "dy72jxgzz");
-    data.append("folder", "Cloudinary-React");
-    const response = await fetch(
-      `https://api.cloudinary.com/v1_1/dy72jxgzz/image/upload`,
-      {
-        method: "POST",
-        body: data,
-      }
-    );
-    const json = await response.json();
-    if (json.url) {
-      return json.url
-    }
-    else {
-      return ""
-    }
-
-  };
-
   const handleSave = async (data, e) => {
+    e.preventDefault();
     setSavingProgress(20)
     setApiCalling(true)
     setSaving(true)
-    e.preventDefault();
-    let bannerImageUrl = false
-    let profileImageUrl = false
-    if (bannerImageForUpload !== false) {
-      bannerImageUrl = await uploadImage(bannerImageForUpload);
-    }
-    if (profileImageForUpload !== false) {
-      profileImageUrl = await uploadImage(profileImageForUpload);
-    }
+
+    // Upload only newly selected images; otherwise keep existing URLs.
+    let profileUrl = props.user.profile;
+    let bannerUrl = bannerImage === "" ? "" : props.user.banner;
+    if (profileImageForUpload) profileUrl = await uploadImage(profileImageForUpload);
+    if (bannerImageForUpload) bannerUrl = await uploadImage(bannerImageForUpload);
+
     setSavingProgress(50)
-    const response = await fetch(`${process.env.REACT_APP_API_URL}/auth/editprofile`, {
-      method: "post",
-      body: JSON.stringify({ ...data, profile: profileImageUrl, banner: bannerImageUrl, dob: new Date(dob) }),
-      headers: {
-        "Content-Type": "application/json",
-        "authToken": localStorage.getItem("auth-token")
-      }
-    })
+    const json = await authApi.editProfile({
+      ...data,
+      profile: profileUrl,
+      banner: bannerUrl,
+      dob: new Date(dob),
+    });
     setSavingProgress(75)
-    const json = await response.json();
     if (json.success) {
       setSavingProgress(100)
+      if (props.setUser && json.user) props.setUser(json.user);
+      if (props.fetchUser) await props.fetchUser();
       navigate(`/${props.user.username}`)
-      toast.success('Profile saved successfully!', {
-        style: {
-          border: '1px solid white',
-          padding: '16px 30px',
-          color: 'white',
-          backgroundColor: "rgb(29, 155, 240)",
-        },
-        iconTheme: {
-          primary: 'white',
-          secondary: 'rgb(29, 155, 240)',
-        },
-      });
-    }
-    else {
-      toast(json?.error ? json.error : "An error occured!", {
-        style: {
-          border: '1px solid white',
-          padding: '16px 30px',
-          color: 'white',
-          backgroundColor: "rgb(29, 155, 240)",
-        }
-      });
+      notifySuccess('Profile saved successfully!')
+    } else {
+      notify(json?.error || "An error occurred!")
     }
     setApiCalling(false)
+    setSaving(false)
   }
 
 

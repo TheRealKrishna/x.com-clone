@@ -1,159 +1,128 @@
-import React, { useEffect, useRef } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
-import Styles from "../../../css/Home/Components/Menu.module.css"
-import logo from "../../../Images/logo.svg"
-import Home from "../../../Images/Home/Home.svg"
-import HomeSolid from "../../../Images/Home/HomeSolid.svg"
-import Explore from "../../../Images/Home/Explore.svg"
-import Notifications from "../../../Images/Home/Notifications.svg"
-import Messages from "../../../Images/Home/Messages.svg"
-import MessagesSolid from "../../../Images/Home/MessagesSolid.svg"
-import More from "../../../Images/Home/More.svg"
-import Premium from "../../../Images/Home/Premium.svg"
-import Profile from "../../../Images/Home/Profile.svg"
-import ProfileSolid from "../../../Images/Home/ProfileSolid.svg"
-import Communities from "../../../Images/Home/Communities.svg"
-import Lists from "../../../Images/Home/Lists.svg"
-import dropDownArrow from "../../../Images/Home/DropDownArrow.svg"
+import React, { useEffect, useState } from "react";
+import { Link, NavLink, useNavigate } from "react-router-dom";
+import ClickAwayListener from "react-click-away-listener";
 
-export default function Menu(props) {
-    const navigate = useNavigate();
-    const profileBox = useRef()
-    const profileMenu = useRef()
+import Styles from "../../../css/Home/Components/Menu.module.css";
+import logo from "../../../Images/logo.svg";
+import Home from "../../../Images/Home/Home.svg";
+import HomeSolid from "../../../Images/Home/HomeSolid.svg";
+import Explore from "../../../Images/Home/Explore.svg";
+import Notifications from "../../../Images/Home/Notifications.svg";
+import MessagesIcon from "../../../Images/Home/Messages.svg";
+import MessagesSolid from "../../../Images/Home/MessagesSolid.svg";
+import More from "../../../Images/Home/More.svg";
+import Premium from "../../../Images/Home/Premium.svg";
+import ProfileIcon from "../../../Images/Home/Profile.svg";
+import ProfileSolid from "../../../Images/Home/ProfileSolid.svg";
+import Communities from "../../../Images/Home/Communities.svg";
+import Lists from "../../../Images/Home/Lists.svg";
+import Bookmark from "../../../Images/Home/Posts/Bookmark.svg";
+import dropDownArrow from "../../../Images/Home/DropDownArrow.svg";
+import { notificationApi } from "../../../api";
+import { clearToken } from "../../../api/config";
 
-    useEffect(() => {
-        function handleClick(event) {
-            if (!profileMenu.current.style.display === 'none') {
-                profileMenu.current.style.display = 'none';
-            }
-        }
-        document.addEventListener('click', handleClick);
-        return () => {
-            document.removeEventListener('click', handleClick);
-        };
-    }, [])
-
-    const handleLogout = () => {
-        navigate("/logout")
-    }
-
-    function toogleProfileMenu() {
-        if (profileMenu.current.style.display === 'none') {
-            const buttonRect = profileBox.current.getBoundingClientRect();
-            profileMenu.current.style.left = buttonRect.left + 'px';
-            profileMenu.current.style.top = buttonRect.top - 120 - 10 + 'px';
-            profileMenu.current.style.display = 'block';
-        }
-        else {
-            profileMenu.current.style.display = 'none';
-        }
-    }
-
-    return (
-        <>
-            <div className={Styles.menuContainer}>
-                <ul className={Styles.menu}>
-                    <Link to={"/home"}><img src={logo} className={Styles.logo} alt="x.com Logo" /></Link>
-                    <Link to={"/home"}>
-                        <li className={Styles.menuList}>
-                            <div className={Styles.menuListItem}>
-                                <img src={window.location.pathname === "/home" ? HomeSolid : Home} className={Styles.icon} alt="Home" /><p style={{ fontWeight: window.location.pathname === "/home" ? "bold" : "" }} className={Styles.menuListItemText}>Home</p>
-                            </div>
-                        </li>
-                    </Link>
-                    <Link to={"/explore"}>
-                        <li className={Styles.menuList}>
-                            <div className={Styles.menuListItem}>
-                                <img src={Explore} className={Styles.icon} alt="x.com Logo" /><p className={Styles.menuListItemText}>Explore</p>
-                            </div>
-                        </li>
-                    </Link>
-                    <Link to={"/notifications"}>
-                        <li className={Styles.menuList}>
-                            <div className={Styles.menuListItem}>
-                                <img src={Notifications} className={Styles.icon} alt="x.com Logo" /><p className={Styles.menuListItemText}>Notifications</p>
-                            </div>
-                        </li>
-                    </Link>
-                    <Link to={"/messages"}>
-                        <li className={Styles.menuList}>
-                            <div className={Styles.menuListItem}>
-                                <img src={window.location.pathname.startsWith("/messages") ? MessagesSolid : Messages} className={Styles.icon} alt="Messages" /><p style={{ fontWeight: window.location.pathname.startsWith("/messages") ? "bold" : "" }} className={Styles.menuListItemText}>Messages</p>
-                            </div>
-                        </li>
-                    </Link>
-                    <Link to={`/home`}>
-                        <li className={Styles.menuList}>
-                            <div className={Styles.menuListItem}>
-                                <img src={Lists} className={Styles.icon} alt="x.com Logo" /><p className={Styles.menuListItemText}>Lists</p>
-                            </div>
-                        </li>
-                    </Link>
-                    <Link to={"/home"}>
-                        <li className={Styles.menuList}>
-                            <div className={Styles.menuListItem}>
-                                <img src={Communities} className={Styles.icon} alt="x.com Logo" /><p className={Styles.menuListItemText}>Communities</p>
-                            </div>
-                        </li>
-                    </Link>
-                    <Link to={"/home"}>
-                        <li className={Styles.menuList}>
-                            <div className={Styles.menuListItem}>
-                                <img src={Premium} className={Styles.icon} alt="x.com Logo" /><p className={Styles.menuListItemText}>Premium</p>
-                            </div>
-                        </li>
-                    </Link>
-                    <Link to={`/${props.user.username}`}>
-                        <li className={Styles.menuList}>
-                            <div className={Styles.menuListItem}>
-                                <img src={window.location.pathname === `/${props.user.username}` || window.location.pathname === `/settings/profile` ? ProfileSolid : Profile} className={Styles.icon} alt="x.com Logo" /><p style={{ fontWeight: window.location.pathname === `/${props.user.username}` || window.location.pathname === `/settings/profile` ? "bold" : "" }} className={Styles.menuListItemText}>Profile</p>
-                            </div>
-                        </li>
-                    </Link>
-                    <Link to={"/home"}>
-                        <li className={Styles.menuList}>
-                            <div className={Styles.menuListItem}>
-                                <img src={More} className={Styles.icon} alt="x.com Logo" /><p className={Styles.menuListItemText}>More</p>
-                            </div>
-                        </li>
-                    </Link>
-                    <Link to={"/home"} className={Styles.menuPostButtonWithIcon}>
-                        <button onClick={() => {
-                            if (window.location.pathname === "/home") {
-                                document.getElementById("postTextInput").focus()
-                            }
-                        }} className={`${Styles.postButton} btn btn-primary rounded-pill`}>+</button>
-                    </Link>
-                    <Link to={"/home"} className={Styles.menuPostButtonWithText}>
-                        <button onClick={() => {
-                            if (window.location.pathname === "/home") {
-                                document.getElementById("postTextInput").focus()
-                            }
-                        }} className={`${Styles.postButton} btn btn-primary rounded-pill`}>Post</button>
-                    </Link>
-                </ul>
-                <div ref={profileMenu} style={{ display: "none" }} className={Styles.profileBoxContainer}>
-                    <div className={Styles.profileBox}>
-                        <li className={Styles.profileBoxOption}>Add an existing account</li>
-                        <li onClick={handleLogout} className={Styles.profileBoxOption}>Log out @{props.user.username}</li>
-                    </div>
-                    <div className={Styles.profileMenuArrowContainer}>
-                        <img src={dropDownArrow} className={Styles.profileMenuArrow} alt="" />
-                    </div>
-                </div>
-                <div ref={profileBox} onClick={toogleProfileMenu} className={Styles.profileContainer}>
-                    <div className={Styles.profileImageContainer}>
-                        <img src={props.user.profile} referrerPolicy="no-referrer" className={Styles.profileImage} alt="" />
-                    </div>
-                    <div className={Styles.profileNamesContainer}>
-                        <p className={Styles.profileName}>{props.user.name}</p>
-                        <p className={Styles.profileUsername}>@{props.user.username}</p>
-                    </div>
-                    <div className={Styles.threeDotsContainer}>
-                        <i className={`fa-solid fa-ellipsis ${Styles.threeDots}`}></i>
-                    </div>
-                </div>
+// One nav row. Uses NavLink so the active route styles itself — no pathname sniffing.
+function NavItem({ to, icon, activeIcon, label, badge, end }) {
+  return (
+    <NavLink to={to} end={end} className={Styles.menuListLink}>
+      {({ isActive }) => (
+        <li className={Styles.menuList}>
+          <div className={Styles.menuListItem}>
+            <div style={{ position: "relative" }}>
+              <img src={isActive && activeIcon ? activeIcon : icon} className={Styles.icon} alt={label} />
+              {badge > 0 && <span className={Styles.badge}>{badge > 99 ? "99+" : badge}</span>}
             </div>
-        </>
-    )
+            <p style={{ fontWeight: isActive ? "bold" : "" }} className={Styles.menuListItemText}>
+              {label}
+            </p>
+          </div>
+        </li>
+      )}
+    </NavLink>
+  );
+}
+
+export default function Menu({ user, realtime }) {
+  const navigate = useNavigate();
+  const [menuOpen, setMenuOpen] = useState(false);
+  const [unread, setUnread] = useState(0);
+
+  useEffect(() => {
+    notificationApi.unreadCount().then((json) => json.success && setUnread(json.unreadCount));
+  }, []);
+
+  // Bump the badge live when notifications arrive.
+  useEffect(() => {
+    if (!realtime) return undefined;
+    return realtime.on("notification", () => setUnread((n) => n + 1));
+  }, [realtime]);
+
+  const handleLogout = () => navigate("/logout");
+
+  const focusComposer = () => {
+    if (window.location.pathname === "/home") {
+      document.getElementById("postTextInput")?.focus();
+    } else {
+      navigate("/home");
+    }
+  };
+
+  return (
+    <div className={Styles.menuContainer}>
+      <ul className={Styles.menu}>
+        <Link to="/home">
+          <img src={logo} className={Styles.logo} alt="x.com Logo" />
+        </Link>
+        <NavItem to="/home" icon={Home} activeIcon={HomeSolid} label="Home" end />
+        <NavItem to="/explore" icon={Explore} label="Explore" />
+        <NavItem to="/notifications" icon={Notifications} label="Notifications" badge={unread} />
+        <NavItem to="/messages" icon={MessagesIcon} activeIcon={MessagesSolid} label="Messages" />
+        <NavItem to="/bookmarks" icon={Bookmark} label="Bookmarks" />
+        <NavItem to="/home" icon={Lists} label="Lists" />
+        <NavItem to="/home" icon={Communities} label="Communities" />
+        <NavItem to="/home" icon={Premium} label="Premium" />
+        <NavItem to={`/${user.username}`} icon={ProfileIcon} activeIcon={ProfileSolid} label="Profile" />
+        <NavItem to="/home" icon={More} label="More" />
+
+        <Link to="/home" className={Styles.menuPostButtonWithIcon}>
+          <button onClick={focusComposer} className={`${Styles.postButton} btn btn-primary rounded-pill`}>
+            +
+          </button>
+        </Link>
+        <Link to="/home" className={Styles.menuPostButtonWithText}>
+          <button onClick={focusComposer} className={`${Styles.postButton} btn btn-primary rounded-pill`}>
+            Post
+          </button>
+        </Link>
+      </ul>
+
+      {menuOpen && (
+        <ClickAwayListener onClickAway={() => setMenuOpen(false)}>
+          <div className={Styles.profileBoxContainer} style={{ display: "block" }}>
+            <div className={Styles.profileBox}>
+              <li className={Styles.profileBoxOption} onClick={handleLogout}>
+                Log out @{user.username}
+              </li>
+            </div>
+            <div className={Styles.profileMenuArrowContainer}>
+              <img src={dropDownArrow} className={Styles.profileMenuArrow} alt="" />
+            </div>
+          </div>
+        </ClickAwayListener>
+      )}
+
+      <div onClick={() => setMenuOpen((v) => !v)} className={Styles.profileContainer}>
+        <div className={Styles.profileImageContainer}>
+          <img src={user.profile} referrerPolicy="no-referrer" className={Styles.profileImage} alt="" />
+        </div>
+        <div className={Styles.profileNamesContainer}>
+          <p className={Styles.profileName}>{user.name}</p>
+          <p className={Styles.profileUsername}>@{user.username}</p>
+        </div>
+        <div className={Styles.threeDotsContainer}>
+          <i className={`fa-solid fa-ellipsis ${Styles.threeDots}`} />
+        </div>
+      </div>
+    </div>
+  );
 }

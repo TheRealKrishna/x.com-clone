@@ -47,6 +47,33 @@ a:hover>.menuList>.menuListItem {
     background-color: rgba(231, 233, 234, 0.1);
 }
 
+.menuListLink {
+    text-decoration: none;
+    color: inherit;
+}
+
+.menuListLink:hover>.menuList>.menuListItem {
+    background-color: rgba(231, 233, 234, 0.1);
+}
+
+.badge {
+    position: absolute;
+    top: -4px;
+    right: -6px;
+    min-width: 18px;
+    height: 18px;
+    padding: 0 4px;
+    background: rgb(29, 155, 240);
+    color: white;
+    border-radius: 9999px;
+    font-size: 11px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 2px solid black;
+}
+
 .menuListItemicon {
     height: 2rem;
 }

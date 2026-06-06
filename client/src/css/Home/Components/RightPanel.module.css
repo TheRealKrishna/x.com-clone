@@ -1,0 +1,99 @@
+.panel {
+  padding: 12px 16px;
+  position: sticky;
+  top: 0;
+}
+
+.searchBox {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: rgb(32, 35, 39);
+  border: 1px solid transparent;
+  border-radius: 9999px;
+  padding: 10px 16px;
+  margin-bottom: 16px;
+}
+.searchBox:focus-within {
+  background: black;
+  border-color: rgb(29, 155, 240);
+}
+.searchInput {
+  flex: 1;
+  background: transparent;
+  border: none;
+  outline: none;
+  color: white;
+  font-size: 15px;
+}
+
+.card {
+  background: rgb(22, 24, 28);
+  border-radius: 16px;
+  padding: 12px 0;
+  margin-bottom: 16px;
+}
+.cardTitle {
+  font-size: 20px;
+  font-weight: 800;
+  color: white;
+  padding: 0 16px 8px;
+  margin: 0;
+}
+
+.userRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 16px;
+  transition: background 0.2s;
+}
+.userRow:hover {
+  background: rgba(255, 255, 255, 0.03);
+}
+.userInfo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+  min-width: 0;
+}
+.avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+.name {
+  font-weight: 700;
+  color: white;
+  margin: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 130px;
+}
+.muted {
+  color: rgb(113, 118, 123);
+  font-size: 14px;
+  margin: 0;
+}
+.followBtn {
+  font-weight: 700;
+  font-size: 14px;
+  padding: 6px 16px;
+}
+
+.trendItem {
+  padding: 10px 16px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.trendItem:hover {
+  background: rgba(255, 255, 255, 0.03);
+}
+.trendTag {
+  font-weight: 700;
+  color: white;
+  margin: 2px 0;
+}

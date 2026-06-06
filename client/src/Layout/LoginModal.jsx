@@ -6,8 +6,11 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import Spinner from '../Components/Spinner';
 import Step1 from './LoginSteps/Step1';
 import Step2 from './LoginSteps/Step2';
-import toast from 'react-hot-toast';
 import logo from '../Images/logo.svg';
+import { authApi } from '../api';
+import { setToken } from '../api/config';
+import { getCountry } from '../utils/country';
+import { notify, notifySuccess } from '../utils/toast';
 
 
 export default function LoginModal(props) {
@@ -31,65 +34,19 @@ export default function LoginModal(props) {
 
     const login = async () => {
         setLoading(true)
-        const getUserInfo = async () => {
-            return fetch("https://ipapi.co/json")
-                .then(response => {
-                    if (!response.ok) {
-                        throw new Error('Network response was not ok');
-                    }
-                    return response.json();
-                }).catch(error => {
-                    console.error('Error fetching IP data:', error);
-                    toast('Oops, something went wrong. Please try a different web browser.', {
-                        style: {
-                            border: '1px solid white',
-                            padding: '16px 30px',
-                            color: 'white',
-                            backgroundColor: "rgb(29, 155, 240)",
-                        }
-                    });
-                });
-        }
-        const response = await fetch(`${process.env.REACT_APP_API_URL}/auth/login`, {
-            method: "post",
-            body: JSON.stringify({ ...credentials, country: (await getUserInfo()).country }),
-            headers: {
-                "Content-Type": "application/json"
-            }
-        })
-        const json = await response.json();
+        const country = await getCountry();
+        const json = await authApi.login({ ...credentials, country });
         if (json.success) {
-            localStorage.setItem("auth-token", json.authToken)
+            setToken(json.authToken)
             navigate("/home")
-            toast.success('Logged in successfully!', {
-                style: {
-                    border: '1px solid white',
-                    padding: '16px 30px',
-                    color: 'white',
-                    backgroundColor: "rgb(29, 155, 240)",
-                },
-                iconTheme: {
-                    primary: 'white',
-                    secondary: 'rgb(29, 155, 240)',
-                },
-            });
-
-        }
-        else {
+            notifySuccess('Logged in successfully!')
+        } else {
             if (json.authError) {
-                setCurrentStep(prev => 1);
+                setCurrentStep(() => 1);
+            } else {
+                setCurrentStep(() => 2);
             }
-            else {
-                setCurrentStep(prev => 2);
-            }
-            toast(json.error ? json.error : 'Oops, something went wrong. Please try again later.', {
-                style: {
-                    border: '1px solid white',
-                    padding: '16px 30px',
-                    color: 'white',
-                    backgroundColor: "rgb(29, 155, 240)",
-                }
-            });
+            notify(json.error || 'Oops, something went wrong. Please try again later.')
             setLoading(false)
         }
     }

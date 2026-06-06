@@ -4,6 +4,8 @@ import { useForm } from 'react-hook-form';
 import { yupResolver } from "@hookform/resolvers/yup"
 import * as yup from "yup"
 import { SelectDatepicker } from 'react-select-datepicker';
+import { authApi } from '../../api';
+import { getCountry } from '../../utils/country';
 
 export default function Step1(props) {
   const [currentDate, setCurrentDate] = useState(new Date());
@@ -54,14 +56,7 @@ export default function Step1(props) {
       clearTimeout(emailValidateTimeout);
     }
     setEmailValidateTimeout(setTimeout(async () => {
-      const response = await fetch(`${process.env.REACT_APP_API_URL}/auth/emailvalidate`, {
-        method: "post",
-        body: JSON.stringify({ email: e.target.value }),
-        headers: {
-          "Content-Type": "application/json"
-        }
-      })
-      const json = await response.json();
+      const json = await authApi.emailValidate(e.target.value);
       if (!json.success) {
         setError('email', { type: "custom", message: json.error }, { shouldFocus: false });
       }
@@ -75,14 +70,7 @@ export default function Step1(props) {
       clearTimeout(phoneValidateTimeout);
     }
     setPhoneValidateTimeout(setTimeout(async () => {
-      const response = await fetch(`${process.env.REACT_APP_API_URL}/auth/phonevalidate`, {
-        method: "post",
-        body: JSON.stringify({ phone: e.target.value, country: (await getUserInfo()).country }),
-        headers: {
-          "Content-Type": "application/json"
-        }
-      })
-      const json = await response.json();
+      const json = await authApi.phoneValidate(e.target.value, await getCountry());
       if (!json.success) {
         setError('phone', { type: "custom", message: json.error }, { shouldFocus: false });
       }
@@ -93,12 +81,6 @@ export default function Step1(props) {
 
   const onDobChange = (Date) => {
     setDob(Date)
-  }
-
-  const getUserInfo = async () => {
-    const response = await fetch("https://ipapi.co/json/");
-    const json = await response.json()
-    return json
   }
 
   useEffect(() => {

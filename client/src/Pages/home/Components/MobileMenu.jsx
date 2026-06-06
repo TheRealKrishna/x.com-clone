@@ -1,88 +1,67 @@
-import React, { useEffect, useRef } from 'react'
-import Styles from "../../../css/Home/Components/MobileMenu.module.css"
-import Home from "../../../Images/Home/Home.svg"
-import HomeSolid from "../../../Images/Home/HomeSolid.svg"
-import Profile from "../../../Images/Home/Profile.svg"
-import ProfileSolid from "../../../Images/Home/ProfileSolid.svg"
-import dropDownArrow from "../../../Images/Home/DropDownArrow.svg"
-import Messages from "../../../Images/Home/Messages.svg"
-import MessagesSolid from "../../../Images/Home/MessagesSolid.svg"
-import { Link, useNavigate } from 'react-router-dom'
+import React, { useState } from "react";
+import { NavLink, useNavigate } from "react-router-dom";
+import ClickAwayListener from "react-click-away-listener";
 
-export default function MobileMenu(props) {
+import Styles from "../../../css/Home/Components/MobileMenu.module.css";
+import Home from "../../../Images/Home/Home.svg";
+import HomeSolid from "../../../Images/Home/HomeSolid.svg";
+import ProfileIcon from "../../../Images/Home/Profile.svg";
+import ProfileSolid from "../../../Images/Home/ProfileSolid.svg";
+import dropDownArrow from "../../../Images/Home/DropDownArrow.svg";
+import MessagesIcon from "../../../Images/Home/Messages.svg";
+import MessagesSolid from "../../../Images/Home/MessagesSolid.svg";
+import Explore from "../../../Images/Home/Explore.svg";
+import Notifications from "../../../Images/Home/Notifications.svg";
+
+function MobileNavItem({ to, icon, activeIcon, end }) {
+  return (
+    <NavLink to={to} end={end}>
+      {({ isActive }) => (
+        <li className={Styles.menuList}>
+          <div className={Styles.menuListItem}>
+            <img src={isActive && activeIcon ? activeIcon : icon} className={Styles.icon} alt="" />
+          </div>
+        </li>
+      )}
+    </NavLink>
+  );
+}
+
+export default function MobileMenu({ user }) {
   const navigate = useNavigate();
-  const profileBox = useRef()
-  const profileMenu = useRef()
-
-  const handleLogout = () => {
-    navigate("/logout")
-  }
-
-  useEffect(() => {
-    function handleClick(event) {
-      if (!profileMenu.current.style.display === 'none') {
-        profileMenu.current.style.display = 'none';
-      }
-    }
-    document.addEventListener('click', handleClick);
-    return () => {
-      document.removeEventListener('click', handleClick);
-    };
-  }, [])
-
-  function toogleProfileMenu() {
-    if (profileMenu.current.style.display === 'none') {
-      const buttonRect = profileBox.current.getBoundingClientRect();
-      profileMenu.current.style.left = buttonRect.left + 'px';
-      profileMenu.current.style.top = buttonRect.top - 120 - 10 + 'px';
-      profileMenu.current.style.display = 'block';
-    }
-    else {
-      profileMenu.current.style.display = 'none';
-    }
-  }
+  const [menuOpen, setMenuOpen] = useState(false);
 
   return (
-    <React.Fragment style={{ overflow: "hidden" }}>
+    <>
       <div className={Styles.mobileMenuContainer}>
-        <Link to={"/home"}>
-          <li className={Styles.menuList}>
-            <div className={Styles.menuListItem}>
-              <img src={window.location.pathname === "/home" ? HomeSolid : Home} className={Styles.icon} alt="Home" />
-            </div>
-          </li>
-        </Link>
-        <Link to={"/messages"}>
-          <li className={Styles.menuList}>
-            <div className={Styles.menuListItem}>
-              <img src={window.location.pathname === "/messages" ? MessagesSolid : Messages} className={Styles.icon} alt="Home" />
-            </div>
-          </li>
-        </Link>
-        <Link to={`/${props.user.username}`}>
-          <li className={Styles.menuList}>
-            <div className={Styles.menuListItem}>
-              <img src={window.location.pathname === `/${props.user.username}` ? ProfileSolid : Profile} className={Styles.icon} alt={props.user.username} />
-            </div>
-          </li>
-        </Link>
+        <MobileNavItem to="/home" icon={Home} activeIcon={HomeSolid} end />
+        <MobileNavItem to="/explore" icon={Explore} />
+        <MobileNavItem to="/notifications" icon={Notifications} />
+        <MobileNavItem to="/messages" icon={MessagesIcon} activeIcon={MessagesSolid} />
+        <MobileNavItem to={`/${user.username}`} icon={ProfileIcon} activeIcon={ProfileSolid} />
         <div>
-          <div ref={profileBox} onClick={toogleProfileMenu} className={Styles.profileContainer}>
+          <div onClick={() => setMenuOpen((v) => !v)} className={Styles.profileContainer}>
             <div className={Styles.profileImageContainer}>
-              <img src={props.user.profile} referrerPolicy="no-referrer" className={Styles.profileImage} alt="" />
+              <img src={user.profile} referrerPolicy="no-referrer" className={Styles.profileImage} alt="" />
             </div>
           </div>
         </div>
-      </div >
-      <div ref={profileMenu} style={{ display: "none" }} className={Styles.profileBoxContainer}>
-        <div className={Styles.profileBox}>
-          <li className={Styles.profileBoxOption}>Add an existing account</li>
-          <li onClick={handleLogout} className={Styles.profileBoxOption}>Log out @{props.user.username}</li>
-        </div>
-        <div className={Styles.profileMenuArrowContainer}>
-          <img src={dropDownArrow} className={Styles.profileMenuArrow} alt="" />
-        </div>
       </div>
-    </React.Fragment>
-  )
+
+      {menuOpen && (
+        <ClickAwayListener onClickAway={() => setMenuOpen(false)}>
+          <div className={Styles.profileBoxContainer} style={{ display: "block" }}>
+            <div className={Styles.profileBox}>
+              <li className={Styles.profileBoxOption} onClick={() => navigate("/logout")}>
+                Log out @{user.username}
+              </li>
+            </div>
+            <div className={Styles.profileMenuArrowContainer}>
+              <img src={dropDownArrow} className={Styles.profileMenuArrow} alt="" />
+            </div>
+          </div>
+        </ClickAwayListener>
+      )}
+    </>
+  );
 }
