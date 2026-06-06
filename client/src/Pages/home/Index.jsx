@@ -13,19 +13,25 @@ import Bookmarks from "./Components/Bookmarks";
 import PostDetail from "./Components/PostDetail";
 import MobileMenu from "./Components/MobileMenu";
 import RightPanel from "./Components/RightPanel";
-import Loader from "../../Components/Loader";
+import ComposeModal from "./Components/ComposeModal";
+import ComingSoon from "./Components/ComingSoon";
+import { Spinner } from "../../ui";
 import { authApi } from "../../api";
 import { isLoggedIn, clearToken } from "../../api/config";
 import { useRealtime } from "../../hooks/useRealtime";
 
+const PLACEHOLDER_VIEWS = ["lists", "communities", "premium", "more"];
+
 /**
  * Authenticated app shell. The `view` prop (set per-route in App.jsx) decides
- * which panel renders in the center column — no more window.location sniffing.
+ * which panel renders in the center column.
  */
 export default function Index({ view }) {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
   const [user, setUser] = useState(null);
+  const [composeOpen, setComposeOpen] = useState(false);
+  const [feedReload, setFeedReload] = useState(0);
 
   const fetchUser = useCallback(async () => {
     const json = await authApi.me();
@@ -46,17 +52,18 @@ export default function Index({ view }) {
     fetchUser().finally(() => setLoading(false));
   }, [fetchUser, navigate]);
 
-  // Connect the realtime socket once we know who the user is.
   const realtime = useRealtime(user?._id);
 
-  if (loading || !user) return <Loader />;
+  if (loading || !user) return <Spinner />;
 
   const isMessages = view === "messages";
+  const openCompose = () => setComposeOpen(true);
 
   const renderCenter = () => {
+    if (PLACEHOLDER_VIEWS.includes(view)) return <ComingSoon which={view} />;
     switch (view) {
       case "home":
-        return <Feed user={user} fetchUser={fetchUser} />;
+        return <Feed user={user} fetchUser={fetchUser} reloadSignal={feedReload} onCompose={openCompose} />;
       case "explore":
         return <Explore user={user} />;
       case "notifications":
@@ -78,18 +85,24 @@ export default function Index({ view }) {
   return (
     <div className={Styles.container}>
       <div className={Styles.leftPanel}>
-        <Menu user={user} fetchUser={fetchUser} realtime={realtime} />
+        <Menu user={user} fetchUser={fetchUser} realtime={realtime} onCompose={openCompose} />
       </div>
-      <div className={isMessages ? Styles.mainPanelFull : Styles.mainPanelLarge}>
-        {!isMessages && <MobileMenu user={user} fetchUser={fetchUser} />}
-        {renderCenter()}
-        {isMessages && <MobileMenu user={user} fetchUser={fetchUser} />}
-      </div>
+      <div className={isMessages ? Styles.mainPanelFull : Styles.mainPanelLarge}>{renderCenter()}</div>
       {!isMessages && (
         <div className={Styles.rightPanelSmall}>
           <RightPanel user={user} fetchUser={fetchUser} />
         </div>
       )}
+
+      {!isMessages && <MobileMenu user={user} onCompose={openCompose} />}
+      {isMessages && !window.location.pathname.match(/\/messages\/.+/) && <MobileMenu user={user} onCompose={openCompose} />}
+
+      <ComposeModal
+        open={composeOpen}
+        onClose={() => setComposeOpen(false)}
+        user={user}
+        onPosted={() => setFeedReload((n) => n + 1)}
+      />
     </div>
   );
 }

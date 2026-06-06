@@ -1,103 +1,132 @@
 import React, { useEffect, useRef, useState } from "react";
-import { Link, useNavigate, useSearchParams } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 
-import Spinner from "../../../Components/Spinner";
-import PostCard from "../../../Components/PostCard";
-import { exploreApi } from "../../../api";
 import Styles from "../../../css/Home/Components/Feature.module.css";
+import { Avatar, Spinner, Tabs, EmptyState } from "../../../ui";
+import PostCard from "./PostCard";
+import { exploreApi } from "../../../api";
 
 /**
- * Explore page: search box (users + posts + #hashtags) and trending hashtags.
- * Debounces the query; reads/writes ?q= so the URL is shareable.
+ * Explore: a search box (users, posts, #hashtags) plus trending hashtags when
+ * idle. Debounced; reads/writes ?q= so results are shareable.
  */
 export default function Explore({ user }) {
   const [params, setParams] = useSearchParams();
   const navigate = useNavigate();
   const [query, setQuery] = useState(params.get("q") || "");
+  const [tab, setTab] = useState("top");
   const [results, setResults] = useState(null);
   const [trends, setTrends] = useState([]);
-  const debounceRef = useRef();
+  const debounce = useRef();
 
   useEffect(() => {
     document.title = "Explore / X";
-    exploreApi.trends().then((json) => json.success && setTrends(json.trends));
+    exploreApi.trends().then((j) => j.success && setTrends(j.trends));
   }, []);
 
   useEffect(() => {
-    if (debounceRef.current) clearTimeout(debounceRef.current);
-    if (query.trim().length === 0) {
+    if (debounce.current) clearTimeout(debounce.current);
+    const q = query.trim();
+    if (!q) {
       setResults(null);
       setParams({}, { replace: true });
       return;
     }
-    debounceRef.current = setTimeout(async () => {
-      setParams({ q: query }, { replace: true });
-      const json = await exploreApi.search(query.trim(), "all");
-      if (json.success) setResults(json);
-    }, 400);
+    debounce.current = setTimeout(async () => {
+      setParams({ q }, { replace: true });
+      const j = await exploreApi.search(q, "all");
+      if (j.success) setResults(j);
+    }, 350);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [query]);
 
+  const showUsers = tab === "top" || tab === "people";
+  const showPosts = tab === "top" || tab === "latest";
+
   return (
     <div className={Styles.container}>
-      <div className={Styles.header}>
+      <div className={Styles.searchHeader}>
+        <button
+          onClick={() => navigate(-1)}
+          aria-label="Back"
+          style={{ background: "transparent", border: "none", color: "var(--text-primary)", fontSize: 18, cursor: "pointer" }}
+        >
+          <i className="fa-solid fa-arrow-left" />
+        </button>
         <div className={Styles.searchBox}>
-          <i className="fa-solid fa-magnifying-glass" style={{ color: "rgb(113,118,123)" }} />
+          <i className="fa-solid fa-magnifying-glass" style={{ color: "var(--text-secondary)" }} />
           <input
+            autoFocus
             className={Styles.searchInput}
             placeholder="Search"
             value={query}
-            autoFocus
             onChange={(e) => setQuery(e.target.value)}
           />
-          {query && <i className="fa-solid fa-circle-xmark" style={{ color: "rgb(29,155,240)", cursor: "pointer" }} onClick={() => setQuery("")} />}
+          {query && (
+            <button className={Styles.clear} onClick={() => setQuery("")} aria-label="Clear">
+              <i className="fa-solid fa-xmark" />
+            </button>
+          )}
         </div>
       </div>
 
       {results === null ? (
-        <div className={Styles.section}>
+        <>
           <h2 className={Styles.sectionTitle}>Trends for you</h2>
           {trends.length === 0 ? (
-            <p className={Styles.muted}>No trends yet. Start posting with #hashtags!</p>
+            <EmptyState title="No trends yet" subtitle="Post something with a #hashtag to get trends going." />
           ) : (
-            trends.map((t) => (
-              <div key={t.tag} className={Styles.trendItem} onClick={() => setQuery(`#${t.tag}`)}>
-                <p className={Styles.muted}>Trending</p>
+            trends.map((t, i) => (
+              <div key={t.tag} className={Styles.trend} onClick={() => setQuery(`#${t.tag}`)}>
+                <p className={Styles.muted}>{i + 1} · Trending</p>
                 <p className={Styles.trendTag}>#{t.tag}</p>
                 <p className={Styles.muted}>{t.count} {t.count === 1 ? "post" : "posts"}</p>
               </div>
             ))
           )}
-        </div>
+        </>
       ) : (
         <>
-          {results.users?.length > 0 && (
-            <div className={Styles.section}>
-              <h2 className={Styles.sectionTitle}>People</h2>
+          <Tabs
+            tabs={[
+              { key: "top", label: "Top" },
+              { key: "latest", label: "Latest" },
+              { key: "people", label: "People" },
+            ]}
+            active={tab}
+            onChange={setTab}
+          />
+
+          {showUsers && results.users?.length > 0 && (
+            <>
+              {tab === "top" && <h2 className={Styles.sectionTitle}>People</h2>}
               {results.users.map((u) => (
                 <div key={u._id} className={Styles.userRow} onClick={() => navigate(`/${u.username}`)}>
-                  <img src={u.profile} alt="" referrerPolicy="no-referrer" className={Styles.avatar} />
+                  <Avatar src={u.profile} size="lg" />
                   <div>
-                    <p className={Styles.userName}>{u.name}</p>
+                    <p className={Styles.userName}>
+                      {u.name}
+                      {u.verified && <i className="fa-solid fa-circle-check" style={{ color: "var(--x-blue)", fontSize: 14 }} />}
+                    </p>
                     <p className={Styles.muted}>@{u.username}</p>
                     {u.bio && <p className={Styles.bio}>{u.bio}</p>}
                   </div>
                 </div>
               ))}
-            </div>
+            </>
           )}
-          {results.posts?.length > 0 && (
-            <div>
-              <h2 className={Styles.sectionTitle} style={{ padding: "12px 16px" }}>Posts</h2>
+
+          {showPosts && results.posts?.length > 0 && (
+            <>
+              {tab === "top" && <h2 className={Styles.sectionTitle}>Posts</h2>}
               {results.posts.map((p) => (
                 <PostCard key={p._id} post={p} currentUser={user} />
               ))}
-            </div>
+            </>
           )}
-          {results.users?.length === 0 && results.posts?.length === 0 && (
-            <p className={Styles.muted} style={{ padding: 20 }}>
-              No results for &quot;{query}&quot;.
-            </p>
+
+          {((showUsers ? results.users?.length || 0 : 0) + (showPosts ? results.posts?.length || 0 : 0)) === 0 && (
+            <EmptyState title={`No results for "${query}"`} subtitle="Try searching for something else." />
           )}
         </>
       )}

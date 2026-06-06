@@ -1,6 +1,7 @@
 // Relative post age like Twitter: 12s, 5m, 3h, 2d, then "Mar 5" / "Mar 5, 2023".
 export function formatPostAge(date) {
   const then = new Date(date);
+  if (Number.isNaN(then.getTime())) return "";
   const now = new Date();
   const seconds = Math.floor((now - then) / 1000);
 
@@ -16,10 +17,14 @@ export function formatPostAge(date) {
 
 // "Joined March 2024"-style month + year.
 export function formatJoinedDate(date) {
-  return new Date(date).toLocaleDateString(undefined, { month: "long", year: "numeric" });
+  const d = new Date(date);
+  if (Number.isNaN(d.getTime())) return "recently";
+  return d.toLocaleDateString(undefined, { month: "long", year: "numeric" });
 }
 
 // Full timestamp for message tooltips / chat separators.
 export function formatTime(date) {
-  return new Date(date).toLocaleTimeString(undefined, { hour: "numeric", minute: "2-digit" });
+  const d = new Date(date);
+  if (Number.isNaN(d.getTime())) return "";
+  return d.toLocaleTimeString(undefined, { hour: "numeric", minute: "2-digit" });
 }

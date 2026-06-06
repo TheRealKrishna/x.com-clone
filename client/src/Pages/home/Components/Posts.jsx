@@ -1,25 +1,22 @@
 import React, { useEffect, useRef, useState } from "react";
 
-import spinner from "../../../Images/Spinner.svg";
-import spinnerStyles from "../../../css/Spinner.module.css";
-import PostCard from "../../../Components/PostCard";
+import { Spinner, EmptyState } from "../../../ui";
+import PostCard from "./PostCard";
 import { postApi } from "../../../api";
 
 /**
- * Renders the post feed. Pulls from postApi.getFeed(filter) unless an explicit
- * `posts` array is provided. Tracks views via IntersectionObserver: when a post
- * scrolls into view it's registered once (debounced, batched) — replacing the
- * old dead views logic that called `.then()` on a plain function.
+ * Post list. Pulls from postApi.getFeed(filter) unless an explicit `posts`
+ * array is provided. Registers a view (once each) when a post scrolls into
+ * view via IntersectionObserver.
  */
-export default function Posts({ filter, reload, currentUser, onReply, posts: externalPosts }) {
+export default function Posts({ filter, reload, currentUser, posts: externalPosts, emptyTitle, emptySubtitle }) {
   const [posts, setPosts] = useState(externalPosts || null);
-  const viewedRef = useRef(new Set());
-  const observerRef = useRef(null);
+  const viewed = useRef(new Set());
+  const observer = useRef(null);
 
   const fetchPosts = async () => {
-    const json = await postApi.getFeed(filter);
-    if (json.success) setPosts(json.posts);
-    else setPosts([]);
+    const j = await postApi.getFeed(filter);
+    setPosts(j.success ? j.posts : []);
   };
 
   useEffect(() => {
@@ -31,15 +28,14 @@ export default function Posts({ filter, reload, currentUser, onReply, posts: ext
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [filter, reload, externalPosts]);
 
-  // Register a view when a post becomes visible (once per post per session).
   useEffect(() => {
-    observerRef.current = new IntersectionObserver(
+    observer.current = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
           if (entry.isIntersecting) {
-            const id = entry.target.getAttribute("data-post-id");
-            if (id && !viewedRef.current.has(id)) {
-              viewedRef.current.add(id);
+            const id = entry.target.getAttribute("data-id");
+            if (id && !viewed.current.has(id)) {
+              viewed.current.add(id);
               postApi.addView(id);
             }
           }
@@ -47,34 +43,26 @@ export default function Posts({ filter, reload, currentUser, onReply, posts: ext
       },
       { threshold: 0.6 }
     );
-    return () => observerRef.current?.disconnect();
+    return () => observer.current?.disconnect();
   }, []);
 
-  const attachObserver = (node) => {
-    if (node && observerRef.current) observerRef.current.observe(node);
-  };
+  const attach = (node) => node && observer.current?.observe(node);
 
-  if (posts === null) {
-    return (
-      <div className={spinnerStyles.spinnerContainer}>
-        <img className={spinnerStyles.spinner} src={spinner} alt="Loading" />
-      </div>
-    );
-  }
-
+  if (posts === null) return <Spinner />;
   if (posts.length === 0) {
     return (
-      <div style={{ padding: "40px 20px", textAlign: "center", color: "rgb(113,118,123)" }}>
-        Nothing to see here yet.
-      </div>
+      <EmptyState
+        title={emptyTitle || "Nothing to see here — yet"}
+        subtitle={emptySubtitle || "When there are posts, they’ll show up here."}
+      />
     );
   }
 
   return (
     <>
       {posts.map((post) => (
-        <div key={post._id} data-post-id={post._id} ref={attachObserver}>
-          <PostCard post={post} currentUser={currentUser} onReply={onReply} onChange={fetchPosts} />
+        <div key={post._id} data-id={post._id} ref={attach}>
+          <PostCard post={post} currentUser={currentUser} onChange={fetchPosts} />
         </div>
       ))}
     </>

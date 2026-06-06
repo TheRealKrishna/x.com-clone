@@ -1,20 +1,128 @@
-@import url('https://fonts.googleapis.com/css2?family=ADLaM+Display&family=Crete+Round&family=Fredoka:wght@600&family=Libre+Baskerville&family=Martian+Mono:wght@800&family=Nunito:wght@800&family=Outfit:wght@600&family=Poppins&family=Pridi:wght@500&display=swap');
+/* ============================================================================
+   X / Twitter clone — global theme & design tokens
+   Single source of truth for color, typography, spacing, and base resets.
+   ========================================================================= */
 
+:root {
+  /* Brand */
+  --x-blue: rgb(29, 155, 240);
+  --x-blue-hover: rgb(26, 140, 216);
+  --x-blue-active: rgb(23, 124, 191);
+
+  /* Backgrounds */
+  --bg: #000000;
+  --bg-elevated: rgb(22, 24, 28);
+  --bg-hover: rgba(231, 233, 234, 0.1);
+  --bg-input: rgb(32, 35, 39);
+  --bg-overlay: rgba(91, 112, 131, 0.4);
+
+  /* Text */
+  --text: rgb(231, 233, 234);
+  --text-primary: rgb(231, 233, 234);
+  --text-secondary: rgb(113, 118, 123);
+  --text-on-blue: #ffffff;
+
+  /* Borders */
+  --border: rgb(47, 51, 54);
+  --border-strong: rgb(62, 65, 68);
+
+  /* Semantic accents */
+  --like: rgb(249, 24, 128);
+  --repost: rgb(0, 186, 124);
+  --warn: rgb(255, 212, 0);
+  --danger: rgb(244, 33, 46);
+
+  /* Radius */
+  --radius-sm: 8px;
+  --radius-md: 16px;
+  --radius-pill: 9999px;
+
+  /* Layout */
+  --header-blur: blur(12px);
+  --header-bg: rgba(0, 0, 0, 0.65);
+
+  /* Typography */
+  --font: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial,
+    sans-serif, "Apple Color Emoji", "Segoe UI Emoji";
+
+  /* Z-index scale */
+  --z-header: 100;
+  --z-modal: 1050;
+  --z-toast: 1100;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
 body {
   margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
-    sans-serif;
+  padding: 0;
+  background-color: var(--bg);
+  color: var(--text);
+  font-family: var(--font);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  background-color: black;
 }
 
-code {
-  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
-    monospace;
+#root {
+  min-height: 100vh;
 }
 
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+button {
+  font-family: inherit;
+}
+
+/* Custom scrollbar — subtle, X-like */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--border-strong) transparent;
+}
+*::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+*::-webkit-scrollbar-thumb {
+  background: var(--border-strong);
+  border-radius: var(--radius-pill);
+}
+*::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+/* Keep Bootstrap modal backdrop from covering custom modals oddly */
 .modal-backdrop {
   z-index: -1;
+}
+
+/* Shared focus ring for accessibility */
+:focus-visible {
+  outline: 2px solid var(--x-blue);
+  outline-offset: 2px;
+}
+
+/* Utility: visually-hidden but accessible */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* Spin animation for inline loaders */
+@keyframes x-spin {
+  to {
+    transform: rotate(360deg);
+  }
 }

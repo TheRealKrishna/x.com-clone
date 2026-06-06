@@ -1,11 +1,15 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
-import { exploreApi, followApi } from "../../../api";
 import Styles from "../../../css/Home/Components/RightPanel.module.css";
+import { exploreApi, followApi } from "../../../api";
+import { Avatar, Button } from "../../../ui";
+
+const FOOTER = ["Terms of Service", "Privacy Policy", "Cookie Policy", "Accessibility", "Ads info", "More"];
 
 /**
  * Right column: search shortcut, "Who to follow" suggestions, and trends.
+ * Hidden under 1024px via the layout's rightPanelSmall flex rule.
  */
 export default function RightPanel({ user }) {
   const navigate = useNavigate();
@@ -14,18 +18,18 @@ export default function RightPanel({ user }) {
   const [trends, setTrends] = useState([]);
 
   const loadSuggestions = async () => {
-    const json = await followApi.getSuggestions(3);
-    if (json.success) setSuggestions(json.suggestions);
+    const j = await followApi.getSuggestions(3);
+    if (j.success) setSuggestions(j.suggestions);
   };
 
   useEffect(() => {
     loadSuggestions();
-    exploreApi.trends().then((json) => json.success && setTrends(json.trends.slice(0, 5)));
+    exploreApi.trends().then((j) => j.success && setTrends(j.trends.slice(0, 5)));
   }, []);
 
   const follow = async (id) => {
-    await followApi.add(id);
     setSuggestions((prev) => prev.filter((s) => s._id !== id));
+    await followApi.add(id);
     loadSuggestions();
   };
 
@@ -35,49 +39,75 @@ export default function RightPanel({ user }) {
   };
 
   return (
-    <div className={Styles.panel}>
-      <form onSubmit={onSearch} className={Styles.searchBox}>
-        <i className="fa-solid fa-magnifying-glass" style={{ color: "rgb(113,118,123)" }} />
-        <input
-          className={Styles.searchInput}
-          placeholder="Search"
-          value={query}
-          onChange={(e) => setQuery(e.target.value)}
-        />
+    <aside className={Styles.panel}>
+      <form onSubmit={onSearch} className={Styles.searchForm}>
+        <div className={Styles.searchBox}>
+          <i className={`fa-solid fa-magnifying-glass ${Styles.searchIcon}`} />
+          <input
+            className={Styles.searchInput}
+            placeholder="Search"
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+          />
+        </div>
       </form>
 
       {suggestions.length > 0 && (
         <div className={Styles.card}>
-          <h3 className={Styles.cardTitle}>Who to follow</h3>
+          <h2 className={Styles.cardTitle}>Who to follow</h2>
           {suggestions.map((s) => (
-            <div key={s._id} className={Styles.userRow}>
-              <div className={Styles.userInfo} onClick={() => navigate(`/${s.username}`)}>
-                <img src={s.profile} alt="" referrerPolicy="no-referrer" className={Styles.avatar} />
-                <div>
-                  <p className={Styles.name}>{s.name}</p>
-                  <p className={Styles.muted}>@{s.username}</p>
+            <div key={s._id} className={Styles.row}>
+              <div className={Styles.rowInfo} onClick={() => navigate(`/${s.username}`)}>
+                <Avatar src={s.profile} size="md" />
+                <div className={Styles.names}>
+                  <p className={Styles.name}>
+                    {s.name}
+                    {s.verified && (
+                      <i className="fa-solid fa-circle-check" style={{ color: "var(--x-blue)", fontSize: 14 }} />
+                    )}
+                  </p>
+                  <p className={Styles.handle}>@{s.username}</p>
                 </div>
               </div>
-              <button className={`btn btn-light rounded-pill ${Styles.followBtn}`} onClick={() => follow(s._id)}>
+              <Button variant="secondary" size="sm" onClick={() => follow(s._id)}>
                 Follow
-              </button>
+              </Button>
             </div>
           ))}
+          <span className={Styles.showMore} onClick={() => navigate("/explore")}>
+            Show more
+          </span>
         </div>
       )}
 
       {trends.length > 0 && (
         <div className={Styles.card}>
-          <h3 className={Styles.cardTitle}>Trends for you</h3>
-          {trends.map((t) => (
-            <div key={t.tag} className={Styles.trendItem} onClick={() => navigate(`/explore?q=${encodeURIComponent("#" + t.tag)}`)}>
-              <p className={Styles.muted}>Trending</p>
+          <h2 className={Styles.cardTitle}>What&apos;s happening</h2>
+          {trends.map((t, i) => (
+            <div
+              key={t.tag}
+              className={Styles.trend}
+              onClick={() => navigate(`/explore?q=${encodeURIComponent("#" + t.tag)}`)}
+            >
+              <p className={Styles.trendMeta}>Trending{i === 0 ? " · Trending now" : ""}</p>
               <p className={Styles.trendTag}>#{t.tag}</p>
-              <p className={Styles.muted}>{t.count} {t.count === 1 ? "post" : "posts"}</p>
+              <p className={Styles.trendMeta}>
+                {t.count} {t.count === 1 ? "post" : "posts"}
+              </p>
             </div>
           ))}
+          <span className={Styles.showMore} onClick={() => navigate("/explore")}>
+            Show more
+          </span>
         </div>
       )}
-    </div>
+
+      <div className={Styles.footer}>
+        {FOOTER.map((f) => (
+          <span key={f}>{f}</span>
+        ))}
+        <span>© 2025 X Clone</span>
+      </div>
+    </aside>
   );
 }

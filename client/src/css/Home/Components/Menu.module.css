@@ -1,242 +1,211 @@
 .menuContainer {
-    height: 100vh;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-    overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  padding: 0 8px;
+  position: sticky;
+  top: 0;
 }
 
-.menuContainer::-webkit-scrollbar {
-    width: .4em;
+.logoLink {
+  display: inline-flex;
+  width: 50px;
+  height: 50px;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  margin: 4px 0;
+  transition: background-color 0.2s;
 }
-
-.menuContainer::-webkit-scrollbar-thumb {
-    background-color: rgb(98, 98, 98);
-    border-radius: 5px;
+.logoLink:hover {
+  background-color: var(--bg-hover);
 }
-
 .logo {
-    height: 2rem;
-    margin: 15px 0px;
+  width: 28px;
+  height: 28px;
 }
 
-a {
-    color: white;
-    text-decoration: none;
+.nav {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+  flex: 1;
+  list-style: none;
+  padding: 0;
+  margin: 0;
 }
 
-.menu {
-    padding: 0px;
+.navLink {
+  color: var(--text-primary);
 }
 
-.menuList {
-    list-style: none;
-    width: 100%;
+.navItem {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  padding: 12px;
+  border-radius: var(--radius-pill);
+  font-size: 20px;
+  transition: background-color 0.2s;
+  position: relative;
+}
+.navItem:hover {
+  background-color: var(--bg-hover);
+}
+.navActive {
+  font-weight: 800;
 }
 
-.menuListItem {
-    margin: 0px;
-    display: flex;
-    justify-content: flex-start;
-    width: max-content;
-    padding: 10px 10px;
-    border-radius: 25px;
+.iconWrap {
+  position: relative;
+  display: inline-flex;
+  width: 26px;
+  height: 26px;
+  align-items: center;
+  justify-content: center;
 }
-
-a:hover>.menuList>.menuListItem {
-    background-color: rgba(231, 233, 234, 0.1);
+.icon {
+  width: 26px;
+  height: 26px;
 }
-
-.menuListLink {
-    text-decoration: none;
-    color: white;
+.faIcon {
+  font-size: 24px;
 }
-
-.menuListLink:hover>.menuList>.menuListItem {
-    background-color: rgba(231, 233, 234, 0.1);
+.label {
+  padding-right: 16px;
 }
 
 .badge {
-    position: absolute;
-    top: -4px;
-    right: -6px;
-    min-width: 18px;
-    height: 18px;
-    padding: 0 4px;
-    background: rgb(29, 155, 240);
-    color: white;
-    border-radius: 9999px;
-    font-size: 11px;
-    font-weight: 700;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border: 2px solid black;
-}
-
-.menuListItemicon {
-    height: 2rem;
-}
-
-.menuListItemText {
-    margin: 0px 20px;
-    font-size: 20px;
-}
-
-.menuPostButtonWithIcon {
-    display: none;
-}
-
-.menuPostButtonWithText {
-    display: block;
+  position: absolute;
+  top: -6px;
+  right: -8px;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 5px;
+  background: var(--x-blue);
+  color: #fff;
+  border-radius: var(--radius-pill);
+  font-size: 11px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid var(--bg);
 }
 
 .postButton {
-    background-color: rgb(29, 155, 240);
-    margin-top: 6px;
-    padding: 13px 0px;
-    padding-right: 15px;
-    width: 90%;
-    color: white;
-    font-weight: bold;
+  margin-top: 16px;
+  width: 90%;
+  font-size: 17px;
+  font-weight: 700;
+  padding: 16px;
+  border: none;
+  border-radius: var(--radius-pill);
+  background: var(--x-blue);
+  color: #fff;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+.postButton:hover {
+  background: var(--x-blue-hover);
+}
+.postButtonIcon {
+  display: none;
+  border: none;
+  border-radius: 50%;
+  background: var(--x-blue);
+  color: #fff;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+.postButtonIcon:hover {
+  background: var(--x-blue-hover);
 }
 
-.profileContainer::before {}
-
-.profileContainer {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-bottom: 10px;
-    margin-right: 5px;
-    padding: 10px 10px;
-    padding-right: 20px;
-    border-radius: 30px;
-    cursor: pointer;
+/* Profile chip at the bottom */
+.profileChip {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px;
+  margin: 12px 0;
+  border-radius: var(--radius-pill);
+  cursor: pointer;
+  transition: background-color 0.2s;
 }
-
-.profileContainer:hover {
-    background-color: rgba(231, 233, 234, 0.1);
+.profileChip:hover {
+  background-color: var(--bg-hover);
 }
-
-.profileImageContainer {
-    height: 40px;
-    width: 40px;
+.profileNames {
+  flex: 1;
+  min-width: 0;
 }
-
-.profileImage {
-    border-radius: 50%;
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-}
-
-.profileNamesContainer {
-    display: flex;
-    flex-direction: column;
-    flex: 10;
-}
-
 .profileName {
-    color: white;
-    margin: 0px;
-    margin-left: 10px;
+  font-weight: 700;
+  margin: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
-
 .profileUsername {
-    color: rgb(113, 118, 123);
-    margin: 0px;
-    margin-left: 10px;
+  color: var(--text-secondary);
+  margin: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
-.threeDotsContainer {
-    color: white;
+/* Popover menu (log out) */
+.popover {
+  position: absolute;
+  bottom: 80px;
+  left: 12px;
+  width: 280px;
+  background: var(--bg);
+  border-radius: var(--radius-md);
+  box-shadow: 0 0 12px rgba(255, 255, 255, 0.15);
+  padding: 12px 0;
+  z-index: 50;
+}
+.popoverItem {
+  padding: 14px 16px;
+  font-weight: 700;
+  cursor: pointer;
+  list-style: none;
+}
+.popoverItem:hover {
+  background-color: var(--bg-hover);
 }
 
-.profileBoxContainer {
-    position: absolute;
-    z-index: 1;
-}
-
-.profileBox {
-    min-width: 300px;
-    min-height: 120px;
-    margin: 0px;
-    background-color: black;
-    box-shadow: rgba(255, 255, 255, 0.2) 0px 0px 15px 1px, rgba(255, 255, 255, 0.15) 0px 0px 3px 1px;
-    border-radius: 15px;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-evenly;
-}
-
-.profileBoxOption {
-    width: 100%;
-    text-decoration: none;
-    list-style: none;
-    background-color: transparent;
-    color: white;
-    padding: 10px 15px;
-    cursor: default;
-}
-
-.profileBoxOption:hover {
-    background-color: rgb(22, 24, 28);
-    color: white;
-    cursor: pointer;
-}
-
-.profileMenuArrowContainer {
-    display: flex;
-    width: 100%;
+/* Collapse to icon-rail, then hide, on smaller screens */
+@media (max-width: 1280px) {
+  .label,
+  .profileNames,
+  .menuChevron {
+    display: none;
+  }
+  .navItem {
     justify-content: center;
-    position: absolute;
-    bottom: -17px;
+  }
+  .postButton {
+    display: none;
+  }
+  .postButtonIcon {
+    display: inline-flex;
+    margin-top: 16px;
+    width: 52px;
+    height: 52px;
+    padding: 0;
+    font-size: 24px;
+  }
+  .menuContainer {
+    align-items: center;
+  }
 }
 
-.profileMenuArrow {
-    filter: drop-shadow(0px -1px 1px rgba(255, 255, 255, 0.511));
-    transform: rotate(180deg);
-}
-
-@media (max-width:535px) {
-    .menuListItemText {
-        display: none;
-    }
-
-    .profileMenuArrowContainer{
-        left: -128px;
-    }
-
-    .menuPostButtonWithIcon {
-        display: block;
-        padding: 0px;
-        margin: 0px;
-    }
-
-    .menuPostButtonWithIcon button {
-        background-color: rgb(29, 155, 240);
-        margin-top: 6px;
-        padding: 5px 0px;
-        width: 100%;
-        color: white;
-        font-weight: bold;
-        border-radius: 169px !important;
-    }
-
-    .menuPostButtonWithText {
-        display: none;
-    }
-
-    .profileContainer{
-        padding: 0px;
-        margin-right: 0px;
-    }
-
-    .profileNamesContainer{
-        display: none;
-    }
-    .threeDotsContainer{
-        display: none;
-    }
+@media (max-width: 500px) {
+  .menuContainer {
+    display: none;
+  }
 }

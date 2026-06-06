@@ -1,14 +1,12 @@
 import React, { useEffect, useState } from "react";
-import { Link, useNavigate, useParams, useLocation } from "react-router-dom";
+import { useNavigate, useParams, useLocation } from "react-router-dom";
 
-import Styles from "../../../css/Home/Components/Profile.module.css";
-import BackButton from "../../../Images/backButtonIcon.svg";
-import Spinner from "../../../Components/Spinner";
+import { Header, Tabs, Avatar, Button, Spinner, EmptyState } from "../../../ui";
 import { authApi, followApi } from "../../../api";
 
 /**
- * Followers / Following / Verified Followers lists for a user.
- * Active sub-tab is derived from the URL suffix.
+ * Followers / Verified Followers / Following lists for a user.
+ * Active sub-tab is derived from the URL.
  */
 export default function Connections({ user, fetchUser }) {
   const { username } = useParams();
@@ -42,108 +40,111 @@ export default function Connections({ user, fetchUser }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [username]);
 
-  const isFollowedByMe = (u) => (u.followers || []).includes(user._id) || (user.following || []).includes(u._id);
+  const followsMe = (u) => (u.followers || []).includes(user._id) || (user.following || []).includes(u._id);
 
   const toggle = async (u) => {
-    if (isFollowedByMe(u)) await followApi.remove(u._id);
+    if (followsMe(u)) await followApi.remove(u._id);
     else await followApi.add(u._id);
     await fetchUser();
     load();
   };
 
-  const renderList = (list) => {
-    if (list === null) return <Spinner />;
-    if (list.length === 0) {
-      return (
-        <div className={Styles.verifiedFollowersPageContainer}>
-          <h2 className={Styles.verifiedFollowersText}>Nothing to see here yet</h2>
-          <p className={Styles.verifiedFollowersFadedText}>When there’s someone to show, they’ll appear here.</p>
-        </div>
-      );
-    }
-    return list.map((u) => (
-      <div key={u._id} className={Styles.followersItem}>
-        <Link to={`/${u.username}`}>
-          <div className={Styles.followItemContainer}>
-            <div className={Styles.profileImageContainer}>
-              <img src={u.profile} referrerPolicy="no-referrer" className={Styles.profileImage} alt="" />
-            </div>
-            <div className={Styles.followerInfo}>
-              <div className={Styles.followerButtonFlex}>
-                <div>
-                  <p className={Styles.followerName}>{u.name}</p>
-                  <p className={Styles.followerUsername}>@{u.username}</p>
-                </div>
-              </div>
-              <p className={Styles.followerBio}>{u.bio}</p>
-            </div>
-          </div>
-        </Link>
-        {u._id !== user._id &&
-          (isFollowedByMe(u) ? (
-            <button
-              type="button"
-              onClick={() => toggle(u)}
-              onMouseEnter={(e) => (e.currentTarget.innerText = "Unfollow")}
-              onMouseLeave={(e) => (e.currentTarget.innerText = "Following")}
-              className={`${Styles.followingButton} btn rounded-pill`}
-            >
-              Following
-            </button>
-          ) : (
-            <button type="button" onClick={() => toggle(u)} className={`${Styles.followButton} btn btn-light rounded-pill`}>
-              Follow
-            </button>
-          ))}
-      </div>
-    ));
-  };
-
   if (!profile) return <Spinner />;
 
+  const list = sub === "following" ? following : sub === "verified" ? [] : followers;
+
   return (
-    <div className={Styles.nonFullContainer}>
-      <div className={Styles.topNameConatiner}>
-        <img onClick={() => navigate(`/${profile.username}`)} className={Styles.backButton} src={BackButton} alt="back" />
-        <div>
-          <h5 className={Styles.topName}>{profile.name}</h5>
-          <p className={Styles.topSubName}>@{profile.username}</p>
-        </div>
-      </div>
-      <div className={Styles.header}>
-        <div className={Styles.menuSelectorContainer}>
+    <div style={{ minHeight: "100vh", borderRight: "1px solid var(--border)" }}>
+      <Header
+        title={profile.name}
+        subtitle={`@${profile.username}`}
+        showBack
+        onBack={() => navigate(`/${profile.username}`)}
+      />
+      <Tabs
+        tabs={[
+          { key: "verified", label: "Verified Followers" },
+          { key: "followers", label: "Followers" },
+          { key: "following", label: "Following" },
+        ]}
+        active={sub}
+        onChange={(k) => navigate(`/${profile.username}/${k === "verified" ? "verified_followers" : k}`)}
+      />
+
+      {sub === "verified" ? (
+        <EmptyState
+          title={`@${profile.username} doesn’t have any verified followers`}
+          subtitle="When someone with a verified account follows them, they’ll show up here."
+        />
+      ) : list === null ? (
+        <Spinner />
+      ) : list.length === 0 ? (
+        <EmptyState
+          title={sub === "following" ? "Not following anyone yet" : "Looking for followers?"}
+          subtitle={
+            sub === "following"
+              ? "Once they follow someone, it’ll show up here."
+              : "When someone follows them, they’ll show up here."
+          }
+        />
+      ) : (
+        list.map((u) => (
           <div
-            onClick={() => navigate(`/${profile.username}/verified_followers`)}
-            className={`${Styles.menuSelectorItem} ${sub === "verified" ? Styles.verifiedFollowersItemSelected : ""}`}
+            key={u._id}
+            onClick={() => navigate(`/${u.username}`)}
+            style={{
+              display: "flex",
+              gap: 12,
+              padding: "12px 16px",
+              cursor: "pointer",
+              borderBottom: "1px solid var(--border)",
+            }}
+            onMouseEnter={(e) => (e.currentTarget.style.background = "rgba(255,255,255,0.03)")}
+            onMouseLeave={(e) => (e.currentTarget.style.background = "transparent")}
           >
-            Verified Followers
+            <Avatar src={u.profile} size="lg" />
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <div style={{ display: "flex", justifyContent: "space-between", gap: 12 }}>
+                <div style={{ minWidth: 0 }}>
+                  <p style={{ fontWeight: 700, margin: 0, display: "flex", alignItems: "center", gap: 4 }}>
+                    {u.name}
+                    {u.verified && (
+                      <i className="fa-solid fa-circle-check" style={{ color: "var(--x-blue)", fontSize: 14 }} />
+                    )}
+                  </p>
+                  <p style={{ color: "var(--text-secondary)", margin: 0 }}>@{u.username}</p>
+                </div>
+                {u._id !== user._id &&
+                  (followsMe(u) ? (
+                    <Button
+                      variant="following"
+                      hoverLabel="Unfollow"
+                      size="sm"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        toggle(u);
+                      }}
+                    >
+                      Following
+                    </Button>
+                  ) : (
+                    <Button
+                      variant="secondary"
+                      size="sm"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        toggle(u);
+                      }}
+                    >
+                      Follow
+                    </Button>
+                  ))}
+              </div>
+              {u.bio && <p style={{ margin: "4px 0 0", color: "var(--text-primary)" }}>{u.bio}</p>}
+            </div>
           </div>
-          <div
-            onClick={() => navigate(`/${profile.username}/followers`)}
-            className={`${Styles.menuSelectorItem} ${sub === "followers" ? Styles.followersItemSelected : ""}`}
-          >
-            Followers
-          </div>
-          <div
-            onClick={() => navigate(`/${profile.username}/following`)}
-            className={`${Styles.menuSelectorItem} ${sub === "following" ? Styles.followingItemSelected : ""}`}
-          >
-            Following
-          </div>
-        </div>
-      </div>
-      <div className={Styles.mainBody}>
-        {sub === "verified" ? (
-          <div className={Styles.verifiedFollowersPageContainer}>
-            <h2 className={Styles.verifiedFollowersText}>@{profile.username} doesn’t have any verified followers.</h2>
-            <p className={Styles.verifiedFollowersFadedText}>When someone verified follows this account, they’ll show up here.</p>
-          </div>
-        ) : sub === "following" ? (
-          renderList(following)
-        ) : (
-          renderList(followers)
-        )}
-      </div>
+        ))
+      )}
     </div>
   );
 }

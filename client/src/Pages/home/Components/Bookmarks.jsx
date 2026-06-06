@@ -1,17 +1,15 @@
 import React, { useEffect, useState } from "react";
 
-import Spinner from "../../../Components/Spinner";
-import PostCard from "../../../Components/PostCard";
+import { Header, Spinner, EmptyState } from "../../../ui";
+import PostCard from "./PostCard";
 import { postApi } from "../../../api";
-import Styles from "../../../css/Home/Components/Feature.module.css";
 
 export default function Bookmarks({ user }) {
   const [posts, setPosts] = useState(null);
 
   const load = async () => {
-    const json = await postApi.getBookmarks();
-    if (json.success) setPosts(json.posts);
-    else setPosts([]);
+    const j = await postApi.getBookmarks();
+    setPosts(j.success ? j.posts : []);
   };
 
   useEffect(() => {
@@ -19,21 +17,17 @@ export default function Bookmarks({ user }) {
     load();
   }, []);
 
-  if (posts === null) return <Spinner />;
-
   return (
-    <div className={Styles.container}>
-      <div className={Styles.header}>
-        <div>
-          <h2 className={Styles.sectionTitle} style={{ padding: 0 }}>Bookmarks</h2>
-          <p className={Styles.muted}>@{user.username}</p>
-        </div>
-      </div>
-      {posts.length === 0 ? (
-        <div style={{ padding: "40px 20px", textAlign: "center", color: "rgb(113,118,123)" }}>
-          <h3 style={{ color: "white" }}>Save posts for later</h3>
-          <p>Bookmark posts to easily find them again in the future.</p>
-        </div>
+    <div style={{ minHeight: "100vh", borderRight: "1px solid var(--border)" }}>
+      <Header title="Bookmarks" subtitle={`@${user.username}`} />
+      {posts === null ? (
+        <Spinner />
+      ) : posts.length === 0 ? (
+        <EmptyState
+          icon="fa-solid fa-bookmark"
+          title="Save posts for later"
+          subtitle="Bookmark posts to easily find them again in the future."
+        />
       ) : (
         posts.map((p) => <PostCard key={p._id} post={p} currentUser={user} onChange={load} />)
       )}

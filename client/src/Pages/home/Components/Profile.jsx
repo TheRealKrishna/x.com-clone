@@ -1,18 +1,14 @@
 import React, { useEffect, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
+import ClickAwayListener from "react-click-away-listener";
 
 import Styles from "../../../css/Home/Components/Profile.module.css";
-import BackButton from "../../../Images/backButtonIcon.svg";
-import Calender from "../../../Images/Home/Calender.svg";
-import ThreeDotsButton from "../../../Images/Home/ThreeDotsButton.svg";
-import MessagesIcon from "../../../Images/Home/Messages.svg";
-import Notify from "../../../Images/Home/Notify.svg";
-import Spinner from "../../../Components/Spinner";
-import PostCard from "../../../Components/PostCard";
+import { Avatar, Button, IconButton, Header, Tabs, Spinner, EmptyState } from "../../../ui";
+import PostCard from "./PostCard";
 import ProfileEditModal from "../../../Layout/ProfileEditModal";
-import ReplyModal from "./ReplyModal";
 import { authApi, followApi, postApi } from "../../../api";
 import { formatJoinedDate } from "../../../utils/format";
+import { notify } from "../../../utils/toast";
 
 const TABS = [
   { key: "posts", label: "Posts" },
@@ -21,55 +17,46 @@ const TABS = [
   { key: "likes", label: "Likes" },
 ];
 
-/**
- * User profile. Handles both /:username and /settings/profile (own profile,
- * which also mounts the edit modal). Decided by comparing to the current user
- * rather than sniffing the path.
- */
 export default function Profile({ user, fetchUser, setUser }) {
   const { username } = useParams();
   const navigate = useNavigate();
-  const isSettings = !username; // /settings/profile route has no :username param
+  const isSettings = !username; // /settings/profile has no :username
+  const targetUsername = isSettings ? user.username : username;
+
   const [profile, setProfile] = useState(null);
   const [tab, setTab] = useState("posts");
   const [posts, setPosts] = useState(null);
-  const [replyTarget, setReplyTarget] = useState(null);
   const [following, setFollowing] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
+  const [editOpen, setEditOpen] = useState(isSettings);
 
-  const targetUsername = isSettings ? user.username : username;
   const isOwn = profile && profile._id === user._id;
 
   const loadProfile = async () => {
-    const json = await authApi.getByUsername(targetUsername);
-    if (json.success) {
-      setProfile(json.user);
-      setFollowing(
-        (json.user.followers || []).includes(user._id) || (user.following || []).includes(json.user._id)
-      );
-      return json.user;
+    const j = await authApi.getByUsername(targetUsername);
+    if (!j.success) {
+      navigate("/home");
+      return null;
     }
-    navigate("/home");
-    return null;
+    setProfile(j.user);
+    setFollowing((j.user.followers || []).includes(user._id) || (user.following || []).includes(j.user._id));
+    document.title = `${j.user.name} (@${j.user.username}) / X`;
+    return j.user;
   };
 
-  const loadPosts = async (profileId, currentTab) => {
+  const loadPosts = async (id, t) => {
     setPosts(null);
-    const json = await postApi.getUserPosts(profileId, currentTab);
-    if (json.success) setPosts(json.posts);
-    else setPosts([]);
+    const j = await postApi.getUserPosts(id, t);
+    setPosts(j.success ? j.posts : []);
   };
 
   useEffect(() => {
     setProfile(null);
     setTab("posts");
-    loadProfile().then((p) => {
-      if (p) {
-        document.title = `${p.name} (@${p.username}) / X`;
-        loadPosts(p._id, "posts");
-      }
-    });
+    setEditOpen(isSettings);
+    loadProfile().then((p) => p && loadPosts(p._id, "posts"));
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [targetUsername]);
+  }, [targetUsername, isSettings]);
 
   const switchTab = (key) => {
     setTab(key);
@@ -77,14 +64,10 @@ export default function Profile({ user, fetchUser, setUser }) {
   };
 
   const toggleFollow = async () => {
-    if (!profile) return;
-    if (following) {
-      setFollowing(false);
-      await followApi.remove(profile._id);
-    } else {
-      setFollowing(true);
-      await followApi.add(profile._id);
-    }
+    const next = !following;
+    setFollowing(next);
+    if (next) await followApi.add(profile._id);
+    else await followApi.remove(profile._id);
     await fetchUser();
     loadProfile();
   };
@@ -93,120 +76,152 @@ export default function Profile({ user, fetchUser, setUser }) {
 
   return (
     <div className={Styles.container}>
-      <div className={Styles.topNameConatiner}>
-        <img onClick={() => navigate("/home")} className={Styles.backButton} src={BackButton} alt="back" />
-        <div>
-          <h5 className={Styles.topName}>{profile.name}</h5>
-          <p className={Styles.topSubName}>@{profile.username}</p>
+      <div className={Styles.headerStick}>
+        <Header title={profile.name} showBack />
+      </div>
+
+      <div className={Styles.banner}>{profile.banner && <img src={profile.banner} alt="" />}</div>
+
+      <div className={Styles.topRow}>
+        <div className={Styles.avatarWrap}>
+          <Avatar src={profile.profile} size="xxl" />
+        </div>
+        <div className={Styles.actions}>
+          {isOwn ? (
+            <Button
+              variant="outline"
+              onClick={() => {
+                setEditOpen(true);
+                navigate("/settings/profile");
+              }}
+            >
+              Edit profile
+            </Button>
+          ) : (
+            <>
+              <div style={{ position: "relative" }}>
+                <IconButton
+                  icon="fa-solid fa-ellipsis"
+                  title="More"
+                  onClick={() => setMenuOpen((v) => !v)}
+                  style={{ border: "1px solid var(--border-strong)" }}
+                />
+                {menuOpen && (
+                  <ClickAwayListener onClickAway={() => setMenuOpen(false)}>
+                    <div
+                      style={{
+                        position: "absolute",
+                        right: 0,
+                        top: 40,
+                        background: "var(--bg)",
+                        borderRadius: "var(--radius-md)",
+                        boxShadow: "0 0 14px rgba(255,255,255,0.18)",
+                        minWidth: 220,
+                        zIndex: 40,
+                        padding: "6px 0",
+                      }}
+                    >
+                      {[
+                        { icon: "fa-ban", label: `Block @${profile.username}` },
+                        { icon: "fa-volume-xmark", label: `Mute @${profile.username}` },
+                        { icon: "fa-flag", label: "Report" },
+                      ].map((o) => (
+                        <div
+                          key={o.label}
+                          onClick={() => {
+                            setMenuOpen(false);
+                            notify(`${o.label} — coming soon`);
+                          }}
+                          style={{ display: "flex", gap: 12, padding: "12px 16px", fontWeight: 700, cursor: "pointer" }}
+                          onMouseEnter={(e) => (e.currentTarget.style.background = "var(--bg-hover)")}
+                          onMouseLeave={(e) => (e.currentTarget.style.background = "transparent")}
+                        >
+                          <i className={`fa-solid ${o.icon}`} /> {o.label}
+                        </div>
+                      ))}
+                    </div>
+                  </ClickAwayListener>
+                )}
+              </div>
+              <IconButton
+                icon="fa-regular fa-envelope"
+                title="Message"
+                onClick={() => navigate(`/messages/${profile._id}`)}
+                style={{ border: "1px solid var(--border-strong)" }}
+              />
+              {following ? (
+                <Button variant="following" hoverLabel="Unfollow" onClick={toggleFollow}>
+                  Following
+                </Button>
+              ) : (
+                <Button variant="secondary" onClick={toggleFollow}>
+                  Follow
+                </Button>
+              )}
+            </>
+          )}
         </div>
       </div>
 
-      <div className={Styles.profileContainer}>
-        <div className={Styles.bannerContainer}>
-          {profile.banner?.length > 0 && <img className={Styles.profileBanner} src={profile.banner} alt="banner" />}
-        </div>
-        <div className={Styles.profilePhotoContainer}>
-          <img className={Styles.profilePhoto} src={profile.profile} referrerPolicy="no-referrer" alt="profile" />
-        </div>
-
-        {isOwn ? (
-          <button onClick={() => navigate("/settings/profile")} className={`${Styles.editProfileButton} btn rounded-pill`}>
-            Edit&nbsp;Profile
-          </button>
-        ) : (
-          <div className={Styles.followContainer}>
-            <img className={Styles.circleButton} src={ThreeDotsButton} alt="more" />
-            <img onClick={() => navigate(`/messages/${profile._id}`)} className={Styles.circleButton} src={MessagesIcon} alt="message" />
-            <img className={Styles.circleButton} src={Notify} alt="notify" />
-            {following ? (
-              <button
-                type="button"
-                onClick={toggleFollow}
-                onMouseEnter={(e) => (e.currentTarget.innerText = "Unfollow")}
-                onMouseLeave={(e) => (e.currentTarget.innerText = "Following")}
-                className={`${Styles.followingButton} btn rounded-pill`}
-              >
-                Following
-              </button>
-            ) : (
-              <button type="button" onClick={toggleFollow} className={`${Styles.followButton} btn btn-light rounded-pill`}>
-                Follow
-              </button>
-            )}
-          </div>
-        )}
-
-        <div className={Styles.profileInfoContainer}>
-          <h5 className={Styles.profileInfoName}>
-            {profile.name}
-            {profile.verified && <i className="fa-solid fa-circle-check" style={{ color: "rgb(29,155,240)", marginLeft: 6, fontSize: 18 }} />}
-          </h5>
-          <p className={Styles.profileInfoUsername}>@{profile.username}</p>
-          {profile.bio?.length > 0 && <p className={Styles.profileInfoBio}>{profile.bio}</p>}
-          {profile.location?.length > 0 && (
-            <p className={Styles.joinedText} style={{ display: "inline-block", marginRight: 16 }}>
+      <div className={Styles.info}>
+        <h2 className={Styles.name}>
+          {profile.name}
+          {profile.verified && <i className={`fa-solid fa-circle-check ${Styles.verified}`} />}
+        </h2>
+        <p className={Styles.handle}>@{profile.username}</p>
+        {profile.bio && <p className={Styles.bio}>{profile.bio}</p>}
+        <div className={Styles.meta}>
+          {profile.location && (
+            <span className={Styles.metaItem}>
               <i className="fa-solid fa-location-dot" /> {profile.location}
-            </p>
+            </span>
           )}
-          {profile.website?.length > 0 && (
-            <a href={profile.website} target="_blank" rel="noreferrer" className={Styles.followingText} style={{ marginRight: 16 }}>
+          {profile.website && (
+            <a
+              className={Styles.metaItem}
+              href={profile.website.startsWith("http") ? profile.website : `https://${profile.website}`}
+              target="_blank"
+              rel="noreferrer"
+            >
               <i className="fa-solid fa-link" /> {profile.website.replace(/^https?:\/\//, "")}
             </a>
           )}
-          <div className={Styles.joinedContainer}>
-            <img src={Calender} alt="calendar" className={Styles.calenderIcon} />
-            <p className={Styles.joinedText}>Joined {formatJoinedDate(profile.createdAt || profile.joined)}</p>
-          </div>
-          <div className={Styles.followersContainer}>
-            <Link to={`/${profile.username}/following`}>
-              <p className={Styles.followingText}>
-                <b>{profile.following?.length || 0}</b> Following
-              </p>
-            </Link>
-            <Link to={`/${profile.username}/followers`}>
-              <p className={Styles.followersText}>
-                <b>{profile.followers?.length || 0}</b> Followers
-              </p>
-            </Link>
-          </div>
+          <span className={Styles.metaItem}>
+            <i className="fa-regular fa-calendar" /> Joined {formatJoinedDate(profile.createdAt || profile.joined)}
+          </span>
+        </div>
+        <div className={Styles.counts}>
+          <Link to={`/${profile.username}/following`}>
+            <b>{profile.following?.length || 0}</b> Following
+          </Link>
+          <Link to={`/${profile.username}/followers`}>
+            <b>{profile.followers?.length || 0}</b> Followers
+          </Link>
         </div>
       </div>
 
-      {/* Post tabs */}
-      <div className={Styles.header}>
-        <div className={Styles.menuSelectorContainer}>
-          {TABS.map((t) => (
-            <div
-              key={t.key}
-              onClick={() => switchTab(t.key)}
-              className={`${Styles.menuSelectorItem} ${tab === t.key ? Styles.followingItemSelected : ""}`}
-            >
-              {t.label}
-            </div>
-          ))}
-        </div>
-      </div>
+      <Tabs tabs={TABS} active={tab} onChange={switchTab} />
 
       {posts === null ? (
         <Spinner />
       ) : posts.length === 0 ? (
-        <div style={{ padding: "40px 20px", textAlign: "center", color: "rgb(113,118,123)" }}>
-          {isOwn ? "You haven't" : `@${profile.username} hasn't`} posted in this tab yet.
-        </div>
+        <EmptyState
+          title={isOwn ? "You haven’t posted here yet" : `@${profile.username} hasn’t posted here`}
+          subtitle={tab === "likes" ? "Liked posts will show up here." : "When there are posts, they’ll show up here."}
+        />
       ) : (
-        posts.map((p) => <PostCard key={p._id} post={p} currentUser={user} onReply={setReplyTarget} onChange={() => switchTab(tab)} />)
+        posts.map((p) => <PostCard key={p._id} post={p} currentUser={user} onChange={() => switchTab(tab)} />)
       )}
 
-      {isSettings && <ProfileEditModal user={user} fetchUser={fetchUser} setUser={setUser} />}
-
-      {replyTarget && (
-        <ReplyModal
-          post={replyTarget}
+      {isSettings && (
+        <ProfileEditModal
+          open={editOpen}
           user={user}
-          onClose={() => setReplyTarget(null)}
-          onReplied={() => {
-            setReplyTarget(null);
-            switchTab(tab);
+          fetchUser={fetchUser}
+          setUser={setUser}
+          onClose={() => {
+            setEditOpen(false);
+            navigate(`/${user.username}`);
           }}
         />
       )}

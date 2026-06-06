@@ -1,67 +1,46 @@
-import React, { useState } from "react";
-import { NavLink, useNavigate } from "react-router-dom";
-import ClickAwayListener from "react-click-away-listener";
+import React, { useEffect, useState } from "react";
+import { NavLink } from "react-router-dom";
 
 import Styles from "../../../css/Home/Components/MobileMenu.module.css";
-import Home from "../../../Images/Home/Home.svg";
-import HomeSolid from "../../../Images/Home/HomeSolid.svg";
-import ProfileIcon from "../../../Images/Home/Profile.svg";
-import ProfileSolid from "../../../Images/Home/ProfileSolid.svg";
-import dropDownArrow from "../../../Images/Home/DropDownArrow.svg";
-import MessagesIcon from "../../../Images/Home/Messages.svg";
-import MessagesSolid from "../../../Images/Home/MessagesSolid.svg";
-import Explore from "../../../Images/Home/Explore.svg";
-import Notifications from "../../../Images/Home/Notifications.svg";
+import { notificationApi } from "../../../api";
 
-function MobileNavItem({ to, icon, activeIcon, end }) {
-  return (
-    <NavLink to={to} end={end}>
-      {({ isActive }) => (
-        <li className={Styles.menuList}>
-          <div className={Styles.menuListItem}>
-            <img src={isActive && activeIcon ? activeIcon : icon} className={Styles.icon} alt="" />
-          </div>
-        </li>
-      )}
-    </NavLink>
-  );
-}
+const ITEMS = [
+  { to: "/home", icon: "fa-house", end: true },
+  { to: "/explore", icon: "fa-magnifying-glass" },
+  { to: "/notifications", icon: "fa-bell", key: "notifications" },
+  { to: "/messages", icon: "fa-envelope" },
+  { to: "/bookmarks", icon: "fa-bookmark" },
+];
 
-export default function MobileMenu({ user }) {
-  const navigate = useNavigate();
-  const [menuOpen, setMenuOpen] = useState(false);
+/**
+ * Bottom tab bar + floating compose button for small screens.
+ */
+export default function MobileMenu({ onCompose }) {
+  const [unread, setUnread] = useState(0);
+
+  useEffect(() => {
+    notificationApi.unreadCount().then((j) => j.success && setUnread(j.unreadCount));
+  }, []);
 
   return (
     <>
-      <div className={Styles.mobileMenuContainer}>
-        <MobileNavItem to="/home" icon={Home} activeIcon={HomeSolid} end />
-        <MobileNavItem to="/explore" icon={Explore} />
-        <MobileNavItem to="/notifications" icon={Notifications} />
-        <MobileNavItem to="/messages" icon={MessagesIcon} activeIcon={MessagesSolid} />
-        <MobileNavItem to={`/${user.username}`} icon={ProfileIcon} activeIcon={ProfileSolid} />
-        <div>
-          <div onClick={() => setMenuOpen((v) => !v)} className={Styles.profileContainer}>
-            <div className={Styles.profileImageContainer}>
-              <img src={user.profile} referrerPolicy="no-referrer" className={Styles.profileImage} alt="" />
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {menuOpen && (
-        <ClickAwayListener onClickAway={() => setMenuOpen(false)}>
-          <div className={Styles.profileBoxContainer} style={{ display: "block" }}>
-            <div className={Styles.profileBox}>
-              <li className={Styles.profileBoxOption} onClick={() => navigate("/logout")}>
-                Log out @{user.username}
-              </li>
-            </div>
-            <div className={Styles.profileMenuArrowContainer}>
-              <img src={dropDownArrow} className={Styles.profileMenuArrow} alt="" />
-            </div>
-          </div>
-        </ClickAwayListener>
-      )}
+      <nav className={Styles.bar}>
+        {ITEMS.map((it) => (
+          <NavLink key={it.to} to={it.to} end={it.end} className={Styles.item}>
+            {({ isActive }) => (
+              <>
+                <i className={`fa-solid ${it.icon}`} style={{ color: isActive ? "var(--text-primary)" : "var(--text-secondary)" }} />
+                {it.key === "notifications" && unread > 0 && (
+                  <span className={Styles.badge}>{unread > 99 ? "99+" : unread}</span>
+                )}
+              </>
+            )}
+          </NavLink>
+        ))}
+      </nav>
+      <button className={Styles.fab} onClick={onCompose} aria-label="Post">
+        <i className="fa-solid fa-feather" />
+      </button>
     </>
   );
 }

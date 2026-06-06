@@ -1,0 +1,148 @@
+.composer {
+  display: flex;
+  gap: 12px;
+  padding: 12px 16px;
+}
+.composerBody {
+  flex: 1;
+  min-width: 0;
+}
+.replyingTo {
+  color: var(--text-secondary);
+  font-size: 15px;
+  margin: 0 0 8px;
+}
+.replyingTo b {
+  color: var(--x-blue);
+  font-weight: 400;
+}
+.textarea {
+  width: 100%;
+  background: transparent;
+  border: none;
+  outline: none;
+  color: var(--text-primary);
+  font-size: 20px;
+  line-height: 1.4;
+  resize: none;
+  font-family: inherit;
+  padding: 8px 0;
+  max-height: 50vh;
+  overflow-y: auto;
+}
+.textarea::placeholder {
+  color: var(--text-secondary);
+}
+
+.previews {
+  display: grid;
+  gap: 8px;
+  margin: 8px 0;
+  border-radius: var(--radius-md);
+  overflow: hidden;
+}
+.previews1 { grid-template-columns: 1fr; }
+.previews2 { grid-template-columns: 1fr 1fr; }
+.previews3, .previews4 { grid-template-columns: 1fr 1fr; }
+.previewWrap {
+  position: relative;
+  aspect-ratio: 16 / 9;
+}
+.previewImg {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: var(--radius-md);
+}
+.removeImg {
+  position: absolute;
+  top: 6px;
+  left: 6px;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  border: none;
+  background: rgba(0, 0, 0, 0.7);
+  color: #fff;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.divider {
+  height: 1px;
+  background: var(--border);
+  margin: 4px 0;
+}
+
+.toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 8px;
+}
+.tools {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  position: relative;
+}
+.tool {
+  width: 34px;
+  height: 34px;
+  border: none;
+  background: transparent;
+  color: var(--x-blue);
+  border-radius: 50%;
+  cursor: pointer;
+  font-size: 17px;
+  transition: background-color 0.2s;
+}
+.tool:hover {
+  background: rgba(29, 155, 240, 0.1);
+}
+.tool:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.counter {
+  width: 30px;
+  height: 30px;
+}
+.counterDivider {
+  width: 1px;
+  height: 28px;
+  background: var(--border);
+}
+
+.emojiPicker {
+  position: absolute;
+  top: 40px;
+  left: 0;
+  z-index: 60;
+}
+
+.audience {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--x-blue);
+  font-weight: 700;
+  font-size: 14px;
+  border: none;
+  background: transparent;
+  border-radius: var(--radius-pill);
+  padding: 2px 12px;
+  margin-bottom: 4px;
+  cursor: pointer;
+}
+.audience:hover {
+  background: rgba(29, 155, 240, 0.1);
+}

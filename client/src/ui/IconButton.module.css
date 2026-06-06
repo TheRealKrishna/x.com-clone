@@ -1,0 +1,48 @@
+.iconButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border: none;
+  background: transparent;
+  color: var(--text-primary);
+  border-radius: var(--radius-pill);
+  cursor: pointer;
+  font-size: 18px;
+  transition: background-color 0.2s, color 0.2s;
+}
+.iconButton:hover {
+  background-color: var(--bg-hover);
+}
+.iconButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Hover-tint variants for post actions */
+.blue:hover {
+  color: var(--x-blue);
+  background-color: rgba(29, 155, 240, 0.1);
+}
+.like:hover,
+.like.active {
+  color: var(--like);
+}
+.like:hover {
+  background-color: rgba(249, 24, 128, 0.1);
+}
+.repost:hover,
+.repost.active {
+  color: var(--repost);
+}
+.repost:hover {
+  background-color: rgba(0, 186, 124, 0.1);
+}
+.active {
+  /* color set by variant above */
+}
+.danger:hover {
+  color: var(--danger);
+  background-color: rgba(244, 33, 46, 0.1);
+}

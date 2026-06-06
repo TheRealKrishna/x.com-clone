@@ -1,123 +1,111 @@
 import React, { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { useGoogleLogin } from "@react-oauth/google";
 
 import logo from "../Images/logo.svg";
 import googleLogo from "../Images/googleLogo.svg";
 import appleLogo from "../Images/appleLogo.svg";
-import Styles from "../css/Home.module.css";
-import CreateAccountModal from "../Layout/CreateAccountModal";
+import Styles from "../css/Auth.module.css";
+import { Spinner } from "../ui";
+import SignupModal from "../Layout/SignupModal";
 import LoginModal from "../Layout/LoginModal";
-import Loader from "../Components/Loader";
 import { authApi } from "../api";
 import { setToken, isLoggedIn, hasGoogle } from "../api/config";
 import { notify, notifySuccess } from "../utils/toast";
 
-// Apple Sign-In is parked: the Services ID key expired and hasn't been renewed,
-// so the button stays disabled until the Apple Developer credentials are refreshed.
-const APPLE_DISABLED_REASON =
+const APPLE_DISABLED =
   "Sign in with Apple is taking a short nap — our Apple credentials expired and we're renewing them. Please use Google or email for now.";
 
-// Google login hook is only safe to call inside a GoogleOAuthProvider, which we
-// only mount when a client ID is configured. This wrapper keeps the rules of
-// hooks intact while letting the button render conditionally.
+// useGoogleLogin must be called unconditionally; we only mount Landing inside a
+// GoogleOAuthProvider when hasGoogle, but guard anyway.
 function useOptionalGoogleLogin(onToken) {
   if (!hasGoogle) return null;
   // eslint-disable-next-line react-hooks/rules-of-hooks
-  return useGoogleLogin({
-    scope: "https://www.googleapis.com/auth/user.birthday.read",
-    onSuccess: onToken,
-  });
+  return useGoogleLogin({ scope: "https://www.googleapis.com/auth/user.birthday.read", onSuccess: onToken });
 }
 
 export default function Landing() {
   const navigate = useNavigate();
+  const { pathname } = useLocation();
   const [loading, setLoading] = useState(true);
 
   const googleLogin = useOptionalGoogleLogin(async (tokenResponse) => {
-    const json = await authApi.loginWithGoogle(tokenResponse);
-    if (json.success) {
-      setToken(json.authToken);
-      navigate("/home");
+    const res = await authApi.loginWithGoogle(tokenResponse);
+    if (res.success) {
+      setToken(res.authToken);
       notifySuccess("Logged in successfully!");
+      navigate("/home");
     } else {
-      notify(json.error || "Oops, something went wrong. Please try again later.");
+      notify(res.error || "Something went wrong. Please try again.");
     }
   });
 
   useEffect(() => {
     if (isLoggedIn()) {
       navigate("/home");
-    } else {
-      const t = setTimeout(() => setLoading(false), 400);
-      return () => clearTimeout(t);
+      return;
     }
+    const t = setTimeout(() => setLoading(false), 250);
+    return () => clearTimeout(t);
   }, [navigate]);
 
-  if (loading) return <Loader />;
+  if (loading) return <Spinner />;
+
+  const onAuthed = () => navigate("/home");
 
   return (
-    <>
-      <CreateAccountModal Styles={Styles} />
-      <LoginModal Styles={Styles} googleLogin={googleLogin} />
-      <div className="container">
-        <div className={Styles.flexContainer}>
-          <div className={Styles.logoContainer}>
-            <img src={logo} className={Styles.logo} alt="x.com Logo" />
-          </div>
-          <div className={Styles.textContainer}>
-            <h1 className={Styles.title}>Happening now</h1>
-            <div className={Styles.alignLeftContainer}>
-              <h2 className={Styles.subTitle}>Join today.</h2>
-              <div className={Styles.signUpContainer}>
-                {hasGoogle && (
-                  <button
-                    className={`btn btn-light rounded-pill ${Styles.signUpWithGoogleButton}`}
-                    onClick={googleLogin}
-                  >
-                    <img src={googleLogo} className={Styles.googleLogo} alt="google Logo" />
-                    Sign up with Google
-                  </button>
-                )}
-                <button
-                  type="button"
-                  disabled
-                  title={APPLE_DISABLED_REASON}
-                  style={{ cursor: "not-allowed", opacity: 0.55 }}
-                  className={`btn btn-light rounded-pill ${Styles.signUpWithAppleButton}`}
-                >
-                  <img src={appleLogo} className={Styles.appleLogo} alt="apple Logo" />
-                  Sign up with Apple
-                </button>
-                <div className={Styles.orDivider}>or</div>
-                <button
-                  className={`btn btn-primary rounded-pill ${Styles.createAccountButton}`}
-                  data-bs-toggle="modal"
-                  data-bs-target="#signupModal"
-                  onClick={() => navigate("/i/flow/signup")}
-                >
-                  Create account
-                </button>
-                <p className={Styles.agreementText}>
-                  By signing up, you agree to the <a href="/">Terms of Service</a> and{" "}
-                  <a href="/">Privacy Policy</a>, including <a href="/">Cookie Use</a>.
-                </p>
-              </div>
-            </div>
-            <div className={Styles.loginContainer}>
-              <p className={Styles.loginText}>Already have an account?</p>
-              <button
-                className={`btn btn-outline-info rounded-pill ${Styles.loginButton}`}
-                data-bs-toggle="modal"
-                data-bs-target="#loginModal"
-                onClick={() => navigate("/i/flow/login")}
-              >
-                Sign in
+    <div className={Styles.landing}>
+      <div className={Styles.hero}>
+        <div className={Styles.heroLogo}>
+          <img src={logo} alt="X" />
+        </div>
+        <div className={Styles.heroText}>
+          <h1 className={Styles.bigTitle}>Happening now</h1>
+          <h2 className={Styles.joinTitle}>Join today.</h2>
+          <div className={Styles.actions}>
+            {hasGoogle && (
+              <button className={Styles.socialBtn} onClick={googleLogin}>
+                <img src={googleLogo} alt="" /> Sign up with Google
               </button>
-            </div>
+            )}
+            <button className={Styles.socialBtn} disabled title={APPLE_DISABLED}>
+              <img src={appleLogo} alt="" /> Sign up with Apple
+            </button>
+            <div className={Styles.divider}>or</div>
+            <button
+              className="btn"
+              onClick={() => navigate("/i/flow/signup")}
+              style={{ background: "var(--x-blue)", color: "#fff", border: "none", borderRadius: "var(--radius-pill)", padding: "11px 0", fontWeight: 700, cursor: "pointer" }}
+            >
+              Create account
+            </button>
+            <p className={Styles.terms}>
+              By signing up, you agree to the <a href="/">Terms of Service</a> and <a href="/">Privacy Policy</a>, including{" "}
+              <a href="/">Cookie Use</a>.
+            </p>
+          </div>
+
+          <p className={Styles.loginPrompt}>Already have an account?</p>
+          <div className={Styles.actions}>
+            <button
+              className="btn"
+              onClick={() => navigate("/i/flow/login")}
+              style={{ background: "transparent", color: "var(--x-blue)", border: "1px solid var(--border-strong)", borderRadius: "var(--radius-pill)", padding: "11px 0", fontWeight: 700, cursor: "pointer" }}
+            >
+              Sign in
+            </button>
           </div>
         </div>
       </div>
-    </>
+
+      <SignupModal open={pathname === "/i/flow/signup"} onClose={() => navigate("/")} onAuthed={onAuthed} />
+      <LoginModal
+        open={pathname === "/i/flow/login"}
+        onClose={() => navigate("/")}
+        onAuthed={onAuthed}
+        onSwitchToSignup={() => navigate("/i/flow/signup")}
+        googleLogin={googleLogin}
+      />
+    </div>
   );
 }

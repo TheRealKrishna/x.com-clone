@@ -1,0 +1,79 @@
+.button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  border: none;
+  border-radius: var(--radius-pill);
+  font-weight: 700;
+  cursor: pointer;
+  transition: background-color 0.2s, opacity 0.2s, border-color 0.2s;
+  white-space: nowrap;
+  line-height: 1;
+}
+.button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Sizes */
+.sm {
+  padding: 8px 16px;
+  font-size: 14px;
+}
+.md {
+  padding: 10px 20px;
+  font-size: 15px;
+}
+.lg {
+  padding: 14px 24px;
+  font-size: 17px;
+  width: 100%;
+}
+
+/* Variants */
+.primary {
+  background-color: var(--x-blue);
+  color: var(--text-on-blue);
+}
+.primary:not(:disabled):hover {
+  background-color: var(--x-blue-hover);
+}
+
+.secondary {
+  background-color: var(--text-primary);
+  color: var(--bg);
+}
+.secondary:not(:disabled):hover {
+  background-color: rgba(231, 233, 234, 0.85);
+}
+
+.outline {
+  background-color: transparent;
+  color: var(--text-primary);
+  border: 1px solid var(--border-strong);
+}
+.outline:not(:disabled):hover {
+  background-color: rgba(231, 233, 234, 0.1);
+}
+
+.danger {
+  background-color: transparent;
+  color: var(--danger);
+  border: 1px solid var(--border-strong);
+}
+.danger:not(:disabled):hover {
+  background-color: rgba(244, 33, 46, 0.1);
+}
+
+/* "Following" button that turns into red "Unfollow" on hover */
+.following {
+  background-color: transparent;
+  color: var(--text-primary);
+  border: 1px solid var(--border-strong);
+}
+.following:not(:disabled):hover {
+  color: var(--danger);
+  border-color: rgba(244, 33, 46, 0.4);
+  background-color: rgba(244, 33, 46, 0.1);
+}

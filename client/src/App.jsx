@@ -35,6 +35,13 @@ function App() {
           <Route path="/messages/:_id" element={<Index view="messages" />} />
           <Route path="/settings/profile" element={<Index view="profile" />} />
           <Route path="/status/:postId" element={<Index view="post" />} />
+
+          {/* Intentional placeholders so nav links never dead-end */}
+          <Route path="/lists" element={<Index view="lists" />} />
+          <Route path="/communities" element={<Index view="communities" />} />
+          <Route path="/premium" element={<Index view="premium" />} />
+          <Route path="/more" element={<Index view="more" />} />
+
           <Route path="/:username" element={<Index view="profile" />} />
           <Route path="/:username/followers" element={<Index view="connections" />} />
           <Route path="/:username/verified_followers" element={<Index view="connections" />} />

@@ -1,113 +1,138 @@
-import React, { useEffect, useRef, useState } from 'react'
-import Styles from "../css/LoginModal.module.css"
-import closeButtonIcon from "../Images/closeButtonIcon.svg";
-import backButtonIcon from "../Images/backButtonIcon.svg";
-import { useLocation, useNavigate } from 'react-router-dom';
-import Spinner from '../Components/Spinner';
-import Step1 from './LoginSteps/Step1';
-import Step2 from './LoginSteps/Step2';
-import logo from '../Images/logo.svg';
-import { authApi } from '../api';
-import { setToken } from '../api/config';
-import { getCountry } from '../utils/country';
-import { notify, notifySuccess } from '../utils/toast';
+import React, { useState } from "react";
 
+import { Modal, Button } from "../ui";
+import Styles from "../css/Auth.module.css";
+import logo from "../Images/logo.svg";
+import googleLogo from "../Images/googleLogo.svg";
+import { authApi } from "../api";
+import { setToken, hasGoogle } from "../api/config";
+import { getCountry } from "../utils/country";
+import { notifySuccess } from "../utils/toast";
 
-export default function LoginModal(props) {
-    const [loading, setLoading] = useState(true)
-    const [currentMethod, setCurrentMethod] = useState("email");
-    const [currentStep, setCurrentStep] = useState(1);
-    const loginModal = useRef();
-    const { pathname } = useLocation();
-    const navigate = useNavigate();
-    const [credentials, setCredentials] = useState({ name: "", password: "", method: "" });
-    const renderCurrentStep = () => {
-        switch (currentStep) {
-            case 1:
-                return <Step1 googleLogin={props.googleLogin} currentMethod={currentMethod} setCurrentMethod={setCurrentMethod} credentials={credentials} setCredentials={setCredentials} setCurrentStep={setCurrentStep} loading={loading} setLoading={setLoading} />
-            case 2:
-                return <Step2 currentMethod={currentMethod} setCurrentMethod={setCurrentMethod} credentials={credentials} setCredentials={setCredentials} setCurrentStep={setCurrentStep} loading={loading} setLoading={setLoading} />
-            default:
-                break;
-        }
+/**
+ * Two-step login: identifier (username/email/phone) → password.
+ */
+export default function LoginModal({ open, onClose, onAuthed, onSwitchToSignup, googleLogin }) {
+  const [step, setStep] = useState(1);
+  const [identifier, setIdentifier] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
+  const [busy, setBusy] = useState(false);
+
+  const close = () => {
+    setStep(1);
+    setIdentifier("");
+    setPassword("");
+    setError("");
+    onClose?.();
+  };
+
+  const next = async () => {
+    if (!identifier.trim()) {
+      setError("Please enter your username, email, or phone.");
+      return;
     }
-
-    const login = async () => {
-        setLoading(true)
-        const country = await getCountry();
-        const json = await authApi.login({ ...credentials, country });
-        if (json.success) {
-            setToken(json.authToken)
-            navigate("/home")
-            notifySuccess('Logged in successfully!')
-        } else {
-            if (json.authError) {
-                setCurrentStep(() => 1);
-            } else {
-                setCurrentStep(() => 2);
-            }
-            notify(json.error || 'Oops, something went wrong. Please try again later.')
-            setLoading(false)
-        }
+    setBusy(true);
+    const res = await authApi.loginValidate(identifier.trim(), await getCountry());
+    setBusy(false);
+    if (res.success) {
+      setError("");
+      setStep(2);
+    } else {
+      setError(res.error || "We couldn’t find your account.");
     }
+  };
 
-    useEffect(() => {
-        if (currentStep < 1) {
-            setCurrentStep(1) // this won't let current step go below 1;
-        }
-        if (pathname === "/i/flow/login") {
-            document.getElementsByClassName(props.Styles.loginButton)[0].click();
-        }
+  const submit = async () => {
+    setBusy(true);
+    const res = await authApi.login({ name: identifier.trim(), password, country: await getCountry() });
+    setBusy(false);
+    if (res.success) {
+      setToken(res.authToken);
+      notifySuccess("Welcome back!");
+      close();
+      onAuthed?.();
+    } else {
+      setError(res.error || "Wrong password.");
+    }
+  };
 
-        if (currentStep > 2) {
-            login();
-        }
-
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [currentStep, pathname])
-
-    useEffect(() => {
-        setTimeout(() => {
-            setLoading(false)
-        }, 500);
-    }, [])
-
-
-    useEffect(() => {
-        loginModal.current.addEventListener('shown.bs.modal', () => {
-            document.title = "Log in to Twitter / X"
-        })
-        loginModal.current.addEventListener('hidden.bs.modal', () => {
-            document.title = "X. It's what's happening / X"
-        })
-    }, [])
-
-    return (
-        <div>
-            <div className={`modal ${Styles.fade}`} ref={loginModal} id="loginModal" data-bs-backdrop="static" data-bs-keyboard="false" tabIndex="-1" aria-labelledby="loginModalLabel" aria-hidden="true">
-                <div className={`modal-dialog ${Styles.modalDialog}`}>
-                    <div className={`modal-content ${Styles.modalBox}`}>
-                        {loading ? <Spinner /> :
-                            <>
-                                <div className={`${Styles.modalHeader}`}>
-                                    <button type="button" className={Styles.closeButton} data-bs-dismiss="modal" aria-label="Close" onClick={() => {
-                                        navigate("/")
-                                        setCurrentStep(prev => 1)
-                                    }}><img className={Styles.closeButtonIcon} src={closeButtonIcon} alt="closebutton" /></button>
-                                    <img src={logo} className={Styles.logo} alt="x.com Logo" />
-                                    <img src="" className="" alt="" />
-                                </div>
-                                <div className={`modal-body ${Styles.modalBody}`}>
-
-                                    {renderCurrentStep()}
-
-
-                                </div>
-                            </>
-                        }
-                    </div>
-                </div>
-            </div>
+  return (
+    <Modal open={open} onClose={close} maxWidth={600}>
+      <div className={Styles.modalBody}>
+        <div className={Styles.modalLogo}>
+          <img src={logo} alt="X" />
         </div>
-    )
+
+        {step === 1 ? (
+          <>
+            <h1 className={Styles.modalTitle}>Sign in to X</h1>
+            {hasGoogle && (
+              <>
+                <button className={Styles.socialBtn} onClick={googleLogin} style={{ marginBottom: 20 }}>
+                  <img src={googleLogo} alt="" /> Sign in with Google
+                </button>
+                <div className={Styles.divider} style={{ marginBottom: 20 }}>
+                  or
+                </div>
+              </>
+            )}
+            <div className={Styles.field}>
+              <input
+                className={`${Styles.input} ${identifier ? Styles.inputFilled : ""} ${error ? Styles.inputError : ""}`}
+                value={identifier}
+                onChange={(e) => setIdentifier(e.target.value)}
+                autoFocus
+                onKeyDown={(e) => e.key === "Enter" && next()}
+              />
+              <label className={Styles.floatLabel}>Phone, email, or username</label>
+            </div>
+            {error && <p className={Styles.error}>{error}</p>}
+            <div className={Styles.footerBtn}>
+              <Button size="lg" variant="secondary" onClick={next} disabled={busy}>
+                {busy ? "Checking…" : "Next"}
+              </Button>
+              <p className={Styles.subText}>
+                Don’t have an account?{" "}
+                <a
+                  href="/i/flow/signup"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    onSwitchToSignup?.();
+                  }}
+                >
+                  Sign up
+                </a>
+              </p>
+            </div>
+          </>
+        ) : (
+          <>
+            <h1 className={Styles.modalTitle}>Enter your password</h1>
+            <div className={Styles.reviewField}>
+              <div className={Styles.reviewLabel}>Account</div>
+              <div className={Styles.reviewValue}>{identifier}</div>
+            </div>
+            <div className={Styles.field}>
+              <input
+                type="password"
+                className={`${Styles.input} ${password ? Styles.inputFilled : ""} ${error ? Styles.inputError : ""}`}
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                autoFocus
+                onKeyDown={(e) => e.key === "Enter" && submit()}
+              />
+              <label className={Styles.floatLabel}>Password</label>
+            </div>
+            {error && <p className={Styles.error}>{error}</p>}
+            <div className={Styles.footerBtn}>
+              <Button size="lg" variant="secondary" onClick={submit} disabled={busy || !password}>
+                {busy ? "Signing in…" : "Log in"}
+              </Button>
+            </div>
+          </>
+        )}
+      </div>
+    </Modal>
+  );
 }

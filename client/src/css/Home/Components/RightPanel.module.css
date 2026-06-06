@@ -1,99 +1,141 @@
 .panel {
-  padding: 12px 16px;
+  padding: 8px 0 8px 24px;
   position: sticky;
   top: 0;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  overflow-y: auto;
 }
 
+.searchForm {
+  position: sticky;
+  top: 0;
+  background: var(--bg);
+  padding: 4px 0 8px;
+  z-index: 5;
+}
 .searchBox {
   display: flex;
   align-items: center;
-  gap: 10px;
-  background: rgb(32, 35, 39);
+  gap: 12px;
+  background: var(--bg-input);
   border: 1px solid transparent;
-  border-radius: 9999px;
-  padding: 10px 16px;
-  margin-bottom: 16px;
+  border-radius: var(--radius-pill);
+  padding: 11px 16px;
 }
 .searchBox:focus-within {
-  background: black;
-  border-color: rgb(29, 155, 240);
+  background: var(--bg);
+  border-color: var(--x-blue);
+}
+.searchBox:focus-within .searchIcon {
+  color: var(--x-blue);
+}
+.searchIcon {
+  color: var(--text-secondary);
 }
 .searchInput {
   flex: 1;
   background: transparent;
   border: none;
   outline: none;
-  color: white;
+  color: var(--text-primary);
   font-size: 15px;
 }
 
 .card {
-  background: rgb(22, 24, 28);
-  border-radius: 16px;
-  padding: 12px 0;
-  margin-bottom: 16px;
+  background: var(--bg-elevated);
+  border-radius: var(--radius-md);
+  overflow: hidden;
 }
 .cardTitle {
   font-size: 20px;
   font-weight: 800;
-  color: white;
-  padding: 0 16px 8px;
+  padding: 12px 16px;
   margin: 0;
 }
 
-.userRow {
+.row {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 10px 16px;
-  transition: background 0.2s;
+  gap: 12px;
+  padding: 12px 16px;
+  transition: background-color 0.2s;
 }
-.userRow:hover {
-  background: rgba(255, 255, 255, 0.03);
+.row:hover {
+  background: var(--bg-hover);
 }
-.userInfo {
+.rowInfo {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 12px;
   cursor: pointer;
   min-width: 0;
 }
-.avatar {
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  object-fit: cover;
+.names {
+  min-width: 0;
 }
 .name {
   font-weight: 700;
-  color: white;
   margin: 0;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  max-width: 130px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
 }
-.muted {
-  color: rgb(113, 118, 123);
-  font-size: 14px;
+.handle {
+  color: var(--text-secondary);
   margin: 0;
-}
-.followBtn {
-  font-weight: 700;
-  font-size: 14px;
-  padding: 6px 16px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
-.trendItem {
-  padding: 10px 16px;
+.trend {
+  padding: 12px 16px;
   cursor: pointer;
-  transition: background 0.2s;
+  transition: background-color 0.2s;
 }
-.trendItem:hover {
-  background: rgba(255, 255, 255, 0.03);
+.trend:hover {
+  background: var(--bg-hover);
+}
+.trendMeta {
+  color: var(--text-secondary);
+  font-size: 13px;
+  margin: 0;
 }
 .trendTag {
   font-weight: 700;
-  color: white;
+  font-size: 15px;
   margin: 2px 0;
+}
+
+.showMore {
+  display: block;
+  padding: 16px;
+  color: var(--x-blue);
+  font-size: 15px;
+  cursor: pointer;
+}
+.showMore:hover {
+  background: var(--bg-hover);
+}
+
+.footer {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 12px;
+  padding: 8px 16px;
+  color: var(--text-secondary);
+  font-size: 13px;
+}
+.footer span {
+  cursor: pointer;
+}
+.footer span:hover {
+  text-decoration: underline;
 }

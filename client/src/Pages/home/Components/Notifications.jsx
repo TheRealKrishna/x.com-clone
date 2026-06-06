@@ -1,20 +1,18 @@
 import React, { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 
-import Spinner from "../../../Components/Spinner";
+import { Header, Avatar, Spinner, EmptyState } from "../../../ui";
 import { notificationApi } from "../../../api";
 import { formatPostAge } from "../../../utils/format";
-import Styles from "../../../css/Home/Components/Feature.module.css";
 
 const ICON = {
-  like: { className: "fa-solid fa-heart", color: "rgb(249,24,128)" },
-  follow: { className: "fa-solid fa-user", color: "rgb(29,155,240)" },
-  reply: { className: "fa-solid fa-comment", color: "rgb(29,155,240)" },
-  repost: { className: "fa-solid fa-retweet", color: "rgb(0,186,124)" },
-  mention: { className: "fa-solid fa-at", color: "rgb(29,155,240)" },
+  like: { className: "fa-solid fa-heart", color: "var(--like)" },
+  follow: { className: "fa-solid fa-user", color: "var(--x-blue)" },
+  reply: { className: "fa-solid fa-comment", color: "var(--x-blue)" },
+  repost: { className: "fa-solid fa-retweet", color: "var(--repost)" },
+  mention: { className: "fa-solid fa-at", color: "var(--x-blue)" },
 };
-
-const verb = {
+const VERB = {
   like: "liked your post",
   follow: "followed you",
   reply: "replied to your post",
@@ -27,9 +25,8 @@ export default function Notifications({ realtime }) {
   const [items, setItems] = useState(null);
 
   const load = async () => {
-    const json = await notificationApi.get();
-    if (json.success) setItems(json.notifications);
-    else setItems([]);
+    const j = await notificationApi.get();
+    setItems(j.success ? j.notifications : []);
   };
 
   useEffect(() => {
@@ -38,42 +35,53 @@ export default function Notifications({ realtime }) {
     notificationApi.markAllRead();
   }, []);
 
-  // Live-prepend incoming notifications.
   useEffect(() => {
     if (!realtime) return undefined;
-    return realtime.on("notification", (notif) => {
-      setItems((prev) => [notif, ...(prev || [])]);
-    });
+    return realtime.on("notification", (n) => setItems((prev) => [n, ...(prev || [])]));
   }, [realtime]);
 
-  if (items === null) return <Spinner />;
-
   return (
-    <div className={Styles.container}>
-      <div className={Styles.header}>
-        <h2 className={Styles.sectionTitle} style={{ padding: 0 }}>Notifications</h2>
-      </div>
-      {items.length === 0 ? (
-        <div style={{ padding: "40px 20px", textAlign: "center", color: "rgb(113,118,123)" }}>
-          Nothing to see here — yet. When someone interacts with you, it’ll show up here.
-        </div>
+    <div style={{ minHeight: "100vh", borderRight: "1px solid var(--border)" }}>
+      <Header title="Notifications" />
+      {items === null ? (
+        <Spinner />
+      ) : items.length === 0 ? (
+        <EmptyState
+          title="Nothing to see here — yet"
+          subtitle="From likes to reposts and a whole lot more, this is where all the action happens."
+        />
       ) : (
         items.map((n) => {
           const icon = ICON[n.type] || ICON.like;
           const actor = n.actor || {};
           const go = () => (n.post ? navigate(`/status/${n.post._id || n.post}`) : navigate(`/${actor.username}`));
           return (
-            <div key={n._id} className={Styles.notifRow} onClick={go} style={{ background: n.read ? undefined : "rgba(29,155,240,0.08)" }}>
-              <i className={icon.className} style={{ color: icon.color, fontSize: 22, width: 30 }} />
-              <div style={{ flex: 1 }}>
-                <img src={actor.profile} alt="" referrerPolicy="no-referrer" className={Styles.avatarSmall} />
-                <p className={Styles.notifText}>
-                  <Link to={`/${actor.username}`} onClick={(e) => e.stopPropagation()} style={{ fontWeight: 700, color: "white" }}>
+            <div
+              key={n._id}
+              onClick={go}
+              style={{
+                display: "flex",
+                gap: 16,
+                padding: "16px",
+                borderBottom: "1px solid var(--border)",
+                cursor: "pointer",
+                background: n.read ? "transparent" : "rgba(29,155,240,0.06)",
+              }}
+              onMouseEnter={(e) => (e.currentTarget.style.background = "rgba(255,255,255,0.03)")}
+              onMouseLeave={(e) => (e.currentTarget.style.background = n.read ? "transparent" : "rgba(29,155,240,0.06)")}
+            >
+              <i className={icon.className} style={{ color: icon.color, fontSize: 24, width: 28, flexShrink: 0 }} />
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <Avatar src={actor.profile} size="sm" username={actor.username} />
+                <p style={{ margin: "6px 0 0", fontSize: 15 }}>
+                  <Link to={`/${actor.username}`} onClick={(e) => e.stopPropagation()} style={{ fontWeight: 700 }}>
                     {actor.name}
                   </Link>{" "}
-                  {verb[n.type]} · <span className={Styles.muted}>{formatPostAge(n.createdAt)}</span>
+                  <span style={{ color: "var(--text-secondary)" }}>
+                    {VERB[n.type]} · {formatPostAge(n.createdAt)}
+                  </span>
                 </p>
-                {n.post?.message && <p className={Styles.muted}>{n.post.message}</p>}
+                {n.post?.message && <p style={{ color: "var(--text-secondary)", margin: "4px 0 0" }}>{n.post.message}</p>}
               </div>
             </div>
           );
