@@ -1,64 +1,65 @@
-.container{
-    width: 100%;
-    height: 100vh;
-    display: flex;
-    justify-content: space-between;
-    padding: 0px 10vw;
-    overflow-y: hidden;
-    overflow-x: hidden;
+.container {
+  width: 100%;
+  max-width: 1300px;
+  margin: 0 auto;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
 }
 
-.leftPanel{
-    flex: 1.33;
-    height: 100vh;
+/* Left nav: sticky, full height, doesn't scroll with the feed */
+.leftPanel {
+  flex: 0 0 auto;
+  width: 275px;
+  position: sticky;
+  top: 0;
+  height: 100vh;
 }
 
-.mainPanelLarge{
-    flex: 3.15;
-    border-left: 1px solid rgb(47, 51, 54);
-    border-right: 1px solid rgb(47, 51, 54);
+/* Center column flows in normal document flow so the page scrolls */
+.mainPanelLarge {
+  flex: 1 1 auto;
+  min-width: 0;
+  max-width: 600px;
+  min-height: 100vh;
 }
 
-.mainPanelFull{
-    flex: 5.15;
-    border-left: 1px solid rgb(47, 51, 54);
-    border-right: 1px solid rgb(47, 51, 54);
+.mainPanelFull {
+  flex: 1 1 auto;
+  min-width: 0;
+  min-height: 100vh;
 }
 
-.rightPanelSmall{
-    flex: 2;
+/* Right column: sticky */
+.rightPanelSmall {
+  flex: 0 0 auto;
+  width: 350px;
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  overflow-y: auto;
 }
 
-@media (max-width:1024px) {
-    .rightPanelSmall{
-        flex: 0;
-    }
+@media (max-width: 1280px) {
+  .leftPanel {
+    width: 88px;
+  }
 }
 
-@media (max-width:768px) {
-    .container{
-        padding: 0px 1vw;
-    }
+@media (max-width: 1100px) {
+  .rightPanelSmall {
+    display: none;
+  }
+  .mainPanelLarge {
+    max-width: none;
+  }
 }
 
-@media (max-width:630px) {
-    .leftPanel{
-        flex: 0;
-        height: 100vh;
-    }
-}
-
-@media (max-width:425px) {
-    .leftPanel{
-        display: none;
-    }
-    .container{
-        padding: 0px 0vw;
-    }
-    .mainPanelLarge{
-        border: none;
-    }
-    .mainPanelFull{
-        border: none;
-    }
+@media (max-width: 500px) {
+  .leftPanel {
+    display: none;
+  }
+  .container {
+    padding: 0;
+  }
 }
