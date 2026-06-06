@@ -4,6 +4,7 @@ import { useGoogleLogin } from "@react-oauth/google";
 
 import logo from "../Images/logo.svg";
 import googleLogo from "../Images/googleLogo.svg";
+import appleLogo from "../Images/appleLogo.svg";
 import Styles from "../css/Home.module.css";
 import CreateAccountModal from "../Layout/CreateAccountModal";
 import LoginModal from "../Layout/LoginModal";
@@ -11,6 +12,11 @@ import Loader from "../Components/Loader";
 import { authApi } from "../api";
 import { setToken, isLoggedIn, hasGoogle } from "../api/config";
 import { notify, notifySuccess } from "../utils/toast";
+
+// Apple Sign-In is parked: the Services ID key expired and hasn't been renewed,
+// so the button stays disabled until the Apple Developer credentials are refreshed.
+const APPLE_DISABLED_REASON =
+  "Sign in with Apple is taking a short nap — our Apple credentials expired and we're renewing them. Please use Google or email for now.";
 
 // Google login hook is only safe to call inside a GoogleOAuthProvider, which we
 // only mount when a client ID is configured. This wrapper keeps the rules of
@@ -73,7 +79,17 @@ export default function Landing() {
                     Sign up with Google
                   </button>
                 )}
-                <div className={Styles.orDivider}>{hasGoogle ? "or" : "Get started"}</div>
+                <button
+                  type="button"
+                  disabled
+                  title={APPLE_DISABLED_REASON}
+                  style={{ cursor: "not-allowed", opacity: 0.55 }}
+                  className={`btn btn-light rounded-pill ${Styles.signUpWithAppleButton}`}
+                >
+                  <img src={appleLogo} className={Styles.appleLogo} alt="apple Logo" />
+                  Sign up with Apple
+                </button>
+                <div className={Styles.orDivider}>or</div>
                 <button
                   className={`btn btn-primary rounded-pill ${Styles.createAccountButton}`}
                   data-bs-toggle="modal"

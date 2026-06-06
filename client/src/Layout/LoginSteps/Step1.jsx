@@ -10,6 +10,10 @@ import { authApi } from '../../api';
 import { hasGoogle } from '../../api/config';
 import { getCountry } from '../../utils/country';
 
+// Apple Sign-In is parked: the Services ID key expired and hasn't been renewed.
+const APPLE_DISABLED_REASON =
+  "Sign in with Apple is taking a short nap — our Apple credentials expired and we're renewing them. Please use Google or email for now.";
+
 export default function Step1(props) {
   const nameInputBox = useRef();
   const nameInput = useRef();
@@ -110,11 +114,18 @@ export default function Step1(props) {
       <h2 className={Styles.headingTitle}>Sign in to X</h2>
       <div className='d-flex flex-column align-items-center'>
         {hasGoogle && (
-          <>
-            <button className={`btn btn-light rounded-pill ${Styles.signUpWithGoogleButton}`} type='button' onClick={props.googleLogin}><img src={googleLogo} className={Styles.googleLogo} alt="google Logo" />Sign in with Google</button>
-            <div className={Styles.orDivider}>or</div>
-          </>
+          <button className={`btn btn-light rounded-pill ${Styles.signUpWithGoogleButton}`} type='button' onClick={props.googleLogin}><img src={googleLogo} className={Styles.googleLogo} alt="google Logo" />Sign in with Google</button>
         )}
+        <button
+          type="button"
+          disabled
+          title={APPLE_DISABLED_REASON}
+          style={{ cursor: "not-allowed", opacity: 0.55 }}
+          className={`btn btn-light rounded-pill ${Styles.signUpWithAppleButton}`}
+        >
+          <img src={appleLogo} className={Styles.appleLogo} alt="apple Logo" />Sign in with Apple
+        </button>
+        <div className={Styles.orDivider}>or</div>
         <div ref={nameInputBox} className={Styles.nameInputBox}>
           <input className={Styles.nameInput} ref={nameInput} placeholder=" " name='name' type="text" {...register('name', { onChange: onNameChange })} />
           <label ref={nameFloatingLabel} className={`${Styles.floatingLabel} ${Styles.nameFloatingLabel}`}>Phone, email address, or username</label>
