@@ -31,3 +31,5 @@ yarn-debug.log*
 yarn-error.log*
 
 /.vscode
+# logs
+/server/error_logs.txt

@@ -1,19 +1,26 @@
-const express = require('express')
-const app = express()
-const {body} = require('express-validator');
-const {getPosts, addPost, addView, addLike, removeLike} = require("../controller/post.js")
-const getUser = require("../middleware/getUser.js")
+const express = require("express");
+const router = express.Router();
+const getUser = require("../middleware/getUser");
+const ctrl = require("../controller/post");
 
+// Feeds & reads
+router.post("/getposts", getUser, ctrl.getPosts);
+router.post("/getuserposts", getUser, ctrl.getUserPosts);
+router.post("/getpost", getUser, ctrl.getPost);
+router.post("/getbookmarks", getUser, ctrl.getBookmarks);
 
-app.post("/getposts", getUser, getPosts)
+// Create
+router.post("/addpost", getUser, ctrl.addPost);
+router.post("/addreply", getUser, ctrl.addReply);
 
-app.post("/addpost", getUser, addPost)
+// Engagement
+router.post("/addview", getUser, ctrl.addView);
+router.post("/addlike", getUser, ctrl.addLike);
+router.post("/removelike", getUser, ctrl.removeLike);
+router.post("/togglerepost", getUser, ctrl.toggleRepost);
+router.post("/togglebookmark", getUser, ctrl.toggleBookmark);
 
-app.post("/addview", getUser, addView)
+// Delete
+router.post("/deletepost", getUser, ctrl.deletePost);
 
-app.post("/addlike", getUser, addLike)
-
-app.post("/removelike", getUser, removeLike)
-
-
-module.exports = app
+module.exports = router;

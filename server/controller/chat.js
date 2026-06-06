@@ -1,172 +1,115 @@
-const User = require("../database/models/UserSchema.js")
-const Chat = require("../database/models/ChatSchema.js")
-const jwt = require("jsonwebtoken");
-const mongoose = require("mongoose")
-const errorHandler = require("../handler/errorHandler.js")
+const User = require("../database/models/UserSchema");
+const Chat = require("../database/models/ChatSchema");
+const { asyncHandler } = require("../utils/helpers");
+const { emitToUser } = require("../realtime/socket");
 
-const getContacts = async (req, res) => {
-    try {
-        const { authtoken } = req.headers;
-        const userId = jwt.verify(authtoken, process.env.JWT_SECRET);
-        const user = await User.findOne({ _id: userId }).populate('contacts', '-password -__v')
-        if (user) {
-            return res.json({ success: true, contacts: user.contacts })
-        }
-        else {
-            return res.json({ success: false, error: "Invalid Request!" })
-        }
-    }
-    catch (error) {
-        errorHandler(error)
-        return res.status(500).json({ success: false, error: "An internal server error occured!" })
-    }
-}
+const CONTACT_FIELDS = "name username profile bio verified joined createdAt followers";
 
-const getMessages = async (req, res) => {
-    try {
-        if (req.body.user) {
-            const user = req.body.user;
-            const contact = await User.findOne({ _id: req.body._id });
-            if (!contact) {
-                return res.status(400).json({ success: false, error: 'Invalid request!' })
-            }
-            const chat = await Chat.findOne({ members: { $all: [user._id, contact._id] } })
-            if (!chat) {
-                return res.json({ success: true, messages: [] });
-            }
+/**
+ * Return the user's contacts, each enriched with the last message preview,
+ * its timestamp, and the unread count for that conversation.
+ */
+const getContacts = asyncHandler("chat/getContacts", async (req, res) => {
+  const user = await User.findById(req.user._id).populate("contacts", CONTACT_FIELDS);
+  if (!user) return res.status(404).json({ success: false, error: "User not found." });
 
-            delete user.unreadMessages[contact._id];
-            user.markModified('unreadMessages');
-            await user.save()
+  const unread = user.unreadMessages || {};
+  const contacts = await Promise.all(
+    (user.contacts || []).map(async (contact) => {
+      const chat = await Chat.findOne({ members: { $all: [user._id, contact._id] } })
+        .select("messages lastMessageAt")
+        .lean();
+      const last = chat?.messages?.[chat.messages.length - 1] || null;
+      return {
+        ...contact.toObject(),
+        lastMessage: last ? last.message : null,
+        lastMessageAt: chat?.lastMessageAt || null,
+        unreadCount: unread[String(contact._id)] || 0,
+      };
+    })
+  );
 
-            return res.json({ success: true, messages: chat.messages });
-        }
-        else {
-            return res.json({ success: false, error: "Invalid Request!" })
-        }
-    }
-    catch (error) {
-        errorHandler(error)
-        return res.status(500).json({ success: false, error: "An internal server error occured!" })
-    }
-}
+  // Sort by most recent conversation activity.
+  contacts.sort((a, b) => new Date(b.lastMessageAt || 0) - new Date(a.lastMessageAt || 0));
+  return res.json({ success: true, contacts });
+});
 
-const addContact = async (req, res) => {
-    try {
-        if (req.body.user) {
-            const user = req.body.user;
-            const contact = await User.findOne({ _id: req.body._id })
-            if (!contact) {
-                return res.status(400).json({ success: false, error: 'Invalid request.' })
-            }
-            if (user.contacts.find((obj) => obj._id.equals(contact._id))) {
-                await user.contacts.splice(await user.contacts.indexOf(await user.contacts.find((obj) => obj._id.equals(contact._id))), 1);
-                await user.contacts.unshift({ _id: contact._id });
-            }
-            else {
-                await user.contacts.unshift({ _id: contact._id });
-            }
-            if (contact.contacts.find((obj) => obj._id.equals(user._id))) {
-                await contact.contacts.splice(await contact.contacts.indexOf(await contact.contacts.find((obj) => obj._id.equals(user._id))), 1);
-                await contact.contacts.unshift({ _id: user._id });
-            }
-            else {
-                await contact.contacts.unshift({ _id: user._id });
-            }
-            await user.save()
-            await contact.save()
-            return res.json({ success: true, contacts: user.contacts });
-        }
-        else {
-            return res.json({ success: false, error: "Invalid Request!" })
-        }
-    }
-    catch (error) {
-        errorHandler(error)
-        return res.status(500).json({ success: false, error: "An internal server error occured!" })
-    }
-}
+const getMessages = asyncHandler("chat/getMessages", async (req, res) => {
+  const contact = await User.findById(req.body._id);
+  if (!contact) return res.status(404).json({ success: false, error: "User not found." });
 
+  const chat = await Chat.findOne({ members: { $all: [req.user._id, contact._id] } });
+  if (!chat) return res.json({ success: true, messages: [] });
 
-const createChat = async (req, res) => {
-    try {
-        if (req.body.user) {
-            const user = req.body.user;
-            const contact = await User.findOne({ _id: req.body._id });
-            if (!contact) {
-                return res.status(400).json({ success: false, error: 'Invalid request!' })
-            }
-            if (await Chat.findOne({ members: { $all: [user._id, contact._id] } })) {
-                return res.status(400).json({ success: false, error: 'Invalid request!' })
-            }
-            const chat = Chat({
-                members: [user._id, contact._id],
-                messages: [{
-                    _id: new mongoose.Types.ObjectId(),
-                    message: req.body.message.trim(),
-                    sender: user._id,
-                    timeStamp: new Date()
-                }]
-            })
-            if (contact.unreadMessages[user._id]) {
-                contact.unreadMessages[user._id] += 1;
-            }
-            else {
-                contact.unreadMessages[user._id] = 1;
-            }
-            contact.markModified('unreadMessages');
-            await contact.save();
-            await chat.save();
-            return res.json({ success: true, messages: chat.messages });
-        }
-        else {
-            return res.json({ success: false, error: "Invalid Request!" })
-        }
+  // Mark all messages from the contact as read and clear unread counter.
+  let changed = false;
+  chat.messages.forEach((m) => {
+    if (String(m.sender) !== String(req.user._id) && !m.read) {
+      m.read = true;
+      changed = true;
     }
-    catch (error) {
-        errorHandler(error)
-        return res.status(500).json({ success: false, error: "An internal server error occured!" })
-    }
-}
+  });
+  if (changed) await chat.save();
 
+  const user = await User.findById(req.user._id).select("unreadMessages");
+  if (user.unreadMessages?.[String(contact._id)]) {
+    delete user.unreadMessages[String(contact._id)];
+    user.markModified("unreadMessages");
+    await user.save();
+  }
 
-const addMessage = async (req, res) => {
-    try {
-        if (req.body.user) {
-            const user = req.body.user;
-            const contact = await User.findOne({ _id: req.body._id });
-            if (!contact) {
-                return res.status(400).json({ success: false, error: 'Invalid request.' })
-            }
-            const chat = await Chat.findOne({ members: { $all: [user._id, contact._id] } })
-            if (!chat) {
-                return res.status(400).json({ success: false, error: 'Invalid request.' })
-            }
-            chat.messages.push({
-                _id: new mongoose.Types.ObjectId(),
-                message: req.body.message.trim(),
-                sender: user._id,
-                timeStamp: new Date()
-            })
-            if (contact.unreadMessages[user._id]) {
-                contact.unreadMessages[user._id] += 1;
-            }
-            else {
-                contact.unreadMessages[user._id] = 1;
-            }
-            contact.markModified('unreadMessages');
-            await contact.save();
-            await chat.save();
-            return res.json({ success: true, messages: chat.messages });
-        }
-        else {
-            return res.json({ success: false, error: "Invalid Request!" })
-        }
-    }
-    catch (error) {
-        errorHandler(error)
-        return res.status(500).json({ success: false, error: "An internal server error occured!" })
-    }
-}
+  // Let the contact know their messages were read (read receipts).
+  emitToUser(contact._id, "messagesRead", { by: String(req.user._id) });
 
-module.exports = { getContacts, getMessages, addContact, createChat, addMessage }
+  return res.json({ success: true, messages: chat.messages });
+});
+
+const addContact = asyncHandler("chat/addContact", async (req, res) => {
+  const contact = await User.findById(req.body._id);
+  if (!contact) return res.status(404).json({ success: false, error: "User not found." });
+
+  await User.updateOne({ _id: req.user._id }, { $addToSet: { contacts: contact._id } });
+  await User.updateOne({ _id: contact._id }, { $addToSet: { contacts: req.user._id } });
+  return res.json({ success: true });
+});
+
+// Send a message; creates the chat if it doesn't exist yet.
+const sendMessage = asyncHandler("chat/sendMessage", async (req, res) => {
+  const text = (req.body.message || "").trim();
+  if (!text) return res.status(400).json({ success: false, error: "Message cannot be empty." });
+
+  const contact = await User.findById(req.body._id);
+  if (!contact) return res.status(404).json({ success: false, error: "User not found." });
+
+  let chat = await Chat.findOne({ members: { $all: [req.user._id, contact._id] } });
+  if (!chat) {
+    chat = new Chat({ members: [req.user._id, contact._id], messages: [] });
+    // Make them mutual contacts on first message.
+    await User.updateOne({ _id: req.user._id }, { $addToSet: { contacts: contact._id } });
+    await User.updateOne({ _id: contact._id }, { $addToSet: { contacts: req.user._id } });
+  }
+
+  const message = { sender: req.user._id, message: text, read: false };
+  chat.messages.push(message);
+  chat.lastMessageAt = new Date();
+  await chat.save();
+  const saved = chat.messages[chat.messages.length - 1];
+
+  // Increment recipient's unread counter.
+  const contactDoc = await User.findById(contact._id).select("unreadMessages");
+  const unread = contactDoc.unreadMessages || {};
+  unread[String(req.user._id)] = (unread[String(req.user._id)] || 0) + 1;
+  contactDoc.unreadMessages = unread;
+  contactDoc.markModified("unreadMessages");
+  await contactDoc.save();
+
+  // Real-time push to the recipient.
+  emitToUser(contact._id, "newMessage", {
+    from: String(req.user._id),
+    message: saved,
+  });
+
+  return res.json({ success: true, message: saved, messages: chat.messages });
+});
+
+module.exports = { getContacts, getMessages, addContact, sendMessage };

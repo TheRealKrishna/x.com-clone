@@ -1,32 +1,20 @@
-const express = require('express')
-const app = express()
-const {body} = require('express-validator');
-const {emailValidate, phoneValidate, signUpWithEmail, signUpWithPhone, loginValidate, login, loginWithGoogle, getUserInfo, getUserInfoWithId, getUserInfoWithUsername, editProfile} = require("../controller/auth.js")
-const getUser = require("../middleware/getUser.js")
+const express = require("express");
+const router = express.Router();
+const getUser = require("../middleware/getUser");
+const { handleValidation } = require("../utils/helpers");
+const ctrl = require("../controller/auth");
 
+router.post("/emailvalidate", ctrl.emailValidators, handleValidation, ctrl.emailValidate);
+router.post("/phonevalidate", ctrl.phoneValidators, handleValidation, ctrl.phoneValidate);
+router.post("/signupwithemail", ctrl.signupEmailValidators, handleValidation, ctrl.signUpWithEmail);
+router.post("/signupwithphone", ctrl.signupPhoneValidators, handleValidation, ctrl.signUpWithPhone);
+router.post("/loginvalidate", ctrl.loginValidate);
+router.post("/login", ctrl.loginValidators, handleValidation, ctrl.login);
+router.post("/loginwithgoogle", ctrl.loginWithGoogle);
 
-app.post("/emailvalidate", body('email').isEmail(), emailValidate)
+router.post("/editprofile", getUser, ctrl.editProfile);
+router.post("/getuserinfo", getUser, ctrl.getUserInfo);
+router.post("/getuserinfowithid", getUser, ctrl.getUserInfoWithId);
+router.post("/getuserinfowithusername", getUser, ctrl.getUserInfoWithUsername);
 
-app.post("/phonevalidate", body('phone').isLength({ min: 1 }), phoneValidate)
-
-
-app.post("/signupwithemail", body('email').isEmail(), body('password').isLength({ min: 8 }), body('name').isLength({ min: 1 }), signUpWithEmail)
-
-app.post("/signupwithphone", body("phone").isLength({ min: 1 }), body('password').isLength({ min: 8 }), body('name').isLength({ min: 1 }), signUpWithPhone)
-
-app.post("/editprofile", getUser, editProfile)
-
-app.post("/loginvalidate", loginValidate)
-
-app.post("/login", body('password').isLength({ min: 8 }), login)
-
-app.post("/loginwithgoogle", loginWithGoogle);
-
-app.post("/getuserinfo", getUser , getUserInfo)
-
-app.post("/getuserinfowithid", getUser , getUserInfoWithId)
-
-
-app.post("/getuserinfowithusername", getUser , getUserInfoWithUsername)
-
-module.exports = app
+module.exports = router;
