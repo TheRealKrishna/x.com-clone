@@ -11,6 +11,15 @@ const { generateUniqueUsername } = require("../utils/username");
 
 const signToken = (userId) => jwt.sign({ _id: userId }, config.jwtSecret, { expiresIn: "30d" });
 
+// Case-insensitive exact match for a username. Legacy accounts were created with
+// mixed-case usernames (e.g. "Krishna845") while newer ones are lowercase, so we
+// match regardless of case rather than assuming one or the other.
+const usernameMatch = (value) => {
+  const escaped = String(value).trim().replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  return new RegExp(`^${escaped}$`, "i");
+};
+
+
 // Strip sensitive/internal fields before sending a user to the client.
 const publicUser = (userDoc) => {
   const obj = userDoc.toObject ? userDoc.toObject() : { ...userDoc };
@@ -107,7 +116,7 @@ const signUpWithPhone = asyncHandler("auth/signUpWithPhone", async (req, res) =>
 // Find a user by username, email, or phone (used by login + loginValidate).
 const findByIdentifier = async (identifier, country) => {
   const value = String(identifier || "").trim();
-  let user = await User.findOne({ username: value.toLowerCase() }).select("+password");
+  let user = await User.findOne({ username: usernameMatch(value) }).select("+password");
   let method = "Username";
   if (!user) {
     user = await User.findOne({ email: value.toLowerCase() }).select("+password");
@@ -193,7 +202,7 @@ const getUserInfoWithId = asyncHandler("auth/getUserInfoWithId", async (req, res
 });
 
 const getUserInfoWithUsername = asyncHandler("auth/getUserInfoWithUsername", async (req, res) => {
-  const user = await User.findOne({ username: String(req.body.username).toLowerCase() }).select("-__v");
+  const user = await User.findOne({ username: usernameMatch(req.body.username) }).select("-__v");
   if (!user) return res.status(404).json({ success: false, error: "User not found!" });
   return res.json({ success: true, user: publicUser(user) });
 });
