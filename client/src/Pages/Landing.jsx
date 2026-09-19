@@ -21,7 +21,7 @@ const APPLE_DISABLED =
 function useOptionalGoogleLogin(onToken) {
   if (!hasGoogle) return null;
   // eslint-disable-next-line react-hooks/rules-of-hooks
-  return useGoogleLogin({ scope: "https://www.googleapis.com/auth/user.birthday.read", onSuccess: onToken });
+  return useGoogleLogin({ scope: "openid email profile", onSuccess: onToken });
 }
 
 export default function Landing() {

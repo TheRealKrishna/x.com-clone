@@ -164,7 +164,7 @@ const login = asyncHandler("auth/login", async (req, res) => {
 
 const loginWithGoogle = asyncHandler("auth/loginWithGoogle", async (req, res) => {
   const response = await axios.get(
-    "https://people.googleapis.com/v1/people/me?personFields=names,emailAddresses,photos,birthdays",
+    "https://people.googleapis.com/v1/people/me?personFields=names,emailAddresses,photos",
     { headers: { Authorization: `Bearer ${req.body.access_token}` } }
   );
   const json = response.data;
@@ -176,10 +176,9 @@ const loginWithGoogle = asyncHandler("auth/loginWithGoogle", async (req, res) =>
   let user = await User.findOne({ email });
   if (!user) {
     const givenName = json.names?.[0]?.givenName || email.split("@")[0];
-    const birthday = json.birthdays?.[0]?.date;
-    const dob = birthday
-      ? new Date(birthday.year || 2000, (birthday.month || 1) - 1, birthday.day || 1)
-      : new Date(2000, 0, 1);
+    // Google no longer supplies a birthday (birthday.read is a sensitive scope
+    // we dropped to avoid OAuth verification). Default DOB; users can edit later.
+    const dob = new Date(2000, 0, 1);
     user = await User.create({
       name: givenName,
       email,
