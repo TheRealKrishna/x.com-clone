@@ -163,19 +163,43 @@ const login = asyncHandler("auth/login", async (req, res) => {
 });
 
 const loginWithGoogle = asyncHandler("auth/loginWithGoogle", async (req, res) => {
-  const response = await axios.get(
-    "https://people.googleapis.com/v1/people/me?personFields=names,emailAddresses,photos",
-    { headers: { Authorization: `Bearer ${req.body.access_token}` } }
-  );
-  const json = response.data;
-  const email = json.emailAddresses?.[0]?.value?.toLowerCase();
+  const accessToken = req.body.access_token;
+  if (!accessToken) {
+    return res.status(400).json({ success: false, error: "Missing Google access token." });
+  }
+
+  // Use the OpenID userinfo endpoint rather than the People API: it requires
+  // no separately-enabled Google Cloud API and works with the standard
+  // openid/email/profile scopes this token already carries. The People API
+  // returns 403 unless "People API" is explicitly enabled in the Cloud project,
+  // which surfaced here as an opaque 500.
+  let json;
+  try {
+    const response = await axios.get(
+      "https://www.googleapis.com/oauth2/v3/userinfo",
+      { headers: { Authorization: `Bearer ${accessToken}` } }
+    );
+    json = response.data;
+  } catch (err) {
+    // Surface Google's actual message instead of a blind 500.
+    const status = err.response?.status;
+    const detail = err.response?.data?.error_description
+      || err.response?.data?.error
+      || err.message;
+    if (status === 401) {
+      return res.status(401).json({ success: false, error: "Google token invalid or expired." });
+    }
+    return res.status(502).json({ success: false, error: `Google userinfo failed: ${detail}` });
+  }
+
+  const email = json.email?.toLowerCase();
   if (!email) {
     return res.status(400).json({ success: false, error: "Could not read Google account email." });
   }
 
   let user = await User.findOne({ email });
   if (!user) {
-    const givenName = json.names?.[0]?.givenName || email.split("@")[0];
+    const givenName = json.given_name || json.name || email.split("@")[0];
     // Google no longer supplies a birthday (birthday.read is a sensitive scope
     // we dropped to avoid OAuth verification). Default DOB; users can edit later.
     const dob = new Date(2000, 0, 1);
@@ -183,7 +207,7 @@ const loginWithGoogle = asyncHandler("auth/loginWithGoogle", async (req, res) =>
       name: givenName,
       email,
       dob,
-      profile: json.photos?.[0]?.url || undefined,
+      profile: json.picture || undefined,
       username: await generateUniqueUsername(givenName),
     });
   }
